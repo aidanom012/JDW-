@@ -109,7 +109,8 @@
       text-transform: uppercase;
       color: var(--muted);
       font-weight: 800;
-      margin: 0 0 8px;
+      margin: 0 0 4px;
+      line-height: 1.35;
     }
 
     input, textarea, select {
@@ -118,7 +119,7 @@
       border-radius: 14px;
       background: rgba(0,0,0,0.26);
       color: var(--text);
-      padding: 12px 13px;
+      padding: 14px 15px;
       outline: none;
       transition: 0.18s border, 0.18s box-shadow, 0.18s background;
     }
@@ -361,7 +362,7 @@
 
     .modal-head { padding: 20px; border-bottom: 1px solid var(--line); }
     .modal-head h2 { margin: 0 0 7px; font-size: 28px; letter-spacing: -0.055em; }
-    .modal-body { overflow: auto; padding: 20px; }
+    .modal-body { overflow: auto; padding: 26px 24px 30px; }
 
     .tabs {
       display: flex;
@@ -375,9 +376,9 @@
     .tab { border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 999px; padding: 8px 12px; font-weight: 800; font-size: 12px; }
     .tab.active { background: rgba(215,255,56,0.1); color: var(--accent); border-color: rgba(215,255,56,0.25); }
 
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-    .field { display: grid; gap: 8px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+    .field { display: grid; gap: 11px; min-width: 0; }
 
     .panel { border: 1px solid var(--line); background: rgba(255,255,255,0.035); border-radius: 18px; padding: 15px; }
     .panel h3 { margin: 0 0 12px; font-size: 14px; letter-spacing: -0.02em; }
@@ -453,9 +454,10 @@
         </div>
       </div>
       <div class="row">
-        <button class="btn" onclick="signIn()">Sign In</button>
-        <button class="btn secondary" onclick="signUp()">Create Account</button>
+        <button id="signInButton" class="btn" onclick="signIn()">Sign In</button>
+        <button id="signUpButton" class="btn secondary" onclick="signUp()">Create Account</button>
       </div>
+      <div id="authStatus" class="setup-warning hidden"></div>
       <p class="small">Use this only for you and James. Keep Row Level Security enabled and use authenticated-only policies in Supabase.</p>
     </div>
   </section>
@@ -597,26 +599,107 @@
       }
     }
 
-    async function signIn() {
-      if (!hasSupabaseConfig) return toast("Add Supabase URL and publishable key first.", true);
-      const email = document.getElementById("emailInput").value.trim();
-      const password = document.getElementById("passwordInput").value;
-      if (!email || !password) return toast("Enter email and password.", true);
+    function showAuthStatus(message, isError = false) {
+      const el = document.getElementById("authStatus");
+      if (!el) return;
+      el.textContent = message;
+      el.classList.remove("hidden");
+      el.style.color = isError ? "var(--red)" : "var(--green)";
+      el.style.borderColor = isError ? "rgba(255,95,109,0.35)" : "rgba(114,255,153,0.35)";
+      el.style.background = isError ? "rgba(255,95,109,0.08)" : "rgba(114,255,153,0.08)";
+    }
 
-      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-      if (error) return toast(error.message, true);
-      toast("Signed in.");
+    async function signIn() {
+      try {
+        if (!hasSupabaseConfig) {
+          showAuthStatus("Add Supabase URL and publishable key first.", true);
+          return toast("Add Supabase URL and publishable key first.", true);
+        }
+
+        const email = document.getElementById("emailInput").value.trim();
+        const password = document.getElementById("passwordInput").value;
+        if (!email || !password) {
+          showAuthStatus("Enter both email and password.", true);
+          return toast("Enter email and password.", true);
+        }
+
+        const signInButton = document.getElementById("signInButton");
+        signInButton.disabled = true;
+        signInButton.textContent = "Signing in...";
+        showAuthStatus("Trying to sign in...");
+
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+        if (error) {
+          showAuthStatus(error.message, true);
+          toast(error.message, true);
+          return;
+        }
+
+        currentUser = data.user;
+        showAuthStatus("Signed in successfully. Loading dashboard...");
+        toast("Signed in.");
+        await showCorrectScreen();
+      } catch (error) {
+        console.error("Sign in failed:", error);
+        showAuthStatus("Sign in failed: " + error.message, true);
+        toast("Sign in failed: " + error.message, true);
+      } finally {
+        const signInButton = document.getElementById("signInButton");
+        if (signInButton) {
+          signInButton.disabled = false;
+          signInButton.textContent = "Sign In";
+        }
+      }
     }
 
     async function signUp() {
-      if (!hasSupabaseConfig) return toast("Add Supabase URL and publishable key first.", true);
-      const email = document.getElementById("emailInput").value.trim();
-      const password = document.getElementById("passwordInput").value;
-      if (!email || !password) return toast("Enter email and password.", true);
+      try {
+        if (!hasSupabaseConfig) {
+          showAuthStatus("Add Supabase URL and publishable key first.", true);
+          return toast("Add Supabase URL and publishable key first.", true);
+        }
 
-      const { error } = await supabaseClient.auth.signUp({ email, password });
-      if (error) return toast(error.message, true);
-      toast("Account created. If email confirmations are enabled, confirm the email before signing in.");
+        const email = document.getElementById("emailInput").value.trim();
+        const password = document.getElementById("passwordInput").value;
+        if (!email || !password) {
+          showAuthStatus("Enter both email and password.", true);
+          return toast("Enter email and password.", true);
+        }
+
+        const signUpButton = document.getElementById("signUpButton");
+        signUpButton.disabled = true;
+        signUpButton.textContent = "Creating...";
+        showAuthStatus("Creating account...");
+
+        const { data, error } = await supabaseClient.auth.signUp({ email, password });
+
+        if (error) {
+          showAuthStatus(error.message, true);
+          toast(error.message, true);
+          return;
+        }
+
+        if (data.session) {
+          currentUser = data.user;
+          showAuthStatus("Account created and signed in. Loading dashboard...");
+          toast("Account created and signed in.");
+          await showCorrectScreen();
+        } else {
+          showAuthStatus("Account created. Supabase wants you to confirm the email before signing in. Check your inbox, or disable email confirmation in Supabase while testing.");
+          toast("Account created. Check email confirmation settings.");
+        }
+      } catch (error) {
+        console.error("Sign up failed:", error);
+        showAuthStatus("Sign up failed: " + error.message, true);
+        toast("Sign up failed: " + error.message, true);
+      } finally {
+        const signUpButton = document.getElementById("signUpButton");
+        if (signUpButton) {
+          signUpButton.disabled = false;
+          signUpButton.textContent = "Create Account";
+        }
+      }
     }
 
     async function signOut() {
@@ -984,7 +1067,7 @@
 
     function renderBriefTab(draft, isNew) {
       return `
-        <div class="stack">
+        <div class="stack" style="gap:22px;">
           <div class="grid-3">
             <div class="field"><label>Artist Folder</label><input id="m_artistName" list="artistOptions" value="${escapeAttr(draft.artistName)}" placeholder="e.g. Lilli" /></div>
             <div class="field"><label>Status</label><select id="m_status">${STATUSES.map(s => `<option ${draft.status === s.key ? "selected" : ""}>${s.key}</option>`).join("")}</select></div>
