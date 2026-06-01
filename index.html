@@ -452,21 +452,23 @@
       <div id="setupWarning" class="setup-warning hidden">
         Add your Supabase Project URL and publishable key inside the script section before deploying.
       </div>
-      <div class="grid-2">
-        <div class="field">
-          <label>Email</label>
-          <input id="emailInput" type="email" placeholder="you@example.com" />
+      <form id="authForm" class="stack" style="gap:22px;" autocomplete="on">
+        <div class="grid-2">
+          <div class="field">
+            <label>Email</label>
+            <input id="emailInput" type="email" placeholder="you@example.com" autocomplete="email" required />
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input id="passwordInput" type="password" placeholder="Password" autocomplete="current-password" required />
+          </div>
         </div>
-        <div class="field">
-          <label>Password</label>
-          <input id="passwordInput" type="password" placeholder="Password" />
+        <div class="row auth-actions">
+          <button id="signInButton" class="btn" type="submit">Sign In</button>
+          <button id="signUpButton" class="btn secondary" type="button">Create Account</button>
         </div>
-      </div>
-      <div class="row auth-actions">
-        <button id="signInButton" class="btn" type="button">Sign In</button>
-        <button id="signUpButton" class="btn secondary" type="button">Create Account</button>
-      </div>
-      <div id="authStatus" class="setup-warning">Ready. Click Sign In or Create Account.</div>
+        <div id="authStatus" class="setup-warning">Login script loading...</div>
+      </form>
       <p class="small">Use this only for you and James. Keep Row Level Security enabled and use authenticated-only policies in Supabase.</p>
     </div>
   </section>
@@ -597,7 +599,7 @@
     // 3) SUPABASE AUTH
     // ================================
     async function init() {
-      wireAuthButtons();
+      setupAuthUi();
 
       if (!hasSupabaseConfig) {
         document.getElementById("setupWarning").classList.remove("hidden");
@@ -606,13 +608,18 @@
       }
 
       if (!window.supabase || !supabaseClient) {
-        showAuthStatus("Supabase library did not load. Check internet connection or CDN blocking.", true);
+        showAuthStatus("Supabase library did not load. Check the CDN script or your connection.", true);
         return;
       }
 
-      showAuthStatus("Supabase connected. Enter email/password, then click Sign In.");
+      showAuthStatus("Supabase connected. Enter email/password, then press Sign In.");
 
-      const { data } = await supabaseClient.auth.getSession();
+      const { data, error } = await supabaseClient.auth.getSession();
+      if (error) {
+        showAuthStatus("Session check failed: " + error.message, true);
+        return;
+      }
+
       currentUser = data.session?.user || null;
 
       supabaseClient.auth.onAuthStateChange((_event, session) => {
@@ -621,6 +628,27 @@
       });
 
       await showCorrectScreen();
+    }
+
+    function setupAuthUi() {
+      const form = document.getElementById("authForm");
+      const signUpButton = document.getElementById("signUpButton");
+
+      if (form && !form.dataset.wired) {
+        form.addEventListener("submit", event => {
+          event.preventDefault();
+          signIn();
+        });
+        form.dataset.wired = "true";
+      }
+
+      if (signUpButton && !signUpButton.dataset.wired) {
+        signUpButton.addEventListener("click", event => {
+          event.preventDefault();
+          signUp();
+        });
+        signUpButton.dataset.wired = "true";
+      }
     }
 
     async function showCorrectScreen() {
@@ -1678,6 +1706,84 @@
     }
 
     init();
+  </script>
+  <script>
+    // Emergency auth wiring. This runs after the main app script and makes the login form impossible to be a dead button.
+    window.addEventListener("DOMContentLoaded", () => {
+      const authForm = document.getElementById("authForm");
+      const signUpButton = document.getElementById("signUpButton");
+      const authStatus = document.getElementById("authStatus");
+
+      function status(message, isError = false) {
+        if (!authStatus) return;
+        authStatus.textContent = message;
+        authStatus.classList.remove("hidden");
+        authStatus.style.color = isError ? "var(--red)" : "var(--green)";
+        authStatus.style.borderColor = isError ? "rgba(255,95,109,0.35)" : "rgba(114,255,153,0.35)";
+        authStatus.style.background = isError ? "rgba(255,95,109,0.08)" : "rgba(114,255,153,0.08)";
+      }
+
+      function getClient() {
+        if (window.supabaseClient) return window.supabaseClient;
+        if (!window.supabase) {
+          status("Supabase library did not load. The CDN script may be blocked.", true);
+          return null;
+        }
+        if (!window.JDW_SUPABASE_URL || !window.JDW_SUPABASE_KEY) {
+          status("Supabase URL/key not found in the page script.", true);
+          return null;
+        }
+        window.supabaseClient = window.supabase.createClient(window.JDW_SUPABASE_URL, window.JDW_SUPABASE_KEY);
+        return window.supabaseClient;
+      }
+
+      async function emergencySignIn(event) {
+        event?.preventDefault();
+        const client = getClient();
+        if (!client) return;
+        const email = document.getElementById("emailInput")?.value?.trim();
+        const password = document.getElementById("passwordInput")?.value;
+        if (!email || !password) return status("Enter email and password.", true);
+        status("Signing in...");
+        const { data, error } = await client.auth.signInWithPassword({ email, password });
+        if (error) return status(error.message, true);
+        status("Signed in. Loading dashboard...");
+        window.currentUser = data.user;
+        document.getElementById("loginScreen")?.classList.add("hidden");
+        document.getElementById("app")?.classList.remove("hidden");
+        if (typeof loadData === "function") await loadData();
+      }
+
+      async function emergencySignUp(event) {
+        event?.preventDefault();
+        const client = getClient();
+        if (!client) return;
+        const email = document.getElementById("emailInput")?.value?.trim();
+        const password = document.getElementById("passwordInput")?.value;
+        if (!email || !password) return status("Enter email and password.", true);
+        status("Creating account...");
+        const { data, error } = await client.auth.signUp({ email, password });
+        if (error) return status(error.message, true);
+        if (data.session) {
+          status("Account created and signed in. Loading dashboard...");
+          document.getElementById("loginScreen")?.classList.add("hidden");
+          document.getElementById("app")?.classList.remove("hidden");
+          if (typeof loadData === "function") await loadData();
+        } else {
+          status("Account created. Check email confirmation settings in Supabase, then sign in.");
+        }
+      }
+
+      if (authForm && !authForm.dataset.emergencyWired) {
+        authForm.addEventListener("submit", emergencySignIn);
+        authForm.dataset.emergencyWired = "true";
+      }
+      if (signUpButton && !signUpButton.dataset.emergencyWired) {
+        signUpButton.addEventListener("click", emergencySignUp);
+        signUpButton.dataset.emergencyWired = "true";
+      }
+      status("Login ready. Enter details and press Sign In.");
+    });
   </script>
 </body>
 </html>
