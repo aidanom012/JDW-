@@ -533,11 +533,17 @@
     // 1) SUPABASE CONFIG
     // ================================
     // Replace these two values with your Supabase project details:
-    const SUPABASE_URL = "https://zpkfxdyvesftnhkknggz.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_5FQgVI3C0Lx9gNCu1kpPhw_g6CzwyyF";
+    // This is copied exactly from Supabase → Data API → API URL.
+    const SUPABASE_URL = "https://zpkfxdyvesftnhkknggz.supabase.co/rest/v1/";
+
+    // This is copied from Supabase → API Keys → Publishable key.
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpwa2Z4ZHl2ZXNmdG5oa2tuZ2d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMDM5NjgsImV4cCI6MjA5NTg3OTk2OH0._w0PMiMUVh7MPyGWpKyRU4Sm6DXok-Yz657ctjUml3k";
+
+    // Supabase's JavaScript client needs the base project URL, so this removes /rest/v1/ automatically.
+    const SUPABASE_PROJECT_URL = SUPABASE_URL.replace(/\/rest\/v1\/?$/, "");
 
     // Expose these for the emergency fallback login script at the bottom of the page.
-    window.JDW_SUPABASE_URL = SUPABASE_URL;
+    window.JDW_SUPABASE_URL = SUPABASE_PROJECT_URL;
     window.JDW_SUPABASE_KEY = SUPABASE_ANON_KEY;
 
     // Optional AI Edge Function name. Create this later in Supabase.
@@ -560,7 +566,7 @@
     });
 
     if (hasSupabaseConfig && window.supabase) {
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      supabaseClient = window.supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_ANON_KEY);
     }
 
     // ================================
@@ -1733,11 +1739,13 @@
           status("Supabase library did not load. The CDN script may be blocked.", true);
           return null;
         }
-        if (!window.JDW_SUPABASE_URL || !window.JDW_SUPABASE_KEY) {
+        const fallbackUrl = window.JDW_SUPABASE_URL || "https://zpkfxdyvesftnhkknggz.supabase.co";
+        const fallbackKey = window.JDW_SUPABASE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpwa2Z4ZHl2ZXNmdG5oa2tuZ2d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMDM5NjgsImV4cCI6MjA5NTg3OTk2OH0._w0PMiMUVh7MPyGWpKyRU4Sm6DXok-Yz657ctjUml3k";
+        if (!fallbackUrl || !fallbackKey) {
           status("Supabase URL/key not found in the page script.", true);
           return null;
         }
-        window.supabaseClient = window.supabase.createClient(window.JDW_SUPABASE_URL, window.JDW_SUPABASE_KEY);
+        window.supabaseClient = window.supabase.createClient(fallbackUrl, fallbackKey);
         return window.supabaseClient;
       }
 
