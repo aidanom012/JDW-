@@ -641,9 +641,29 @@
 
     async function getOrCreateArtist(name) {
       const clean = name.trim();
-      const existing = artists.find(a => a.name.toLowerCase() === clean.toLowerCase());
-      if (existing) return existing;
-      const { data, error } = await supabaseClient.from("artists").insert({ name: clean }).select().single();
+      if (!clean) throw new Error("Artist name is required.");
+
+      const localExisting = artists.find(a => a.name.toLowerCase() === clean.toLowerCase());
+      if (localExisting) return localExisting;
+
+      const { data: existingRows, error: selectError } = await supabaseClient
+        .from("artists")
+        .select("*")
+        .ilike("name", clean)
+        .limit(1);
+
+      if (selectError) throw selectError;
+      if (existingRows && existingRows.length) {
+        artists.push(existingRows[0]);
+        return existingRows[0];
+      }
+
+      const { data, error } = await supabaseClient
+        .from("artists")
+        .upsert({ name: clean }, { onConflict: "name" })
+        .select()
+        .single();
+
       if (error) throw error;
       artists.push(data);
       return data;
