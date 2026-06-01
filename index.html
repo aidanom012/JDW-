@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JDW Campaign Hub</title>
+  <style>
+    :root {
+      --bg: #07070a;
+      --surface: #101016;
+      --surface-2: #171720;
+      --surface-3: #20202b;
+      --text: #f5f5f7;
+      --muted: #a1a1aa;
+      --muted-2: #71717a;
+      --line: #292934;
+      --accent: #d7ff38;
+      --accent-2: #a3c900;
+      --red: #ff5f6d;
+      --orange: #ffb454;
+      --blue: #7aa7ff;
+      --green: #72ff99;
+      --purple: #c084fc;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 15% 0%, rgba(215,255,56,0.13), transparent 28%),
+        radial-gradient(circle at 80% 20%, rgba(122,167,255,0.10), transparent 25%),
+        var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    button, input, textarea, select { font: inherit; }
+    button { cursor: pointer; }
+
+    .hidden { display: none !important; }
+
+    .login-screen {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .login-card {
+      width: min(460px, 100%);
+      padding: 34px;
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.025));
+      box-shadow: var(--shadow);
+    }
+
+    .logo-row {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+
+    .logo {
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: var(--accent);
+      color: #050505;
+      font-weight: 950;
+      letter-spacing: -0.08em;
+      box-shadow: 0 0 35px rgba(215,255,56,0.25);
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    .login-card h1 {
+      font-size: 34px;
+      line-height: 0.96;
+      letter-spacing: -0.065em;
+      margin-bottom: 12px;
+    }
+
+    .muted { color: var(--muted); }
+    .small { font-size: 12px; line-height: 1.55; color: var(--muted-2); }
+
+    label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 0.075em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 800;
+      margin: 0 0 8px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(0,0,0,0.26);
+      color: var(--text);
+      padding: 12px 13px;
+      outline: none;
+      transition: 0.18s border, 0.18s box-shadow, 0.18s background;
+    }
+
+    textarea { resize: vertical; min-height: 130px; line-height: 1.48; }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: rgba(215,255,56,0.65);
+      box-shadow: 0 0 0 4px rgba(215,255,56,0.08);
+      background: rgba(0,0,0,0.38);
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 11px 14px;
+      background: var(--accent);
+      color: #060606;
+      font-weight: 900;
+      transition: transform 0.18s, opacity 0.18s, background 0.18s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .btn:hover { transform: translateY(-1px); background: #e2ff63; }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+    .btn.secondary {
+      background: rgba(255,255,255,0.045);
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .btn.secondary:hover { background: rgba(255,255,255,0.075); }
+    .btn.danger { background: rgba(255,95,109,0.12); color: var(--red); border: 1px solid rgba(255,95,109,0.32); }
+
+    .stack { display: grid; gap: 14px; }
+    .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .between { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+
+    .app {
+      height: 100vh;
+      display: grid;
+      grid-template-columns: 270px 1fr;
+    }
+
+    .sidebar {
+      border-right: 1px solid var(--line);
+      background: rgba(10,10,14,0.78);
+      backdrop-filter: blur(16px);
+      padding: 18px;
+      overflow-y: auto;
+    }
+
+    .side-top { margin-bottom: 20px; }
+
+    .side-top h2 {
+      font-size: 14px;
+      margin: 0;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .side-top p { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
+
+    .side-section-title {
+      font-size: 11px;
+      letter-spacing: 0.11em;
+      color: var(--muted-2);
+      text-transform: uppercase;
+      font-weight: 900;
+      margin: 22px 0 8px;
+    }
+
+    .folder-list { display: grid; gap: 6px; }
+
+    .folder-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 11px;
+      border: 1px solid transparent;
+      border-radius: 13px;
+      background: transparent;
+      color: var(--muted);
+      text-align: left;
+    }
+
+    .folder-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+    .folder-item.active { background: rgba(215,255,56,0.10); color: var(--accent); border-color: rgba(215,255,56,0.20); }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      padding: 0 7px;
+      background: rgba(255,255,255,0.07);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .main {
+      min-width: 0;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      overflow: hidden;
+    }
+
+    .topbar {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(11,11,16,0.62);
+      backdrop-filter: blur(16px);
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 25px;
+      letter-spacing: -0.055em;
+    }
+
+    .toolbar {
+      padding: 14px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(7,7,10,0.38);
+    }
+
+    .search { max-width: 360px; }
+
+    .board {
+      padding: 22px;
+      overflow: auto;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(260px, 1fr));
+      gap: 16px;
+      align-items: start;
+    }
+
+    .column {
+      background: rgba(255,255,255,0.035);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      min-height: calc(100vh - 185px);
+      padding: 12px;
+    }
+
+    .column-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+      padding: 3px 3px 7px;
+    }
+
+    .column-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text);
+      font-weight: 900;
+      font-size: 13px;
+    }
+
+    .status-dot { width: 9px; height: 9px; border-radius: 999px; background: var(--muted); }
+    .status-dot.new { background: var(--blue); }
+    .status-dot.progress { background: var(--orange); }
+    .status-dot.approval { background: var(--purple); }
+    .status-dot.live { background: var(--green); }
+    .status-dot.complete { background: var(--muted); }
+
+    .cards { display: grid; gap: 10px; }
+
+    .card {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.065), rgba(255,255,255,0.03));
+      border-radius: 17px;
+      padding: 13px;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.16);
+      transition: transform 0.16s, border 0.16s, background 0.16s;
+      cursor: pointer;
+    }
+
+    .card:hover { transform: translateY(-2px); border-color: rgba(215,255,56,0.30); background: rgba(255,255,255,0.07); }
+
+    .card h3 { margin: 0 0 8px; font-size: 15px; letter-spacing: -0.025em; }
+    .card p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
+
+    .meta-grid {
+      margin-top: 11px;
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,0.18);
+      border-radius: 999px;
+      padding: 5px 8px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 750;
+    }
+
+    .priority-urgent { color: var(--red); border-color: rgba(255,95,109,0.28); background: rgba(255,95,109,0.07); }
+    .priority-normal { color: var(--blue); border-color: rgba(122,167,255,0.25); background: rgba(122,167,255,0.06); }
+    .priority-low { color: var(--muted); }
+
+    .progress-bar {
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.07);
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .progress-fill { height: 100%; background: var(--accent); border-radius: inherit; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.62);
+      display: grid;
+      place-items: center;
+      padding: 22px;
+      z-index: 50;
+    }
+
+    .modal {
+      width: min(1100px, 100%);
+      max-height: min(860px, calc(100vh - 44px));
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: #0f0f15;
+      box-shadow: var(--shadow);
+    }
+
+    .modal-head { padding: 20px; border-bottom: 1px solid var(--line); }
+    .modal-head h2 { margin: 0 0 7px; font-size: 28px; letter-spacing: -0.055em; }
+    .modal-body { overflow: auto; padding: 20px; }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,0.025);
+      overflow-x: auto;
+    }
+
+    .tab {
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .tab.active { background: rgba(215,255,56,0.1); color: var(--accent); border-color: rgba(215,255,56,0.25); }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .field { display: grid; gap: 8px; }
+
+    .panel {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.035);
+      border-radius: 18px;
+      padding: 15px;
+    }
+
+    .panel h3 { margin: 0 0 12px; font-size: 14px; letter-spacing: -0.02em; }
+
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px;
+      background: rgba(0,0,0,0.16);
+      margin-bottom: 8px;
+    }
+
+    .check-item input { width: auto; margin-top: 3px; accent-color: var(--accent); }
+    .check-item.done span { color: var(--muted-2); text-decoration: line-through; }
+
+    .log-list { display: grid; gap: 10px; }
+
+    .log-item {
+      border-left: 3px solid rgba(215,255,56,0.45);
+      background: rgba(255,255,255,0.035);
+      border-radius: 0 14px 14px 0;
+      padding: 11px 12px;
+    }
+
+    .log-item p { margin: 0; color: var(--text); line-height: 1.45; }
+    .log-item .small { margin-top: 5px; }
+
+    .empty {
+      border: 1px dashed var(--line);
+      color: var(--muted-2);
+      border-radius: 16px;
+      padding: 18px;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .status-message {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 80;
+      max-width: 420px;
+      padding: 13px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(114,255,153,0.28);
+      background: rgba(20,35,25,0.9);
+      color: var(--green);
+      box-shadow: var(--shadow);
+      font-size: 13px;
+    }
+
+    .file-input { display: none; }
+
+    @media (max-width: 1100px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .board { grid-template-columns: repeat(5, 280px); }
+    }
+
+    @media (max-width: 760px) {
+      body { overflow: auto; }
+      .app { height: auto; min-height: 100vh; }
+      .main { overflow: visible; }
+      .board { overflow-x: auto; }
+      .toolbar, .topbar { align-items: flex-start; flex-direction: column; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .modal-backdrop { padding: 0; align-items: stretch; }
+      .modal { max-height: 100vh; border-radius: 0; }
+    }
+  </style>
+</head>
+<body>
+  <section id="loginScreen" class="login-screen">
+    <div class="login-card stack">
+      <div class="logo-row">
+        <div class="logo">JW</div>
+        <div>
+          <h2 style="margin:0;font-size:14px;letter-spacing:0.08em;text-transform:uppercase;">JDW Campaign Hub</h2>
+          <p class="small" style="margin:2px 0 0;">Private campaign operations portal</p>
+        </div>
+      </div>
+      <div>
+        <h1>Briefs, builds, logs and reports in one place.</h1>
+        <p class="muted">A ClickUp-style portal built specifically for James-to-Aidan campaign handovers.</p>
+      </div>
+      <div>
+        <label for="passwordInput">Password</label>
+        <input id="passwordInput" type="password" placeholder="Enter portal password" />
+      </div>
+      <button class="btn" id="unlockButton">Unlock Portal</button>
+      <p class="small">This is basic privacy for a prototype. For proper security, connect Supabase Auth later.</p>
+    </div>
+  </section>
+
+  <section id="app" class="app hidden">
+    <aside class="sidebar">
+      <div class="side-top logo-row">
+        <div class="logo">JW</div>
+        <div>
+          <h2>Campaign Hub</h2>
+          <p>BriefOps dashboard</p>
+        </div>
+      </div>
+
+      <button class="btn" style="width:100%;" onclick="openNewCampaignModal()">+ New Brief</button>
+
+      <div class="side-section-title">Folders</div>
+      <div id="folderList" class="folder-list"></div>
+
+      <div class="side-section-title">Data</div>
+      <div class="stack">
+        <button class="btn secondary" onclick="exportData()">Export Backup</button>
+        <button class="btn secondary" onclick="document.getElementById('importFile').click()">Import Backup</button>
+        <input id="importFile" class="file-input" type="file" accept="application/json" onchange="importData(event)" />
+        <button class="btn danger" onclick="resetDemoData()">Reset Demo</button>
+      </div>
+
+      <p class="small" style="margin-top:18px;">Prototype stores data in this browser using localStorage. Connect Supabase/Google Sheets later for shared live access.</p>
+    </aside>
+
+    <main class="main">
+      <header class="topbar between">
+        <div>
+          <h1 id="pageTitle">All Campaigns</h1>
+          <p id="pageSubtitle" class="small" style="margin:4px 0 0;">Click a campaign to open the brief, checklist, work log and report.</p>
+        </div>
+        <div class="row">
+          <button class="btn secondary" onclick="generateStatusSummary()">Generate Status Summary</button>
+          <button class="btn" onclick="openNewCampaignModal()">+ New Brief</button>
+        </div>
+      </header>
+
+      <section class="toolbar">
+        <input id="searchInput" class="search" placeholder="Search campaigns, artists, briefs or logs..." oninput="render()" />
+        <div class="row">
+          <select id="folderFilterMobile" onchange="setFolder(this.value)"></select>
+          <select id="sortSelect" onchange="render()">
+            <option value="updated">Sort: recently updated</option>
+            <option value="deadline">Sort: deadline</option>
+            <option value="priority">Sort: priority</option>
+            <option value="artist">Sort: artist</option>
+          </select>
+        </div>
+      </section>
+
+      <section id="board" class="board"></section>
+    </main>
+  </section>
+
+  <div id="modalRoot"></div>
+  <div id="toast" class="status-message hidden"></div>
+
+  <script>
+    const PORTAL_PASSWORD = "change-this-password";
+    const STORAGE_KEY = "jdw_campaign_hub_v1";
+
+    const STATUSES = [
+      { key: "New Brief", className: "new" },
+      { key: "In Progress", className: "progress" },
+      { key: "Awaiting Approval", className: "approval" },
+      { key: "Live", className: "live" },
+      { key: "Complete", className: "complete" }
+    ];
+
+    const DEFAULT_CHECKLIST = [
+      "Confirm correct ad account / portfolio",
+      "Confirm artist pixel and event",
+      "Confirm destination URL",
+      "Create campaign with correct objective",
+      "Set campaign spend cap / budget",
+      "Create warm or retargeting ad set",
+      "Create related artist / interest ad set",
+      "Check age, territories and placements",
+      "Upload creative assets",
+      "Check naming convention",
+      "Send preview / setup summary to James",
+      "Launch or mark awaiting approval"
+    ];
+
+    const demoData = {
+      activeFolder: "All Campaigns",
+      folders: ["All Campaigns", "Lilli", "Kingfishr", "Atlantic", "Good Luck Kid", "Completed", "Archived"],
+      campaigns: [
+        {
+          id: id(),
+          folder: "Lilli",
+          artist: "Lilli",
+          campaign: "Kein Schlaf",
+          status: "In Progress",
+          priority: "Urgent",
+          deadline: "2026-06-04",
+          budget: "€1,000 campaign cap / €100 per ad set daily",
+          objective: "Engagement → Website conversion location → View Content",
+          link: "https://song.so/kein-schlaf",
+          territories: "Germany, Austria, Sweden",
+          rawNotes: "Lilli Kein Schlaf campaign. Use engagement objective, website conversion location, optimise for View Content on Lilli pixel. Link is song.so/kein-schlaf. €1,000 campaign spend cap. Two ad sets, warm/LAL and related artists like Hozier/Lana. Germany, Austria, Sweden. €100/day each. Use Atlantic naming style.",
+          structuredBrief: "Build a Meta campaign for Lilli - Kein Schlaf using Engagement objective with Website as conversion location, optimising for View Content on the Lilli pixel. Use two ad sets: warm/LAL and related artist targeting. Set €1,000 campaign cap and €100/day per ad set.",
+          missingInfo: "Creative asset names and exact age range need confirming.",
+          report: "",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          checklist: DEFAULT_CHECKLIST.map((text, index) => ({ id: id(), text, done: index < 4 })),
+          logs: [
+            { id: id(), at: new Date().toISOString(), by: "Aidan", type: "Brief", text: "Brief received and structured into campaign setup." },
+            { id: id(), at: new Date().toISOString(), by: "Aidan", type: "Setup", text: "Pixel/event, link, budget cap and two-ad-set structure identified." }
+          ]
+        }
+      ]
+    };
+
+    let state = loadState();
+    let activeCampaignId = null;
+    let activeTab = "brief";
+
+    function id() {
+      return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+    }
+
+    function loadState() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return demoData;
+      try { return JSON.parse(saved); } catch { return demoData; }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function toast(message) {
+      const el = document.getElementById("toast");
+      el.textContent = message;
+      el.classList.remove("hidden");
+      setTimeout(() => el.classList.add("hidden"), 2600);
+    }
+
+    function unlock() {
+      const pass = document.getElementById("passwordInput").value;
+      if (pass === PORTAL_PASSWORD) {
+        sessionStorage.setItem("jdw_hub_unlocked", "true");
+        document.getElementById("loginScreen").classList.add("hidden");
+        document.getElementById("app").classList.remove("hidden");
+        render();
+      } else {
+        toast("Incorrect password. Change PORTAL_PASSWORD in index.html if needed.");
+      }
+    }
+
+    document.getElementById("unlockButton").addEventListener("click", unlock);
+    document.getElementById("passwordInput").addEventListener("keydown", e => { if (e.key === "Enter") unlock(); });
+
+    if (sessionStorage.getItem("jdw_hub_unlocked") === "true") {
+      document.getElementById("loginScreen").classList.add("hidden");
+      document.getElementById("app").classList.remove("hidden");
+      render();
+    }
+
+    function filteredCampaigns() {
+      const folder = state.activeFolder || "All Campaigns";
+      const search = document.getElementById("searchInput")?.value?.toLowerCase() || "";
+      const sort = document.getElementById("sortSelect")?.value || "updated";
+
+      let items = state.campaigns.filter(c => {
+        const folderMatch = folder === "All Campaigns" || c.folder === folder || (folder === "Completed" && c.status === "Complete");
+        const blob = [c.artist, c.campaign, c.folder, c.status, c.rawNotes, c.structuredBrief, c.logs?.map(l => l.text).join(" ")].join(" ").toLowerCase();
+        return folderMatch && blob.includes(search);
+      });
+
+      items.sort((a,b) => {
+        if (sort === "deadline") return (a.deadline || "9999").localeCompare(b.deadline || "9999");
+        if (sort === "artist") return (a.artist || "").localeCompare(b.artist || "");
+        if (sort === "priority") return priorityRank(a.priority) - priorityRank(b.priority);
+        return new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt);
+      });
+      return items;
+    }
+
+    function priorityRank(p) {
+      return { Urgent: 0, Normal: 1, Low: 2 }[p] ?? 1;
+    }
+
+    function render() {
+      renderFolders();
+      renderBoard();
+      renderMobileFolderSelect();
+      document.getElementById("pageTitle").textContent = state.activeFolder || "All Campaigns";
+    }
+
+    function renderFolders() {
+      const list = document.getElementById("folderList");
+      if (!list) return;
+      list.innerHTML = state.folders.map(folder => {
+        const count = folder === "All Campaigns" ? state.campaigns.length :
+          folder === "Completed" ? state.campaigns.filter(c => c.status === "Complete").length :
+          state.campaigns.filter(c => c.folder === folder).length;
+        return `<button class="folder-item ${state.activeFolder === folder ? "active" : ""}" onclick="setFolder('${escapeAttr(folder)}')"><span>▸ ${escapeHtml(folder)}</span><span class="badge">${count}</span></button>`;
+      }).join("");
+    }
+
+    function renderMobileFolderSelect() {
+      const select = document.getElementById("folderFilterMobile");
+      if (!select) return;
+      select.innerHTML = state.folders.map(f => `<option value="${escapeAttr(f)}" ${state.activeFolder === f ? "selected" : ""}>Folder: ${escapeHtml(f)}</option>`).join("");
+    }
+
+    function renderBoard() {
+      const board = document.getElementById("board");
+      const campaigns = filteredCampaigns();
+      board.innerHTML = STATUSES.map(status => {
+        const items = campaigns.filter(c => c.status === status.key);
+        return `
+          <div class="column">
+            <div class="column-head">
+              <div class="column-title"><span class="status-dot ${status.className}"></span>${status.key}</div>
+              <span class="badge">${items.length}</span>
+            </div>
+            <div class="cards">
+              ${items.length ? items.map(renderCampaignCard).join("") : `<div class="empty">No campaigns here.</div>`}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderCampaignCard(c) {
+      const done = c.checklist?.filter(i => i.done).length || 0;
+      const total = c.checklist?.length || 0;
+      const progress = total ? Math.round((done / total) * 100) : 0;
+      const lastLog = c.logs?.[c.logs.length - 1]?.text || "No work logs yet.";
+      return `
+        <article class="card" onclick="openCampaign('${c.id}')">
+          <div class="between">
+            <h3>${escapeHtml(c.artist || "Untitled Artist")} — ${escapeHtml(c.campaign || "Untitled Campaign")}</h3>
+          </div>
+          <p>${escapeHtml(lastLog)}</p>
+          <div class="meta-grid">
+            <span class="chip priority-${(c.priority || "Normal").toLowerCase()}">${escapeHtml(c.priority || "Normal")}</span>
+            <span class="chip">${escapeHtml(c.folder || "No Folder")}</span>
+            ${c.deadline ? `<span class="chip">Due ${formatDate(c.deadline)}</span>` : ""}
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+          <p class="small" style="margin-top:7px;">Checklist ${done}/${total}</p>
+        </article>
+      `;
+    }
+
+    function setFolder(folder) {
+      state.activeFolder = folder;
+      saveState();
+      render();
+    }
+
+    function openNewCampaignModal() {
+      activeCampaignId = null;
+      activeTab = "brief";
+      renderCampaignModal(newBlankCampaign(), true);
+    }
+
+    function newBlankCampaign() {
+      const folder = state.activeFolder && !["All Campaigns", "Completed", "Archived"].includes(state.activeFolder) ? state.activeFolder : "Atlantic";
+      return {
+        id: id(), folder, artist: "", campaign: "", status: "New Brief", priority: "Normal", deadline: "", budget: "", objective: "", link: "", territories: "",
+        rawNotes: "", structuredBrief: "", missingInfo: "", report: "", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+        checklist: DEFAULT_CHECKLIST.map(text => ({ id: id(), text, done: false })),
+        logs: []
+      };
+    }
+
+    function openCampaign(campaignId) {
+      activeCampaignId = campaignId;
+      activeTab = "brief";
+      const campaign = state.campaigns.find(c => c.id === campaignId);
+      renderCampaignModal(campaign, false);
+    }
+
+    function getActiveCampaign() {
+      return state.campaigns.find(c => c.id === activeCampaignId);
+    }
+
+    function renderCampaignModal(campaign, isNew = false) {
+      const root = document.getElementById("modalRoot");
+      root.innerHTML = `
+        <div class="modal-backdrop" onclick="backdropClose(event)">
+          <div class="modal">
+            <div class="modal-head">
+              <div class="between">
+                <div>
+                  <h2>${isNew ? "New Campaign Brief" : `${escapeHtml(campaign.artist || "Untitled")} — ${escapeHtml(campaign.campaign || "Campaign")}`}</h2>
+                  <p class="small">${isNew ? "Create a new brief, then save it to the board." : `Folder: ${escapeHtml(campaign.folder)} · Status: ${escapeHtml(campaign.status)} · Updated ${formatDateTime(campaign.updatedAt)}`}</p>
+                </div>
+                <div class="row">
+                  ${!isNew ? `<button class="btn secondary" onclick="duplicateCampaign('${campaign.id}')">Duplicate</button>` : ""}
+                  ${!isNew ? `<button class="btn danger" onclick="deleteCampaign('${campaign.id}')">Delete</button>` : ""}
+                  <button class="btn secondary" onclick="closeModal()">Close</button>
+                </div>
+              </div>
+            </div>
+            <div class="tabs">
+              ${["brief", "checklist", "logs", "report"].map(tab => `<button class="tab ${activeTab === tab ? "active" : ""}" onclick="switchTab('${tab}', ${isNew})">${tabLabel(tab)}</button>`).join("")}
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+          </div>
+        </div>
+      `;
+      renderModalBody(campaign, isNew);
+    }
+
+    function tabLabel(tab) {
+      return { brief: "Brief", checklist: "Checklist", logs: "Work Log", report: "Report" }[tab];
+    }
+
+    function switchTab(tab, isNew = false) {
+      activeTab = tab;
+      const campaign = activeCampaignId ? getActiveCampaign() : collectModalFormData(newBlankCampaign());
+      renderCampaignModal(campaign, isNew || !activeCampaignId);
+    }
+
+    function renderModalBody(c, isNew) {
+      const body = document.getElementById("modalBody");
+      if (activeTab === "brief") body.innerHTML = renderBriefTab(c, isNew);
+      if (activeTab === "checklist") body.innerHTML = renderChecklistTab(c, isNew);
+      if (activeTab === "logs") body.innerHTML = renderLogsTab(c, isNew);
+      if (activeTab === "report") body.innerHTML = renderReportTab(c, isNew);
+    }
+
+    function renderBriefTab(c, isNew) {
+      return `
+        <div class="stack">
+          <div class="grid-3">
+            <div class="field"><label>Folder</label><input id="m_folder" value="${escapeAttr(c.folder)}" list="folderOptions" /></div>
+            <div class="field"><label>Status</label><select id="m_status">${STATUSES.map(s => `<option ${c.status === s.key ? "selected" : ""}>${s.key}</option>`).join("")}</select></div>
+            <div class="field"><label>Priority</label><select id="m_priority">${["Urgent","Normal","Low"].map(p => `<option ${c.priority === p ? "selected" : ""}>${p}</option>`).join("")}</select></div>
+          </div>
+          <datalist id="folderOptions">${state.folders.filter(f => !["All Campaigns","Completed"].includes(f)).map(f => `<option value="${escapeAttr(f)}"></option>`).join("")}</datalist>
+          <div class="grid-2">
+            <div class="field"><label>Artist</label><input id="m_artist" value="${escapeAttr(c.artist)}" placeholder="e.g. Lilli" /></div>
+            <div class="field"><label>Campaign / Track</label><input id="m_campaign" value="${escapeAttr(c.campaign)}" placeholder="e.g. Kein Schlaf" /></div>
+          </div>
+          <div class="grid-3">
+            <div class="field"><label>Deadline</label><input id="m_deadline" type="date" value="${escapeAttr(c.deadline)}" /></div>
+            <div class="field"><label>Budget</label><input id="m_budget" value="${escapeAttr(c.budget)}" placeholder="e.g. €1,000 cap" /></div>
+            <div class="field"><label>Territories</label><input id="m_territories" value="${escapeAttr(c.territories)}" placeholder="e.g. DE, AT, SE" /></div>
+          </div>
+          <div class="field"><label>Objective / setup</label><input id="m_objective" value="${escapeAttr(c.objective)}" placeholder="Objective, pixel, event, conversion location..." /></div>
+          <div class="field"><label>Campaign link</label><input id="m_link" value="${escapeAttr(c.link)}" placeholder="https://..." /></div>
+          <div class="grid-2">
+            <div class="field"><label>Raw notes from James / Claude</label><textarea id="m_rawNotes" placeholder="Paste the messy brief here...">${escapeHtml(c.rawNotes)}</textarea></div>
+            <div class="field"><label>Structured brief</label><textarea id="m_structuredBrief" placeholder="Click Generate Structured Brief or write manually...">${escapeHtml(c.structuredBrief)}</textarea></div>
+          </div>
+          <div class="field"><label>Missing information</label><textarea id="m_missingInfo" style="min-height:90px;" placeholder="Anything James needs to clarify...">${escapeHtml(c.missingInfo)}</textarea></div>
+          <div class="row">
+            <button class="btn" onclick="saveCampaignFromModal(${isNew})">${isNew ? "Create Campaign" : "Save Changes"}</button>
+            <button class="btn secondary" onclick="generateStructuredBrief(${isNew})">Generate Structured Brief</button>
+            <button class="btn secondary" onclick="generateNames(${isNew})">Generate Names</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderChecklistTab(c, isNew) {
+      return `
+        <div class="stack">
+          <div class="panel">
+            <div class="between">
+              <h3>Build Checklist</h3>
+              <button class="btn secondary" onclick="addChecklistItem(${isNew})">+ Add Item</button>
+            </div>
+            <div id="checklistItems">
+              ${(c.checklist || []).map(item => `
+                <div class="check-item ${item.done ? "done" : ""}">
+                  <input type="checkbox" ${item.done ? "checked" : ""} onchange="toggleChecklist('${item.id}', this.checked, ${isNew})" />
+                  <span>${escapeHtml(item.text)}</span>
+                </div>
+              `).join("") || `<div class="empty">No checklist yet.</div>`}
+            </div>
+          </div>
+          <button class="btn" onclick="saveCampaignFromModal(${isNew})">Save Checklist</button>
+        </div>
+      `;
+    }
+
+    function renderLogsTab(c, isNew) {
+      return `
+        <div class="grid-2">
+          <div class="panel stack">
+            <h3>Add Work Log</h3>
+            <div class="grid-2">
+              <div class="field"><label>Logged by</label><input id="log_by" value="Aidan" /></div>
+              <div class="field"><label>Type</label><select id="log_type"><option>Brief</option><option>Setup</option><option>QA</option><option>Approval</option><option>Launch</option><option>Reporting</option><option>Issue</option></select></div>
+            </div>
+            <div class="field"><label>What was done?</label><textarea id="log_text" placeholder="e.g. Created warm/LAL ad set and checked View Content event."></textarea></div>
+            <button class="btn" onclick="addLog(${isNew})">Add Log</button>
+          </div>
+          <div class="panel">
+            <div class="between">
+              <h3>Timeline</h3>
+              <button class="btn secondary" onclick="summariseLogs(${isNew})">Summarise Logs</button>
+            </div>
+            <div class="log-list">
+              ${(c.logs || []).slice().reverse().map(log => `
+                <div class="log-item">
+                  <p>${escapeHtml(log.text)}</p>
+                  <div class="small">${escapeHtml(log.type)} · ${escapeHtml(log.by)} · ${formatDateTime(log.at)}</div>
+                </div>
+              `).join("") || `<div class="empty">No work logs yet.</div>`}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderReportTab(c, isNew) {
+      return `
+        <div class="stack">
+          <div class="panel">
+            <div class="between">
+              <h3>Report Generator</h3>
+              <div class="row">
+                <button class="btn secondary" onclick="generateJamesUpdate(${isNew})">Generate James Update</button>
+                <button class="btn secondary" onclick="generateClientReport(${isNew})">Generate Client Report</button>
+              </div>
+            </div>
+            <div class="field" style="margin-top:12px;"><label>Report / update</label><textarea id="m_report" style="min-height:300px;" placeholder="Generate or write a campaign update here...">${escapeHtml(c.report || "")}</textarea></div>
+            <div class="row" style="margin-top:12px;">
+              <button class="btn" onclick="saveCampaignFromModal(${isNew})">Save Report</button>
+              <button class="btn secondary" onclick="copyReport()">Copy Report</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function collectModalFormData(base) {
+      const get = id => document.getElementById(id)?.value ?? base[id.replace("m_","")] ?? "";
+      return {
+        ...base,
+        folder: get("m_folder"), status: get("m_status"), priority: get("m_priority"), artist: get("m_artist"), campaign: get("m_campaign"),
+        deadline: get("m_deadline"), budget: get("m_budget"), territories: get("m_territories"), objective: get("m_objective"), link: get("m_link"),
+        rawNotes: get("m_rawNotes"), structuredBrief: get("m_structuredBrief"), missingInfo: get("m_missingInfo"), report: document.getElementById("m_report")?.value ?? base.report ?? "",
+        updatedAt: new Date().toISOString()
+      };
+    }
+
+    function saveCampaignFromModal(isNew) {
+      let campaign = activeCampaignId ? getActiveCampaign() : newBlankCampaign();
+      campaign = collectModalFormData(campaign);
+      if (!campaign.artist && !campaign.campaign && !campaign.rawNotes) return toast("Add at least an artist, campaign name or raw notes.");
+      if (!state.folders.includes(campaign.folder)) state.folders.push(campaign.folder);
+      if (isNew || !activeCampaignId) {
+        campaign.id = campaign.id || id();
+        campaign.createdAt = new Date().toISOString();
+        campaign.logs = campaign.logs || [{ id: id(), at: new Date().toISOString(), by: "System", type: "Brief", text: "Campaign brief created." }];
+        state.campaigns.push(campaign);
+        activeCampaignId = campaign.id;
+      } else {
+        const index = state.campaigns.findIndex(c => c.id === activeCampaignId);
+        state.campaigns[index] = campaign;
+      }
+      saveState();
+      render();
+      toast("Campaign saved.");
+      renderCampaignModal(campaign, false);
+    }
+
+    function generateStructuredBrief(isNew) {
+      const c = collectModalFormData(activeCampaignId ? getActiveCampaign() : newBlankCampaign());
+      const brief = `Build a Meta campaign for ${c.artist || "the artist"}${c.campaign ? ` — ${c.campaign}` : ""}.\n\nObjective/setup: ${c.objective || "Confirm objective, conversion location, pixel and event."}\nDestination link: ${c.link || "Confirm link."}\nBudget: ${c.budget || "Confirm campaign cap and daily budget."}\nTerritories: ${c.territories || "Confirm territories."}\n\nCampaign notes:\n${c.rawNotes || "No raw notes provided."}\n\nRecommended structure:\n1. Confirm pixel/event and destination link.\n2. Build campaign with agreed objective and budget.\n3. Create warm/lookalike ad set if warm sources exist.\n4. Create related artist/interest ad set if relevant.\n5. Check naming convention, placements and creative assets.\n6. Log setup work and send James a concise update.`;
+      document.getElementById("m_structuredBrief").value = brief;
+      document.getElementById("m_missingInfo").value = missingInfoFrom(c);
+      toast("Structured brief generated locally. Connect AI API later for smarter output.");
+    }
+
+    function missingInfoFrom(c) {
+      const missing = [];
+      if (!c.objective) missing.push("Objective / conversion event / pixel not confirmed.");
+      if (!c.link) missing.push("Destination URL not confirmed.");
+      if (!c.budget) missing.push("Budget or spend cap not confirmed.");
+      if (!c.territories) missing.push("Territories not confirmed.");
+      if (!c.deadline) missing.push("Deadline not confirmed.");
+      return missing.length ? missing.join("\n") : "No obvious missing information from the fields provided.";
+    }
+
+    function generateNames(isNew) {
+      const c = collectModalFormData(activeCampaignId ? getActiveCampaign() : newBlankCampaign());
+      const artist = slug(c.artist || "artist");
+      const camp = slug(c.campaign || "campaign");
+      const territories = slug((c.territories || "core").replaceAll(",", "-"));
+      const names = `Suggested naming convention:\n\nCampaign:\n${artist}_eng-${camp}_vc_${territories}\n\nAd Set 1:\nca_warm-lal_${artist}_18-50_${territories}_ig-fb\n\nAd Set 2:\nint_ra-related-artists_${artist}_18-50_${territories}_ig-fb\n\nAd naming:\nvid_dark-${camp}_hook01_${artist}\nvid_native-${camp}_hook02_${artist}`;
+      const current = document.getElementById("m_structuredBrief").value;
+      document.getElementById("m_structuredBrief").value = current ? `${current}\n\n${names}` : names;
+      toast("Naming suggestions added to structured brief.");
+    }
+
+    function addChecklistItem(isNew) {
+      const text = prompt("Checklist item:");
+      if (!text) return;
+      const c = activeCampaignId ? getActiveCampaign() : collectModalFormData(newBlankCampaign());
+      c.checklist = c.checklist || [];
+      c.checklist.push({ id: id(), text, done: false });
+      if (activeCampaignId) { c.updatedAt = new Date().toISOString(); saveState(); render(); }
+      renderCampaignModal(c, isNew || !activeCampaignId);
+    }
+
+    function toggleChecklist(itemId, done, isNew) {
+      const c = activeCampaignId ? getActiveCampaign() : collectModalFormData(newBlankCampaign());
+      const item = c.checklist.find(i => i.id === itemId);
+      if (item) item.done = done;
+      if (activeCampaignId) { c.updatedAt = new Date().toISOString(); saveState(); render(); }
+      renderCampaignModal(c, isNew || !activeCampaignId);
+    }
+
+    function addLog(isNew) {
+      let c = activeCampaignId ? getActiveCampaign() : collectModalFormData(newBlankCampaign());
+      const by = document.getElementById("log_by").value || "Aidan";
+      const type = document.getElementById("log_type").value || "Setup";
+      const text = document.getElementById("log_text").value.trim();
+      if (!text) return toast("Write a work log before adding.");
+      c.logs = c.logs || [];
+      c.logs.push({ id: id(), at: new Date().toISOString(), by, type, text });
+      c.updatedAt = new Date().toISOString();
+      if (activeCampaignId) { saveState(); render(); }
+      toast("Work log added.");
+      renderCampaignModal(c, isNew || !activeCampaignId);
+    }
+
+    function summariseLogs(isNew) {
+      const c = activeCampaignId ? getActiveCampaign() : collectModalFormData(newBlankCampaign());
+      const summary = (c.logs || []).map(l => `- ${formatDateTime(l.at)}: ${l.text}`).join("\n") || "No logs yet.";
+      c.report = `Work log summary for ${c.artist} — ${c.campaign}:\n\n${summary}`;
+      activeTab = "report";
+      if (activeCampaignId) { c.updatedAt = new Date().toISOString(); saveState(); render(); }
+      renderCampaignModal(c, isNew || !activeCampaignId);
+    }
+
+    function generateJamesUpdate(isNew) {
+      const c = collectModalFormData(activeCampaignId ? getActiveCampaign() : newBlankCampaign());
+      const done = c.checklist?.filter(i => i.done).length || 0;
+      const total = c.checklist?.length || 0;
+      const lastLogs = (c.logs || []).slice(-4).map(l => `- ${l.text}`).join("\n");
+      const report = `Hey mate, quick update on ${c.artist || "the artist"}${c.campaign ? ` — ${c.campaign}` : ""}.\n\nStatus: ${c.status}.\nChecklist: ${done}/${total} setup items completed.\n\nWhat has been done:\n${lastLogs || "- No work logs added yet."}\n\nCurrent note:\n${c.missingInfo && !c.missingInfo.toLowerCase().includes("no obvious") ? `Need to confirm: ${c.missingInfo}` : "No major missing info flagged at the moment."}`;
+      setReportAndOpen(c, report, isNew);
+    }
+
+    function generateClientReport(isNew) {
+      const c = collectModalFormData(activeCampaignId ? getActiveCampaign() : newBlankCampaign());
+      const report = `Campaign Report — ${c.artist || "Artist"}${c.campaign ? ` / ${c.campaign}` : ""}\n\nStatus: ${c.status}\nObjective/Setup: ${c.objective || "TBC"}\nBudget: ${c.budget || "TBC"}\nTerritories: ${c.territories || "TBC"}\nDestination: ${c.link || "TBC"}\n\nBrief Summary:\n${c.structuredBrief || c.rawNotes || "No structured brief added yet."}\n\nWork Completed:\n${(c.logs || []).map(l => `- ${l.text}`).join("\n") || "No work logs added yet."}\n\nNext Steps:\n${c.status === "Complete" ? "Campaign marked complete. Continue reporting if required." : "Continue setup, approval or reporting based on current status."}`;
+      setReportAndOpen(c, report, isNew);
+    }
+
+    function setReportAndOpen(c, report, isNew) {
+      c.report = report;
+      activeTab = "report";
+      if (activeCampaignId) { c.updatedAt = new Date().toISOString(); saveState(); render(); }
+      renderCampaignModal(c, isNew || !activeCampaignId);
+      toast("Report generated.");
+    }
+
+    function copyReport() {
+      const text = document.getElementById("m_report")?.value || "";
+      navigator.clipboard.writeText(text).then(() => toast("Report copied."));
+    }
+
+    function generateStatusSummary() {
+      const campaigns = filteredCampaigns();
+      const lines = campaigns.map(c => `${c.artist} — ${c.campaign}: ${c.status}. Last update: ${(c.logs || []).slice(-1)[0]?.text || "No log."}`);
+      navigator.clipboard.writeText(lines.join("\n"));
+      toast("Status summary copied to clipboard.");
+    }
+
+    function duplicateCampaign(campaignId) {
+      const original = state.campaigns.find(c => c.id === campaignId);
+      const copy = JSON.parse(JSON.stringify(original));
+      copy.id = id();
+      copy.campaign = `${copy.campaign} Copy`;
+      copy.status = "New Brief";
+      copy.createdAt = new Date().toISOString();
+      copy.updatedAt = new Date().toISOString();
+      copy.logs = [{ id: id(), at: new Date().toISOString(), by: "System", type: "Brief", text: "Campaign duplicated from existing brief." }];
+      state.campaigns.push(copy);
+      saveState(); render(); closeModal(); toast("Campaign duplicated.");
+    }
+
+    function deleteCampaign(campaignId) {
+      if (!confirm("Delete this campaign?")) return;
+      state.campaigns = state.campaigns.filter(c => c.id !== campaignId);
+      saveState(); render(); closeModal(); toast("Campaign deleted.");
+    }
+
+    function closeModal() { document.getElementById("modalRoot").innerHTML = ""; activeCampaignId = null; }
+    function backdropClose(e) { if (e.target.classList.contains("modal-backdrop")) closeModal(); }
+
+    function exportData() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `jdw-campaign-hub-backup-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const imported = JSON.parse(reader.result);
+          if (!imported.campaigns || !imported.folders) throw new Error("Invalid backup file.");
+          state = imported;
+          saveState(); render(); toast("Backup imported.");
+        } catch (err) { toast("Import failed: " + err.message); }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetDemoData() {
+      if (!confirm("Reset all local data to the demo version?")) return;
+      state = JSON.parse(JSON.stringify(demoData));
+      saveState(); render(); toast("Demo data reset.");
+    }
+
+    function formatDate(date) {
+      if (!date) return "";
+      return new Date(date + "T00:00:00").toLocaleDateString(undefined, { day: "2-digit", month: "short" });
+    }
+
+    function formatDateTime(date) {
+      if (!date) return "";
+      return new Date(date).toLocaleString(undefined, { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
+    }
+
+    function slug(text) {
+      return String(text || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "").replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]));
+    }
+
+    function escapeAttr(str) { return escapeHtml(str).replace(/`/g, "&#96;"); }
+  </script>
+</body>
+</html>
