@@ -82,9 +82,7 @@ function localBriefOrganiser(raw){
     `Campaign budget: ${budget||"TBC"}.`,
     `Ad set budget split: Warm / Retargeting ${split[0]||"TBC"}; Prospecting ${split[1]||"TBC"}.`,
     `Targeting: ${territories||"TBC"}.`
-  ].join("
-
-");
+  ].join("\n\n");
   return{
     artistName:clean(artist),title:clean(title),status:"New Brief",priority:"Normal",deadline:"",
     budget:budget,
@@ -100,7 +98,63 @@ function organiseCurrentBrief(){collectDraft();if(!tempDraft.raw_brief)return to
 function summariseLogs(){const logs=activeCampaignId?getCampaignLogs(activeCampaignId):[];tempDraft.report=logs.length?logs.map(l=>`- ${formatDateTime(l.created_at)}: ${l.text}`).join("\n"):"No logs yet.";renderModal()}function generateJamesUpdate(){collectDraft();const logs=activeCampaignId?getCampaignLogs(activeCampaignId):[];tempDraft.report=`Hey mate, quick update on ${tempDraft.artistName} — ${tempDraft.title}.\n\nStatus: ${tempDraft.status}.\n\nWhat has been done:\n${logs.slice(-6).map(l=>`- ${l.text}`).join("\n")||"- No work logs added yet."}\n\n${tempDraft.missing_info||"No major missing info flagged."}`;renderModal()}function generateClientReport(){collectDraft();const logs=activeCampaignId?getCampaignLogs(activeCampaignId):[];tempDraft.report=`Campaign Report — ${tempDraft.artistName} / ${tempDraft.title}\n\nStatus: ${tempDraft.status}\nObjective / Setup: ${tempDraft.objective||"TBC"}\nBudget: ${tempDraft.budget||"TBC"}\nTerritories: ${tempDraft.territories||"TBC"}\nDestination: ${tempDraft.campaign_link||"TBC"}\n\nBrief Summary:\n${tempDraft.structured_brief||tempDraft.raw_brief||"No brief added yet."}\n\nWork Completed:\n${logs.map(l=>`- ${l.text}`).join("\n")||"No work logs added yet."}`;renderModal()}function closeModal(){document.getElementById("modalRoot").innerHTML="";activeCampaignId=null;tempDraft=null}
 function setAuthStatus(m,e=false){const el=document.getElementById("authStatus");if(!el)return;el.textContent=m;el.className="status-box"+(e?" error":"")}function toast(m,e=false){const el=document.getElementById("toast");el.textContent=m;el.className="toast"+(e?" error":"");el.classList.remove("hidden");setTimeout(()=>el.classList.add("hidden"),3500)}function val(id){return document.getElementById(id)?.value?.trim()||""}function tabLabel(t){return{overview:"Overview",brief:"Brief",setup:"Setup",build:"Build",logs:"Logs / Report"}[t]}function truncate(t,n){return String(t||"").length>n?String(t).slice(0,n-1)+"…":String(t||"")}
 function formatCampaignBudget(value){const text=String(value||"");const compact=text.replace("Budget:","").replace("Campaign spend cap:","").trim();const found=compact.match(new RegExp("[€£$]? *[0-9][0-9,.]* *(euro|eur|gbp|usd|pounds?)?","i"));return found?found[0].trim():compact}
-function formatAdSetBudget(a){let amount=String(a.budget||"").trim();amount=amount.replace("Budget:","").replace("Ad set budget:","").replace("if confirmed","").trim();const found=amount.match(new RegExp("[€£$]? *[0-9][0-9,.]* *(per day|/day|daily|euro|eur|gbp|usd|pounds?)?","i"));amount=found?found[0].trim():amount||"TBC";const type=String(a.budget_type||"Daily Budget").toLowerCase().includes("life")?"lifetime":"daily";return (amount+" "+type).replace(new RegExp(" +","g")," ").trim()}function slug(t){return String(t||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}function clean(t){return String(t||"").replaceAll("-"," ").replace(/\s+/g," ").trim().replace(/^the /i,"")}function formatDate(d){return d?new Date(d+"T00:00:00").toLocaleDateString(undefined,{day:"2-digit",month:"short"}):""}function formatDateTime(d){return d?new Date(d).toLocaleString(undefined,{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}):""}function escapeHtml(s){return String(s??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]))}function escapeAttr(s){return escapeHtml(s).replace(/`/g,"&#96;")}function getQuotedText(t){const m=String(t).match(/["“](.*?)["”]/);return m?[m[1].trim()]:[]}function getArtistBeforeTitle(raw,title){const marker="write up the ",lower=raw.toLowerCase(),start=lower.indexOf(marker),idx=lower.indexOf(String(title).toLowerCase());if(start===-1||idx===-1||idx<=start)return"";return clean(raw.slice(start+marker.length,idx).replaceAll('"',"").replaceAll("“","").replaceAll("”",""))}function getWordsBefore(raw,word,count){const words=String(raw).replace(/[.,()]/g," ").split(/\s+/).filter(Boolean),idx=words.findIndex(w=>w.toLowerCase()===word.toLowerCase());return idx===-1?"":words.slice(Math.max(0,idx-count),idx).join(" ")}function findUrl(text,domain){const tokens=String(text).split(/\s+/).map(t=>t.trim().replace(/[),.]+$/g,"")),found=tokens.find(t=>t.toLowerCase().includes(domain.toLowerCase())&&t.includes("."));return found?(found.startsWith("http")?found:"https://"+found):""}function findMoneyLine(text,keyword){const found=String(text).split("\n").find(line=>line.includes("€")&&(!keyword||line.toLowerCase().includes(keyword.toLowerCase())));return found?found.trim().replace(/^[- ]+/,""):""}function extractTerritories(raw){const l=String(raw).toLowerCase(),out=[];if(l.includes("germany"))out.push("Germany");if(l.includes("austria"))out.push("Austria");if(l.includes("switzerland"))out.push("Switzerland");if(l.includes("sweden"))out.push("Sweden");if(l.includes("united kingdom")||l.includes(" uk "))out.push("United Kingdom");if(l.includes("united states")||l.includes(" usa "))out.push("United States");return[...new Set(out)]}
+function formatAdSetBudget(a){let amount=String(a.budget||"").trim();amount=amount.replace("Budget:","").replace("Ad set budget:","").replace("if confirmed","").trim();const found=amount.match(new RegExp("[€£$]? *[0-9][0-9,.]* *(per day|/day|daily|euro|eur|gbp|usd|pounds?)?","i"));amount=found?found[0].trim():amount||"TBC";const type=String(a.budget_type||"Daily Budget").toLowerCase().includes("life")?"lifetime":"daily";return (amount+" "+type).replace(new RegExp(" +","g")," ").trim()}function slug(t){return String(t||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}function clean(t){return String(t||"").replaceAll("-"," ").replace(/\s+/g," ").trim().replace(/^the /i,"")}function formatDate(d){return d?new Date(d+"T00:00:00").toLocaleDateString(undefined,{day:"2-digit",month:"short"}):""}function formatDateTime(d){return d?new Date(d).toLocaleString(undefined,{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}):""}function escapeHtml(s){return String(s??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]))}function escapeAttr(s){return escapeHtml(s).replace(/`/g,"&#96;")}function getQuotedText(t){const m=String(t).match(/["“](.*?)["”]/);return m?[m[1].trim()]:[]}function getArtistBeforeTitle(raw,title){const marker="write up the ",lower=raw.toLowerCase(),start=lower.indexOf(marker),idx=lower.indexOf(String(title).toLowerCase());if(start===-1||idx===-1||idx<=start)return"";return clean(raw.slice(start+marker.length,idx).replaceAll('"',"").replaceAll("“","").replaceAll("”",""))}function getWordsBefore(raw,word,count){const words=String(raw).replace(/[.,()]/g," ").split(/\s+/).filter(Boolean),idx=words.findIndex(w=>w.toLowerCase()===word.toLowerCase());return idx===-1?"":words.slice(Math.max(0,idx-count),idx).join(" ")}function findUrl(text,domain){const tokens=String(text).split(/\s+/).map(t=>t.trim().replace(/[),.]+$/g,"")),found=tokens.find(t=>t.toLowerCase().includes(domain.toLowerCase())&&t.includes("."));return found?(found.startsWith("http")?found:"https://"+found):""}function findMoneyLine(text,keyword){
+  const lines=String(text||"").split(String.fromCharCode(10));
+  const found=lines.find(line=>hasNumber(line)&&(!keyword||line.toLowerCase().includes(keyword.toLowerCase())));
+  return found?found.trim().replace(/^[- ]+/,""):"";
+}
+function hasNumber(text){return getNumbers(text).length>0}
+function getNumbers(text){
+  const out=[];let cur="";
+  for(const ch of String(text||"")){
+    if((ch>="0"&&ch<="9")||ch===","||ch===".")cur+=ch;
+    else{if(cur&&cur!=="."&&cur!==",")out.push(cur);cur="";}
+  }
+  if(cur&&cur!=="."&&cur!==",")out.push(cur);
+  return out;
+}
+function moneySymbolFromText(text){
+  const s=String(text||"");
+  if(s.includes("£"))return "£";
+  if(s.includes("$"))return "$";
+  return "€";
+}
+function cleanNumberToken(n){return String(n||"").replaceAll(",","").trim()}
+function amountWithSymbol(n,raw){return n?moneySymbolFromText(raw)+String(n).trim():""}
+function findOverallBudget(raw){
+  const text=String(raw||"");
+  const lines=text.split(String.fromCharCode(10));
+  const line=lines.find(l=>{const x=l.toLowerCase();return hasNumber(l)&&(x.includes("budget")||x.includes("spend cap")||x.includes("campaign level")||x.includes("campaign-level")||x.includes("total"));});
+  if(line){const nums=getNumbers(line).filter(n=>Number(cleanNumberToken(n))>10);if(nums.length)return amountWithSymbol(nums[0],text);}
+  const nums=getNumbers(text).filter(n=>Number(cleanNumberToken(n))>10);
+  return nums.length?amountWithSymbol(nums[0],text):"";
+}
+function cleanBudgetAmount(value,raw){
+  const nums=getNumbers(value).filter(n=>Number(cleanNumberToken(n))>0);
+  return nums.length?amountWithSymbol(nums[0],raw||value):"";
+}
+function extractAdSetBudgetSplit(raw,fallback){
+  const text=String(raw||"");
+  const lines=text.split(String.fromCharCode(10));
+  let first="",second="";
+  const firstLine=lines.find(l=>{const x=l.toLowerCase();return hasNumber(l)&&(x.includes("warm")||x.includes("retarget")||x.includes("first")||x.includes("1st")||x.includes("ad set 1")||x.includes("adset 1"));});
+  const secondLine=lines.find(l=>{const x=l.toLowerCase();return hasNumber(l)&&(x.includes("prospecting")||x.includes("cold")||x.includes("interest")||x.includes("second")||x.includes("2nd")||x.includes("ad set 2")||x.includes("adset 2"));});
+  if(firstLine){const nums=getNumbers(firstLine).filter(n=>Number(cleanNumberToken(n))>10);if(nums.length)first=amountWithSymbol(nums[nums.length-1],text);}
+  if(secondLine){const nums=getNumbers(secondLine).filter(n=>Number(cleanNumberToken(n))>10);if(nums.length)second=amountWithSymbol(nums[nums.length-1],text);}
+  if(!first||!second){
+    const lower=text.toLowerCase();
+    const startWords=["split","ad sets","adsets","first","warm","prospecting"];
+    let start=0;
+    for(const w of startWords){const i=lower.indexOf(w);if(i>=0){start=i;break;}}
+    const relevant=text.slice(start,start+320);
+    const nums=getNumbers(relevant).filter(n=>{const v=Number(cleanNumberToken(n));return v>10&&v<10000;});
+    if(nums.length>=2){first=first||amountWithSymbol(nums[0],text);second=second||amountWithSymbol(nums[1],text);}
+  }
+  if(!first&&fallback)first=cleanBudgetAmount(fallback,text)||fallback;
+  if(!second&&fallback)second=cleanBudgetAmount(fallback,text)||fallback;
+  return [first,second];
+}
+function extractTerritories(raw){const l=String(raw).toLowerCase(),out=[];if(l.includes("germany"))out.push("Germany");if(l.includes("austria"))out.push("Austria");if(l.includes("switzerland"))out.push("Switzerland");if(l.includes("sweden"))out.push("Sweden");if(l.includes("united kingdom")||l.includes(" uk "))out.push("United Kingdom");if(l.includes("united states")||l.includes(" usa "))out.push("United States");return[...new Set(out)]}
 </script>
 </body>
 </html>
