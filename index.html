@@ -183,6 +183,7 @@
       <button class="btn secondary" style="width:100%;margin-top:12px;" id="importBriefSideBtn">Import Messy Brief</button>
       <div class="side-section-title">Artist Folders</div>
       <div id="artistList" class="folder-list"></div>
+      <button class="btn danger hidden" style="width:100%;margin-top:12px;" id="deleteArtistBtn">Delete Artist Folder</button>
       <div class="side-section-title">Account</div>
       <button class="btn secondary" style="width:100%;" id="refreshBtn">Refresh</button>
       <button class="btn danger" style="width:100%;margin-top:12px;" id="signOutBtn">Sign Out</button>
@@ -253,6 +254,7 @@
     let campaigns = [];
     let checklistItems = [];
     let workLogs = [];
+    let adSets = [];
     let activeArtistId = "all";
     let activeCampaignId = null;
     let activeTab = "brief";
@@ -291,6 +293,7 @@
       document.getElementById("importBriefTopBtn").addEventListener("click", openImportModal);
       document.getElementById("refreshBtn").addEventListener("click", loadData);
       document.getElementById("signOutBtn").addEventListener("click", signOut);
+      document.getElementById("deleteArtistBtn").addEventListener("click", deleteActiveArtist);
       document.getElementById("copySummaryBtn").addEventListener("click", copyStatusSummary);
       document.getElementById("searchInput").addEventListener("input", renderBoard);
       document.getElementById("artistFilterMobile").addEventListener("change", event => setActiveArtist(event.target.value));
@@ -348,20 +351,23 @@
     async function loadData() {
       try {
         renderAll();
-        const [artistsRes, campaignsRes, checklistRes, logsRes] = await Promise.all([
+        const [artistsRes, campaignsRes, checklistRes, logsRes, adSetsRes] = await Promise.all([
           supabaseClient.from("artists").select("*").order("name"),
           supabaseClient.from("campaigns").select("*").order("updated_at", { ascending: false }),
           supabaseClient.from("checklist_items").select("*").order("position"),
-          supabaseClient.from("work_logs").select("*").order("created_at")
+          supabaseClient.from("work_logs").select("*").order("created_at"),
+          supabaseClient.from("ad_sets").select("*").order("position")
         ]);
         if (artistsRes.error) throw artistsRes.error;
         if (campaignsRes.error) throw campaignsRes.error;
         if (checklistRes.error) throw checklistRes.error;
         if (logsRes.error) throw logsRes.error;
+        if (adSetsRes.error) throw adSetsRes.error;
         artists = artistsRes.data || [];
         campaigns = campaignsRes.data || [];
         checklistItems = checklistRes.data || [];
         workLogs = logsRes.data || [];
+        adSets = adSetsRes.data || [];
         renderAll();
       } catch (error) {
         toast("Load failed: " + error.message, true);
@@ -373,6 +379,28 @@
       renderArtists();
       renderMobileArtistSelect();
       renderBoard();
+      updateDeleteArtistButton();
+    }
+
+    function updateDeleteArtistButton() {
+      const button = document.getElementById("deleteArtistBtn");
+      if (!button) return;
+      button.classList.toggle("hidden", activeArtistId === "all");
+    }
+
+    async function deleteActiveArtist() {
+      if (activeArtistId === "all") return;
+      const artist = artists.find(a => a.id === activeArtistId);
+      if (!artist) return;
+      const count = campaigns.filter(c => c.artist_id === activeArtistId).length;
+      const confirmed = confirm(`Delete artist folder "${artist.name}" and ${count} attached campaign(s)? This cannot be undone.`);
+      if (!confirmed) return;
+      const { error } = await supabaseClient.from("artists").delete().eq("id", activeArtistId);
+      if (error) return toast(error.message, true);
+      activeArtistId = "all";
+      document.getElementById("pageTitle").textContent = "All Artists";
+      await loadData();
+      toast("Artist folder deleted.");
     }
 
     function getArtistName(id) {
@@ -385,6 +413,10 @@
 
     function getCampaignLogs(id) {
       return workLogs.filter(log => log.campaign_id === id).sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+    }
+
+    function getCampaignAdSets(id) {
+      return adSets.filter(item => item.campaign_id === id).sort((a,b) => (a.position || 0) - (b.position || 0));
     }
 
     function renderArtists() {
@@ -418,7 +450,7 @@
       const sort = document.getElementById("sortSelect")?.value || "updated";
       let items = campaigns.filter(c => {
         const artistMatch = activeArtistId === "all" || c.artist_id === activeArtistId;
-        const blob = [c.title, getArtistName(c.artist_id), c.status, c.priority, c.raw_brief, c.structured_brief, c.missing_info, getCampaignLogs(c.id).map(l => l.text).join(" ")].join(" ").toLowerCase();
+        const blob = [c.title, getArtistName(c.artist_id), c.status, c.priority, c.raw_brief, c.structured_brief, c.missing_info, getCampaignAdSets(c.id).map(a => [a.name, a.objective, a.audience, a.notes].join(" ")).join(" "), getCampaignLogs(c.id).map(l => l.text).join(" ")].join(" ").toLowerCase();
         return artistMatch && blob.includes(search);
       });
       items.sort((a,b) => {
@@ -459,11 +491,12 @@
       const done = checklist.filter(i => i.done).length;
       const total = checklist.length;
       const progress = total ? Math.round((done / total) * 100) : 0;
+      const campaignAdSets = getCampaignAdSets(c.id);
       const lastLog = logs[logs.length - 1]?.text || c.structured_brief || "No work logs yet.";
       return `<article class="card" draggable="true" data-id="${c.id}">
         <h3>${escapeHtml(getArtistName(c.artist_id))} — ${escapeHtml(c.title || "Untitled Campaign")}</h3>
         <p>${escapeHtml(truncate(lastLog, 110))}</p>
-        <div class="meta-grid"><span class="chip priority-${String(c.priority || "Normal").toLowerCase()}">${escapeHtml(c.priority || "Normal")}</span>${c.deadline ? `<span class="chip">Due ${formatDate(c.deadline)}</span>` : ""}${c.budget ? `<span class="chip">${escapeHtml(truncate(c.budget, 18))}</span>` : ""}</div>
+        <div class="meta-grid"><span class="chip priority-${String(c.priority || "Normal").toLowerCase()}">${escapeHtml(c.priority || "Normal")}</span>${c.deadline ? `<span class="chip">Due ${formatDate(c.deadline)}</span>` : ""}${c.budget ? `<span class="chip">${escapeHtml(truncate(c.budget, 18))}</span>` : ""}<span class="chip">${campaignAdSets.length} ad set${campaignAdSets.length === 1 ? "" : "s"}</span></div>
         <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
         <p class="small" style="margin-top:7px;">Checklist ${done}/${total}</p>
       </article>`;
@@ -490,7 +523,7 @@
     }
 
     function campaignToDraft(c) {
-      return { id: c.id, artistName: getArtistName(c.artist_id), title: c.title || "", status: c.status || "New Brief", priority: c.priority || "Normal", deadline: c.deadline || "", budget: c.budget || "", objective: c.objective || "", campaign_link: c.campaign_link || "", territories: c.territories || "", raw_brief: c.raw_brief || "", structured_brief: c.structured_brief || "", missing_info: c.missing_info || "", report: c.report || "", checklist_items: getCampaignChecklist(c.id), work_logs: getCampaignLogs(c.id) };
+      return { id: c.id, artistName: getArtistName(c.artist_id), title: c.title || "", status: c.status || "New Brief", priority: c.priority || "Normal", deadline: c.deadline || "", budget: c.budget || "", objective: c.objective || "", campaign_link: c.campaign_link || "", territories: c.territories || "", raw_brief: c.raw_brief || "", structured_brief: c.structured_brief || "", missing_info: c.missing_info || "", report: c.report || "", checklist_items: getCampaignChecklist(c.id), work_logs: getCampaignLogs(c.id), ad_sets: getCampaignAdSets(c.id) };
     }
 
     function renderModal() {
@@ -498,7 +531,7 @@
       const d = tempDraft;
       document.getElementById("modalRoot").innerHTML = `<div class="modal-backdrop" id="modalBackdrop"><div class="modal">
         <div class="modal-head between"><div><h2>${isNew ? "New Campaign" : `${escapeHtml(d.artistName)} — ${escapeHtml(d.title)}`}</h2><p class="small">${isNew ? "Create a campaign under an artist folder." : `Status: ${escapeHtml(d.status)} · Artist folder: ${escapeHtml(d.artistName)}`}</p></div><div class="row">${!isNew ? `<button class="btn danger" id="deleteCampaignBtn">Delete</button>` : ""}<button class="btn secondary" id="closeModalBtn">Close</button></div></div>
-        <div class="tabs">${["brief","checklist","logs","report"].map(t => `<button class="tab ${activeTab === t ? "active" : ""}" data-tab="${t}">${tabLabel(t)}</button>`).join("")}</div>
+        <div class="tabs">${["brief","adsets","checklist","logs","report"].map(t => `<button class="tab ${activeTab === t ? "active" : ""}" data-tab="${t}">${tabLabel(t)}</button>`).join("")}</div>
         <div class="modal-body" id="modalBody"></div>
       </div></div>`;
       document.getElementById("closeModalBtn").addEventListener("click", closeModal);
@@ -511,6 +544,7 @@
 
     function renderModalBody() {
       if (activeTab === "brief") renderBriefTab();
+      if (activeTab === "adsets") renderAdSetsTab();
       if (activeTab === "checklist") renderChecklistTab();
       if (activeTab === "logs") renderLogsTab();
       if (activeTab === "report") renderReportTab();
@@ -531,6 +565,44 @@
       document.getElementById("saveCampaignBtn").addEventListener("click", saveCampaign);
       document.getElementById("organiseBtn").addEventListener("click", organiseCurrentBrief);
       document.getElementById("namesBtn").addEventListener("click", generateNames);
+    }
+
+    function renderAdSetsTab() {
+      const isNew = !activeCampaignId;
+      const items = isNew ? (tempDraft.ad_sets || []) : getCampaignAdSets(activeCampaignId);
+      document.getElementById("modalBody").innerHTML = `<div class="grid-2">
+        <div class="panel stack">
+          <h3>Add Ad Set</h3>
+          ${isNew ? `<p class="small">Save the campaign first before adding ad sets live. Imported ad sets will be created when you save.</p>` : `
+            <div class="field"><label>Ad Set Name</label><input id="adset_name" placeholder="e.g. Warm / Retargeting"></div>
+            <div class="field"><label>Objective / Optimisation</label><input id="adset_objective" placeholder="e.g. Website / View Content"></div>
+            <div class="field"><label>Budget</label><input id="adset_budget" placeholder="e.g. €100/day"></div>
+            <div class="field"><label>Audience</label><textarea id="adset_audience" placeholder="Warm audiences, LAL, interests, territories..."></textarea></div>
+            <div class="field"><label>Notes</label><textarea id="adset_notes" placeholder="Advantage+ on/off, placements, exclusions..."></textarea></div>
+            <button class="btn" id="addAdSetBtn">Add Ad Set</button>
+          `}
+        </div>
+        <div class="panel">
+          <div class="between"><h3>Ad Sets (${items.length})</h3></div>
+          <div class="log-list">
+            ${items.length ? items.map(item => `<div class="log-item">
+              <div class="between">
+                <div>
+                  <p><strong>${escapeHtml(item.name || "Untitled Ad Set")}</strong></p>
+                  <p class="small">Objective: ${escapeHtml(item.objective || "TBC")} · Budget: ${escapeHtml(item.budget || "TBC")}</p>
+                </div>
+                ${isNew ? "" : `<button class="btn danger" style="padding:8px 10px;" data-delete-adset="${item.id}">Delete</button>`}
+              </div>
+              ${item.audience ? `<p style="margin-top:10px;">Audience: ${escapeHtml(item.audience)}</p>` : ""}
+              ${item.notes ? `<p class="small" style="margin-top:8px;">Notes: ${escapeHtml(item.notes)}</p>` : ""}
+            </div>`).join("") : `<div class="empty">No ad sets added yet.</div>`}
+          </div>
+        </div>
+      </div>`;
+      if (!isNew) {
+        document.getElementById("addAdSetBtn").addEventListener("click", addAdSet);
+        document.querySelectorAll("[data-delete-adset]").forEach(btn => btn.addEventListener("click", () => deleteAdSet(btn.dataset.deleteAdset)));
+      }
     }
 
     function renderChecklistTab() {
@@ -593,6 +665,17 @@
           if (error) throw error;
           activeCampaignId = data.id;
           await supabaseClient.from("checklist_items").insert((d.checklist || DEFAULT_CHECKLIST).map((text, i) => ({ campaign_id: data.id, text, position: i })));
+          if (d.ad_sets && d.ad_sets.length) {
+            await supabaseClient.from("ad_sets").insert(d.ad_sets.map((item, i) => ({
+              campaign_id: data.id,
+              name: item.name || `Ad Set ${i + 1}`,
+              objective: item.objective || "",
+              budget: item.budget || "",
+              audience: item.audience || "",
+              notes: item.notes || "",
+              position: i
+            })));
+          }
           await supabaseClient.from("work_logs").insert({ campaign_id: data.id, logged_by: "System", log_type: "Brief", text: "Campaign brief created.", visible_to_james: true });
           toast("Campaign created.");
         }
@@ -609,6 +692,37 @@
       closeModal();
       await loadData();
       toast("Campaign deleted.");
+    }
+
+    async function addAdSet() {
+      const name = val("adset_name");
+      if (!name) return toast("Add an ad set name first.", true);
+      const position = getCampaignAdSets(activeCampaignId).length;
+      const payload = {
+        campaign_id: activeCampaignId,
+        name,
+        objective: val("adset_objective"),
+        budget: val("adset_budget"),
+        audience: val("adset_audience"),
+        notes: val("adset_notes"),
+        position
+      };
+      const { error } = await supabaseClient.from("ad_sets").insert(payload);
+      if (error) return toast(error.message, true);
+      await supabaseClient.from("work_logs").insert({ campaign_id: activeCampaignId, logged_by: "System", log_type: "Ad Set", text: `Ad set added: ${name}.`, visible_to_james: true });
+      await loadData();
+      tempDraft = campaignToDraft(campaigns.find(c => c.id === activeCampaignId));
+      renderModal();
+      toast("Ad set added.");
+    }
+
+    async function deleteAdSet(id) {
+      const { error } = await supabaseClient.from("ad_sets").delete().eq("id", id);
+      if (error) return toast(error.message, true);
+      await loadData();
+      tempDraft = campaignToDraft(campaigns.find(c => c.id === activeCampaignId));
+      renderModal();
+      toast("Ad set deleted.");
     }
 
     async function addChecklistItem() {
@@ -653,7 +767,38 @@
       const daily = findMoneyLine(raw, "day");
       const territories = extractTerritories(raw).join(", ");
       const structured = [`Artist: ${artist}`, `Campaign / track: ${title}`, `Campaign setup: Objective is ${objective}. Set conversion location to ${conversionLocation}. Optimise for ${event} using ${pixel}.`, `Conversion link: ${link || "TBC"}`, `Budget: ${budget || "TBC"}${daily ? "; ad sets start at " + daily : ""}.`, `Targeting: ${territories || "TBC"}.`, `Ad creative: Use existing post ${instagramPost || "TBC"}.`, "Once built, send the campaign link over for review before it goes live."].join("\n\n");
-      return { artistName: clean(artist), title: clean(title), status: "New Brief", priority: "Normal", deadline: "", budget: [budget,daily].filter(Boolean).join(" / "), objective: `${objective}. Conversion location: ${conversionLocation}. Optimisation event: ${event}. Pixel: ${pixel}.`, campaign_link: link, territories, raw_brief: raw, structured_brief: structured, missing_info: lower.includes("age") ? "No major missing information detected." : "Confirm age range.", report: "", checklist: DEFAULT_CHECKLIST };
+      return {
+        artistName: clean(artist),
+        title: clean(title),
+        status: "New Brief",
+        priority: "Normal",
+        deadline: "",
+        budget: [budget,daily].filter(Boolean).join(" / "),
+        objective: `${objective}. Conversion location: ${conversionLocation}. Optimisation event: ${event}. Pixel: ${pixel}.`,
+        campaign_link: link,
+        territories,
+        raw_brief: raw,
+        structured_brief: structured,
+        missing_info: lower.includes("age") ? "No major missing information detected." : "Confirm age range.",
+        report: "",
+        checklist: DEFAULT_CHECKLIST,
+        ad_sets: [
+          {
+            name: "Warm / Retargeting",
+            objective: `${conversionLocation} / ${event}`,
+            budget: daily || "€100/day if confirmed",
+            audience: "Warm stack of custom audiences, 5% lookalike, engagers and followers.",
+            notes: "Advantage+ audience OFF. Use agreed placements only."
+          },
+          {
+            name: "Prospecting",
+            objective: `${conversionLocation} / ${event}`,
+            budget: daily || "€100/day if confirmed",
+            audience: "Soft/acoustic related artist interests such as Hozier and Lana Del Rey.",
+            notes: "Advantage+ audience ON. Female-leaning lane if appropriate."
+          }
+        ]
+      };
     }
 
     function generateNames() { collectDraft(); const artist = slug(tempDraft.artistName || "artist"); const title = slug(tempDraft.title || "campaign"); const terr = slug((tempDraft.territories || "core").replaceAll(",", "-")); const names = `Suggested naming convention:\n\nCampaign:\n${artist}_eng-${title}_vc_${terr}\n\nAd Set 1:\nca_warm-lal_${artist}_18-50_${terr}_ig-fb\n\nAd Set 2:\nint_ra-related-artists_${artist}_18-50_${terr}_ig-fb`; document.getElementById("m_structuredBrief").value = (tempDraft.structured_brief ? tempDraft.structured_brief + "\n\n" : "") + names; collectDraft(); toast("Names added."); }
@@ -666,7 +811,7 @@
     function toast(message, error=false) { const el = document.getElementById("toast"); el.textContent = message; el.className = "toast" + (error ? " error" : ""); el.classList.remove("hidden"); setTimeout(() => el.classList.add("hidden"), 3500); }
     function val(id) { return document.getElementById(id)?.value?.trim() || ""; }
     function priorityRank(p) { return { Urgent: 0, Normal: 1, Low: 2 }[p] ?? 1; }
-    function tabLabel(t) { return { brief: "Brief", checklist: "Checklist", logs: "Work Log", report: "Report" }[t]; }
+    function tabLabel(t) { return { brief: "Brief", adsets: "Ad Sets", checklist: "Checklist", logs: "Work Log", report: "Report" }[t]; }
     function truncate(t, n) { return String(t || "").length > n ? String(t).slice(0, n-1) + "…" : String(t || ""); }
     function slug(t) { return String(t || "").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); }
     function clean(t) { return String(t || "").replaceAll("-", " ").replace(/\s+/g, " ").trim().replace(/^the /i, ""); }
