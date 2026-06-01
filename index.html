@@ -438,16 +438,25 @@
       </div>
       <div>
         <h1>Briefs, builds, logs and reports in one place.</h1>
-        <p class="muted">Enter the shared portal password to access artist folders and campaign boards.</p>
+        <p class="muted">Sign in with your Supabase email and password to access shared artist folders and campaign boards.</p>
       <div id="setupWarning" class="setup-warning hidden">
         Add your Supabase Project URL and publishable key inside the script section before deploying.
       </div>
-      <div class="field">
-        <label>Portal Password</label>
-        <input id="passwordInput" type="password" placeholder="Enter password" />
+      <div class="grid-2">
+        <div class="field">
+          <label>Email</label>
+          <input id="emailInput" type="email" placeholder="you@example.com" />
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input id="passwordInput" type="password" placeholder="Password" />
+        </div>
       </div>
-      <button class="btn" onclick="unlockPortal()">Unlock Portal</button>
-      <p class="small">This is simple shared-password access. It is fine for a private prototype, but proper user accounts are safer for production.</p>
+      <div class="row">
+        <button class="btn" onclick="signIn()">Sign In</button>
+        <button class="btn secondary" onclick="signUp()">Create Account</button>
+      </div>
+      <p class="small">Use this only for you and James. Keep Row Level Security enabled and use authenticated-only policies in Supabase.</p>
     </div>
   </section>
 
@@ -469,7 +478,7 @@
 
       <div class="side-section-title">Account</div>
       <button class="btn secondary" style="width:100%;" onclick="loadData()">Refresh</button>
-      <button class="btn danger" style="width:100%;margin-top:10px;" onclick="lockPortal()">Lock Portal</button>
+      <button class="btn danger" style="width:100%;margin-top:10px;" onclick="signOut()">Sign Out</button>
       <p class="small" style="margin-top:18px;">Artist folders are generated from campaign artists. Create a campaign with a new artist to add a new folder.</p>
     </aside>
 
@@ -517,9 +526,6 @@
     // Optional AI Edge Function name. Create this later in Supabase.
     const AI_FUNCTION_NAME = "organise-brief";
 
-    // Change this before deploying.
-    const PORTAL_PASSWORD = "change-this-password";
-
     const hasSupabaseConfig = !SUPABASE_URL.includes("PASTE_YOUR") && !SUPABASE_ANON_KEY.includes("PASTE_YOUR");
     const supabaseClient = hasSupabaseConfig ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
@@ -560,7 +566,7 @@
     let temporaryCampaignDraft = null;
 
     // ================================
-    // 3) SIMPLE PASSWORD ACCESS
+    // 3) SUPABASE AUTH
     // ================================
     async function init() {
       if (!hasSupabaseConfig) {
@@ -568,37 +574,60 @@
         return;
       }
 
-      if (sessionStorage.getItem("jdw_portal_unlocked") === "true") {
-        showApp();
+      const { data } = await supabaseClient.auth.getSession();
+      currentUser = data.session?.user || null;
+
+      supabaseClient.auth.onAuthStateChange((_event, session) => {
+        currentUser = session?.user || null;
+        showCorrectScreen();
+      });
+
+      await showCorrectScreen();
+    }
+
+    async function showCorrectScreen() {
+      if (currentUser) {
+        document.getElementById("loginScreen").classList.add("hidden");
+        document.getElementById("app").classList.remove("hidden");
+        document.getElementById("userLabel").textContent = currentUser.email || "Signed in";
+        await loadData();
+      } else {
+        document.getElementById("loginScreen").classList.remove("hidden");
+        document.getElementById("app").classList.add("hidden");
       }
     }
 
-    async function unlockPortal() {
+    async function signIn() {
+      if (!hasSupabaseConfig) return toast("Add Supabase URL and publishable key first.", true);
+      const email = document.getElementById("emailInput").value.trim();
       const password = document.getElementById("passwordInput").value;
-      if (password !== PORTAL_PASSWORD) {
-        return toast("Incorrect password.", true);
-      }
+      if (!email || !password) return toast("Enter email and password.", true);
 
-      sessionStorage.setItem("jdw_portal_unlocked", "true");
-      await showApp();
+      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) return toast(error.message, true);
+      toast("Signed in.");
     }
 
-    async function showApp() {
-      document.getElementById("loginScreen").classList.add("hidden");
-      document.getElementById("app").classList.remove("hidden");
-      document.getElementById("userLabel").textContent = "Shared password access";
-      await loadData();
+    async function signUp() {
+      if (!hasSupabaseConfig) return toast("Add Supabase URL and publishable key first.", true);
+      const email = document.getElementById("emailInput").value.trim();
+      const password = document.getElementById("passwordInput").value;
+      if (!email || !password) return toast("Enter email and password.", true);
+
+      const { error } = await supabaseClient.auth.signUp({ email, password });
+      if (error) return toast(error.message, true);
+      toast("Account created. If email confirmations are enabled, confirm the email before signing in.");
     }
 
-    function lockPortal() {
-      sessionStorage.removeItem("jdw_portal_unlocked");
-      document.getElementById("loginScreen").classList.remove("hidden");
-      document.getElementById("app").classList.add("hidden");
-      toast("Portal locked.");
+    async function signOut() {
+      await supabaseClient.auth.signOut();
+      campaigns = [];
+      artists = [];
+      toast("Signed out.");
     }
 
     document.getElementById("passwordInput")?.addEventListener("keydown", event => {
-      if (event.key === "Enter") unlockPortal();
+      if (event.key === "Enter") signIn();
     });
 
     // ================================
@@ -1421,7 +1450,8 @@
     }
 
     function findUrl(text, domain) {
-      const tokens = String(text || "").split(/ |\n|\t/).map(t => t.trim().replace(/[),.]+$/g, ""));
+      const tokens = String(text || "").split(/ |
+|	/).map(t => t.trim().replace(/[),.]+$/g, ""));
       const found = tokens.find(t => t.toLowerCase().includes(domain.toLowerCase()) && t.includes("."));
       if (!found) return "";
       return found.startsWith("http") ? found : "https://" + found;
