@@ -8,432 +8,140 @@
   <style>
     :root {
       --bg: #07070a;
-      --surface: #101016;
-      --surface-2: #171720;
-      --surface-3: #20202b;
+      --panel: #111118;
+      --panel2: #181820;
+      --panel3: #20202b;
       --text: #f5f5f7;
       --muted: #a1a1aa;
-      --muted-2: #71717a;
-      --line: #292934;
+      --muted2: #71717a;
+      --line: #2b2b36;
       --accent: #d7ff38;
-      --accent-2: #a3c900;
       --red: #ff5f6d;
       --orange: #ffb454;
       --blue: #7aa7ff;
       --green: #72ff99;
       --purple: #c084fc;
-      --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+      --cyan: #67e8f9;
+      --shadow: 0 24px 80px rgba(0,0,0,.42);
     }
 
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
       min-height: 100vh;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background:
-        radial-gradient(circle at 15% 0%, rgba(215,255,56,0.13), transparent 28%),
-        radial-gradient(circle at 80% 20%, rgba(122,167,255,0.10), transparent 25%),
-        var(--bg);
+      background: radial-gradient(circle at 15% 0%, rgba(215,255,56,.13), transparent 28%), radial-gradient(circle at 80% 20%, rgba(122,167,255,.10), transparent 25%), var(--bg);
       color: var(--text);
       overflow: hidden;
     }
-
     button, input, textarea, select { font: inherit; }
     button { cursor: pointer; }
     .hidden { display: none !important; }
 
-    .auth-actions {
-      margin-top: 10px;
-      margin-bottom: 8px;
-    }
-
-    .modal-body .row {
-      margin-top: 8px;
-    }
-
-    .setup-warning {
-      margin: 18px 0 0;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,180,84,0.35);
-      background: rgba(255,180,84,0.08);
-      color: var(--orange);
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .login-screen {
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-    }
-
+    .login-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
     .login-card {
-      width: min(500px, 100%);
-      padding: 34px;
+      width: min(540px, 100%);
+      padding: 36px;
       border: 1px solid var(--line);
       border-radius: 30px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.025));
+      background: linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.025));
       box-shadow: var(--shadow);
     }
-
-    .logo-row {
-      display: flex;
-      gap: 14px;
-      align-items: center;
-      margin-bottom: 28px;
-    }
-
-    .logo {
-      width: 46px;
-      height: 46px;
-      border-radius: 16px;
-      display: grid;
-      place-items: center;
-      background: var(--accent);
-      color: #050505;
-      font-weight: 950;
-      letter-spacing: -0.08em;
-      box-shadow: 0 0 35px rgba(215,255,56,0.25);
-    }
-
+    .logo-row { display: flex; gap: 14px; align-items: center; margin-bottom: 30px; }
+    .logo { width: 48px; height: 48px; border-radius: 16px; display: grid; place-items: center; background: var(--accent); color: #050505; font-weight: 950; letter-spacing: -.08em; box-shadow: 0 0 35px rgba(215,255,56,.25); }
     h1, h2, h3, p { margin-top: 0; }
-
-    .login-card h1 {
-      font-size: 34px;
-      line-height: 0.96;
-      letter-spacing: -0.065em;
-      margin-bottom: 12px;
-    }
-
+    .login-card h1 { font-size: 34px; line-height: .98; letter-spacing: -.065em; margin-bottom: 14px; }
     .muted { color: var(--muted); }
-    .small { font-size: 12px; line-height: 1.55; color: var(--muted-2); }
+    .small { font-size: 12px; line-height: 1.55; color: var(--muted2); }
 
-    label {
-      display: block;
-      font-size: 11px;
-      letter-spacing: 0.075em;
-      text-transform: uppercase;
-      color: var(--muted);
-      font-weight: 800;
-      margin: 0 0 4px;
-      line-height: 1.35;
-    }
-
+    label { display: block; font-size: 11px; letter-spacing: .075em; text-transform: uppercase; color: var(--muted); font-weight: 850; line-height: 1.35; }
     input, textarea, select {
       width: 100%;
       border: 1px solid var(--line);
       border-radius: 14px;
-      background: rgba(0,0,0,0.26);
+      background: rgba(0,0,0,.26);
       color: var(--text);
       padding: 14px 15px;
       outline: none;
-      transition: 0.18s border, 0.18s box-shadow, 0.18s background;
+      min-width: 0;
     }
-
     textarea { resize: vertical; min-height: 130px; line-height: 1.48; }
-
-    input:focus, textarea:focus, select:focus {
-      border-color: rgba(215,255,56,0.65);
-      box-shadow: 0 0 0 4px rgba(215,255,56,0.08);
-      background: rgba(0,0,0,0.38);
-    }
-
-    .btn {
-      border: 0;
-      border-radius: 14px;
-      padding: 13px 18px;
-      background: var(--accent);
-      color: #060606;
-      font-weight: 900;
-      transition: transform 0.18s, opacity 0.18s, background 0.18s;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      white-space: nowrap;
-    }
-
-    .btn:hover { transform: translateY(-1px); background: #e2ff63; }
-    .btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
-
-    .btn.secondary {
-      background: rgba(255,255,255,0.045);
-      color: var(--text);
-      border: 1px solid var(--line);
-    }
-
-    .btn.secondary:hover { background: rgba(255,255,255,0.075); }
-    .btn.danger { background: rgba(255,95,109,0.12); color: var(--red); border: 1px solid rgba(255,95,109,0.32); }
-
-    .stack { display: grid; gap: 14px; }
+    input:focus, textarea:focus, select:focus { border-color: rgba(215,255,56,.65); box-shadow: 0 0 0 4px rgba(215,255,56,.08); background: rgba(0,0,0,.38); }
+    .field { display: grid; gap: 10px; min-width: 0; }
+    .stack { display: grid; gap: 22px; }
     .row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
     .between { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
-
-    .app {
-      height: 100vh;
-      display: grid;
-      grid-template-columns: 270px 1fr;
-    }
-
-    .sidebar {
-      border-right: 1px solid var(--line);
-      background: rgba(10,10,14,0.78);
-      backdrop-filter: blur(16px);
-      padding: 18px;
-      overflow-y: auto;
-    }
-
-    .side-top { margin-bottom: 20px; }
-    .side-top h2 { font-size: 14px; margin: 0; letter-spacing: 0.08em; text-transform: uppercase; }
-    .side-top p { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
-
-    .side-section-title {
-      font-size: 11px;
-      letter-spacing: 0.11em;
-      color: var(--muted-2);
-      text-transform: uppercase;
-      font-weight: 900;
-      margin: 22px 0 8px;
-    }
-
-    .folder-list { display: grid; gap: 6px; }
-
-    .folder-item {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 10px 11px;
-      border: 1px solid transparent;
-      border-radius: 13px;
-      background: transparent;
-      color: var(--muted);
-      text-align: left;
-    }
-
-    .folder-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
-    .folder-item.active { background: rgba(215,255,56,0.10); color: var(--accent); border-color: rgba(215,255,56,0.20); }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 22px;
-      height: 22px;
-      border-radius: 999px;
-      padding: 0 7px;
-      background: rgba(255,255,255,0.07);
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 800;
-    }
-
-    .main {
-      min-width: 0;
-      display: grid;
-      grid-template-rows: auto auto 1fr;
-      overflow: hidden;
-    }
-
-    .topbar {
-      padding: 18px 22px;
-      border-bottom: 1px solid var(--line);
-      background: rgba(11,11,16,0.62);
-      backdrop-filter: blur(16px);
-    }
-
-    .topbar h1 { margin: 0; font-size: 25px; letter-spacing: -0.055em; }
-
-    .toolbar {
-      padding: 14px 22px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      border-bottom: 1px solid var(--line);
-      background: rgba(7,7,10,0.38);
-    }
-
-    .search { max-width: 390px; }
-
-    .board {
-      padding: 22px;
-      overflow: auto;
-      display: grid;
-      grid-template-columns: repeat(7, minmax(250px, 1fr));
-      gap: 16px;
-      align-items: start;
-    }
-
-    .column {
-      background: rgba(255,255,255,0.035);
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      min-height: calc(100vh - 185px);
-      padding: 12px;
-    }
-
-    .column.drag-over { border-color: rgba(215,255,56,0.55); background: rgba(215,255,56,0.045); }
-
-    .column-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 12px;
-      padding: 3px 3px 7px;
-    }
-
-    .column-title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--text);
-      font-weight: 900;
-      font-size: 13px;
-    }
-
-    .status-dot { width: 9px; height: 9px; border-radius: 999px; background: var(--muted); }
-    .status-dot.new { background: var(--blue); }
-    .status-dot.ready { background: var(--accent); }
-    .status-dot.progress { background: var(--orange); }
-    .status-dot.approval { background: var(--purple); }
-    .status-dot.live { background: var(--green); }
-    .status-dot.reporting { background: #67e8f9; }
-    .status-dot.complete { background: var(--muted); }
-
-    .cards { display: grid; gap: 10px; }
-
-    .card {
-      border: 1px solid var(--line);
-      background: linear-gradient(180deg, rgba(255,255,255,0.065), rgba(255,255,255,0.03));
-      border-radius: 17px;
-      padding: 13px;
-      box-shadow: 0 12px 28px rgba(0,0,0,0.16);
-      transition: transform 0.16s, border 0.16s, background 0.16s, opacity 0.16s;
-      cursor: grab;
-    }
-
-    .card:hover { transform: translateY(-2px); border-color: rgba(215,255,56,0.30); background: rgba(255,255,255,0.07); }
-    .card:active { cursor: grabbing; }
-    .card.dragging { opacity: 0.45; }
-
-    .card h3 { margin: 0 0 8px; font-size: 15px; letter-spacing: -0.025em; }
-    .card p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
-
-    .meta-grid { margin-top: 11px; display: flex; gap: 7px; flex-wrap: wrap; }
-
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      border: 1px solid var(--line);
-      background: rgba(0,0,0,0.18);
-      border-radius: 999px;
-      padding: 5px 8px;
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 750;
-    }
-
-    .priority-urgent { color: var(--red); border-color: rgba(255,95,109,0.28); background: rgba(255,95,109,0.07); }
-    .priority-normal { color: var(--blue); border-color: rgba(122,167,255,0.25); background: rgba(122,167,255,0.06); }
-    .priority-low { color: var(--muted); }
-
-    .progress-bar { height: 7px; border-radius: 999px; background: rgba(255,255,255,0.07); overflow: hidden; margin-top: 12px; }
-    .progress-fill { height: 100%; background: var(--accent); border-radius: inherit; }
-
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.62);
-      display: grid;
-      place-items: center;
-      padding: 22px;
-      z-index: 50;
-    }
-
-    .modal {
-      width: min(1120px, 100%);
-      max-height: min(880px, calc(100vh - 44px));
-      display: grid;
-      grid-template-rows: auto auto 1fr;
-      overflow: hidden;
-      border: 1px solid var(--line);
-      border-radius: 28px;
-      background: #0f0f15;
-      box-shadow: var(--shadow);
-    }
-
-    .modal-head { padding: 20px; border-bottom: 1px solid var(--line); }
-    .modal-head h2 { margin: 0 0 7px; font-size: 28px; letter-spacing: -0.055em; }
-    .modal-body { overflow: auto; padding: 26px 24px 30px; }
-
-    .tabs {
-      display: flex;
-      gap: 8px;
-      padding: 12px 20px;
-      border-bottom: 1px solid var(--line);
-      background: rgba(255,255,255,0.025);
-      overflow-x: auto;
-    }
-
-    .tab { border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 999px; padding: 8px 12px; font-weight: 800; font-size: 12px; }
-    .tab.active { background: rgba(215,255,56,0.1); color: var(--accent); border-color: rgba(215,255,56,0.25); }
-
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
     .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
-    .field { display: grid; gap: 11px; min-width: 0; }
 
-    .panel { border: 1px solid var(--line); background: rgba(255,255,255,0.035); border-radius: 18px; padding: 15px; }
-    .panel h3 { margin: 0 0 12px; font-size: 14px; letter-spacing: -0.02em; }
+    .btn { border: 0; border-radius: 14px; padding: 13px 18px; background: var(--accent); color: #050505; font-weight: 950; transition: transform .16s, opacity .16s, background .16s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; }
+    .btn:hover { transform: translateY(-1px); background: #e2ff63; }
+    .btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+    .btn.secondary { background: rgba(255,255,255,.055); color: var(--text); border: 1px solid var(--line); }
+    .btn.secondary:hover { background: rgba(255,255,255,.08); }
+    .btn.danger { background: rgba(255,95,109,.12); color: var(--red); border: 1px solid rgba(255,95,109,.32); }
+    .status-box { padding: 13px 14px; border-radius: 16px; border: 1px solid rgba(114,255,153,.35); background: rgba(114,255,153,.08); color: var(--green); font-size: 13px; line-height: 1.45; }
+    .status-box.error { border-color: rgba(255,95,109,.35); background: rgba(255,95,109,.08); color: var(--red); }
 
-    .check-item { display: flex; align-items: flex-start; gap: 10px; border: 1px solid var(--line); border-radius: 14px; padding: 10px; background: rgba(0,0,0,0.16); margin-bottom: 8px; }
+    .app { height: 100vh; display: grid; grid-template-columns: 280px 1fr; }
+    .sidebar { border-right: 1px solid var(--line); background: rgba(10,10,14,.78); backdrop-filter: blur(16px); padding: 18px; overflow-y: auto; }
+    .side-title h2 { font-size: 14px; margin: 0; letter-spacing: .08em; text-transform: uppercase; }
+    .side-title p { margin: 3px 0 0; font-size: 12px; color: var(--muted); }
+    .side-section-title { font-size: 11px; letter-spacing: .11em; color: var(--muted2); text-transform: uppercase; font-weight: 900; margin: 24px 0 9px; }
+    .folder-list { display: grid; gap: 7px; }
+    .folder-item { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 11px 12px; border: 1px solid transparent; border-radius: 13px; background: transparent; color: var(--muted); text-align: left; }
+    .folder-item:hover { background: rgba(255,255,255,.05); color: var(--text); }
+    .folder-item.active { background: rgba(215,255,56,.10); color: var(--accent); border-color: rgba(215,255,56,.20); }
+    .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; border-radius: 999px; padding: 0 7px; background: rgba(255,255,255,.07); color: var(--muted); font-size: 11px; font-weight: 850; }
+
+    .main { min-width: 0; display: grid; grid-template-rows: auto auto 1fr; overflow: hidden; }
+    .topbar { padding: 18px 22px; border-bottom: 1px solid var(--line); background: rgba(11,11,16,.62); backdrop-filter: blur(16px); }
+    .topbar h1 { margin: 0; font-size: 27px; letter-spacing: -.055em; }
+    .toolbar { padding: 16px 22px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--line); background: rgba(7,7,10,.38); }
+    .search { max-width: 430px; }
+    .board { padding: 22px; overflow: auto; display: grid; grid-template-columns: repeat(7, minmax(260px, 1fr)); gap: 16px; align-items: start; }
+    .column { background: rgba(255,255,255,.035); border: 1px solid var(--line); border-radius: 20px; min-height: calc(100vh - 190px); padding: 12px; }
+    .column.drag-over { border-color: rgba(215,255,56,.55); background: rgba(215,255,56,.045); }
+    .column-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; padding: 3px 3px 7px; }
+    .column-title { display: flex; align-items: center; gap: 8px; color: var(--text); font-weight: 950; font-size: 13px; }
+    .status-dot { width: 9px; height: 9px; border-radius: 999px; background: var(--muted); }
+    .status-dot.new { background: var(--blue); } .status-dot.ready { background: var(--accent); } .status-dot.progress { background: var(--orange); } .status-dot.approval { background: var(--purple); } .status-dot.live { background: var(--green); } .status-dot.reporting { background: var(--cyan); } .status-dot.complete { background: var(--muted); }
+    .cards { display: grid; gap: 10px; }
+    .card { border: 1px solid var(--line); background: linear-gradient(180deg, rgba(255,255,255,.065), rgba(255,255,255,.03)); border-radius: 17px; padding: 14px; box-shadow: 0 12px 28px rgba(0,0,0,.16); transition: transform .16s, border .16s, background .16s, opacity .16s; cursor: grab; }
+    .card:hover { transform: translateY(-2px); border-color: rgba(215,255,56,.30); background: rgba(255,255,255,.07); }
+    .card.dragging { opacity: .45; }
+    .card h3 { margin: 0 0 8px; font-size: 15px; letter-spacing: -.025em; }
+    .card p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .meta-grid { margin-top: 12px; display: flex; gap: 7px; flex-wrap: wrap; }
+    .chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: rgba(0,0,0,.18); border-radius: 999px; padding: 5px 8px; color: var(--muted); font-size: 11px; font-weight: 800; }
+    .priority-urgent { color: var(--red); border-color: rgba(255,95,109,.28); background: rgba(255,95,109,.07); }
+    .priority-normal { color: var(--blue); border-color: rgba(122,167,255,.25); background: rgba(122,167,255,.06); }
+    .progress-bar { height: 7px; border-radius: 999px; background: rgba(255,255,255,.07); overflow: hidden; margin-top: 12px; }
+    .progress-fill { height: 100%; background: var(--accent); border-radius: inherit; }
+    .empty { border: 1px dashed var(--line); color: var(--muted2); border-radius: 16px; padding: 18px; text-align: center; font-size: 13px; }
+
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.62); display: grid; place-items: center; padding: 22px; z-index: 50; }
+    .modal { width: min(1120px, 100%); max-height: min(880px, calc(100vh - 44px)); display: grid; grid-template-rows: auto auto 1fr; overflow: hidden; border: 1px solid var(--line); border-radius: 28px; background: #0f0f15; box-shadow: var(--shadow); }
+    .modal-head { padding: 22px 24px; border-bottom: 1px solid var(--line); }
+    .modal-head h2 { margin: 0 0 7px; font-size: 28px; letter-spacing: -.055em; }
+    .tabs { display: flex; gap: 8px; padding: 14px 24px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.025); overflow-x: auto; }
+    .tab { border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 999px; padding: 8px 12px; font-weight: 850; font-size: 12px; }
+    .tab.active { background: rgba(215,255,56,.1); color: var(--accent); border-color: rgba(215,255,56,.25); }
+    .modal-body { overflow: auto; padding: 28px 24px 32px; }
+    .panel { border: 1px solid var(--line); background: rgba(255,255,255,.035); border-radius: 18px; padding: 16px; }
+    .panel h3 { margin: 0 0 13px; font-size: 14px; letter-spacing: -.02em; }
+    .check-item { display: flex; align-items: flex-start; gap: 11px; border: 1px solid var(--line); border-radius: 14px; padding: 11px; background: rgba(0,0,0,.16); margin-bottom: 9px; }
     .check-item input { width: auto; margin-top: 3px; accent-color: var(--accent); }
-    .check-item.done span { color: var(--muted-2); text-decoration: line-through; }
-
+    .check-item.done span { color: var(--muted2); text-decoration: line-through; }
     .log-list { display: grid; gap: 10px; }
-    .log-item { border-left: 3px solid rgba(215,255,56,0.45); background: rgba(255,255,255,0.035); border-radius: 0 14px 14px 0; padding: 11px 12px; }
+    .log-item { border-left: 3px solid rgba(215,255,56,.45); background: rgba(255,255,255,.035); border-radius: 0 14px 14px 0; padding: 12px; }
     .log-item p { margin: 0; color: var(--text); line-height: 1.45; }
-    .log-item .small { margin-top: 5px; }
 
-    .empty { border: 1px dashed var(--line); color: var(--muted-2); border-radius: 16px; padding: 18px; text-align: center; font-size: 13px; }
+    .toast { position: fixed; right: 18px; bottom: 18px; z-index: 80; max-width: 460px; padding: 13px 14px; border-radius: 16px; border: 1px solid rgba(114,255,153,.28); background: rgba(20,35,25,.94); color: var(--green); box-shadow: var(--shadow); font-size: 13px; }
+    .toast.error { border-color: rgba(255,95,109,.35); background: rgba(40,20,24,.94); color: var(--red); }
 
-    .toast {
-      position: fixed;
-      right: 18px;
-      bottom: 18px;
-      z-index: 80;
-      max-width: 440px;
-      padding: 13px 14px;
-      border-radius: 16px;
-      border: 1px solid rgba(114,255,153,0.28);
-      background: rgba(20,35,25,0.94);
-      color: var(--green);
-      box-shadow: var(--shadow);
-      font-size: 13px;
-    }
-
-    @media (max-width: 1200px) {
-      .app { grid-template-columns: 1fr; }
-      .sidebar { display: none; }
-      .board { grid-template-columns: repeat(7, 280px); }
-    }
-
-    @media (max-width: 760px) {
-      body { overflow: auto; }
-      .app { height: auto; min-height: 100vh; }
-      .main { overflow: visible; }
-      .board { overflow-x: auto; }
-      .toolbar, .topbar { align-items: flex-start; flex-direction: column; }
-      .grid-2, .grid-3 { grid-template-columns: 1fr; }
-      .modal-backdrop { padding: 0; align-items: stretch; }
-      .modal { max-height: 100vh; border-radius: 0; }
-    }
+    @media (max-width: 1200px) { .app { grid-template-columns: 1fr; } .sidebar { display: none; } .board { grid-template-columns: repeat(7, 280px); } }
+    @media (max-width: 760px) { body { overflow: auto; } .app { height: auto; min-height: 100vh; } .main { overflow: visible; } .board { overflow-x: auto; } .toolbar, .topbar { align-items: flex-start; flex-direction: column; } .grid-2, .grid-3 { grid-template-columns: 1fr; } .modal-backdrop { padding: 0; align-items: stretch; } .modal { max-height: 100vh; border-radius: 0; } }
   </style>
 </head>
 <body>
@@ -442,32 +150,24 @@
       <div class="logo-row">
         <div class="logo">JW</div>
         <div>
-          <h2 style="margin:0;font-size:14px;letter-spacing:0.08em;text-transform:uppercase;">JDW Campaign Hub</h2>
-          <p class="small" style="margin:2px 0 0;">Supabase-powered campaign operations portal</p>
+          <h2 style="margin:0;font-size:14px;letter-spacing:.08em;text-transform:uppercase;">JDW Campaign Hub</h2>
+          <p class="small" style="margin:3px 0 0;">Supabase-powered campaign operations portal</p>
         </div>
       </div>
       <div>
         <h1>Briefs, builds, logs and reports in one place.</h1>
         <p class="muted">Sign in with your Supabase email and password to access shared artist folders and campaign boards.</p>
-      <div id="setupWarning" class="setup-warning hidden">
-        Add your Supabase Project URL and publishable key inside the script section before deploying.
       </div>
-      <form id="authForm" class="stack" style="gap:22px;" autocomplete="on">
+      <form id="authForm" class="stack" autocomplete="on">
         <div class="grid-2">
-          <div class="field">
-            <label>Email</label>
-            <input id="emailInput" type="email" placeholder="you@example.com" autocomplete="email" required />
-          </div>
-          <div class="field">
-            <label>Password</label>
-            <input id="passwordInput" type="password" placeholder="Password" autocomplete="current-password" required />
-          </div>
+          <div class="field"><label>Email</label><input id="emailInput" type="email" autocomplete="email" placeholder="you@example.com" required /></div>
+          <div class="field"><label>Password</label><input id="passwordInput" type="password" autocomplete="current-password" placeholder="Password" required /></div>
         </div>
-        <div class="row auth-actions">
+        <div class="row">
           <button id="signInButton" class="btn" type="submit">Sign In</button>
           <button id="signUpButton" class="btn secondary" type="button">Create Account</button>
         </div>
-        <div id="authStatus" class="setup-warning">Login script loading...</div>
+        <div id="authStatus" class="status-box">Loading login...</div>
       </form>
       <p class="small">Use this only for you and James. Keep Row Level Security enabled and use authenticated-only policies in Supabase.</p>
     </div>
@@ -475,44 +175,34 @@
 
   <section id="app" class="app hidden">
     <aside class="sidebar">
-      <div class="side-top logo-row">
+      <div class="logo-row side-title">
         <div class="logo">JW</div>
-        <div>
-          <h2>Campaign Hub</h2>
-          <p id="userLabel">Shared dashboard</p>
-        </div>
+        <div><h2>Campaign Hub</h2><p id="userLabel">Shared dashboard</p></div>
       </div>
-
-      <button class="btn" style="width:100%;" onclick="openNewCampaignModal()">+ New Campaign</button>
-      <button class="btn secondary" style="width:100%;margin-top:10px;" onclick="openAiImportModal()">Import Messy Brief</button>
-
+      <button class="btn" style="width:100%;" id="newCampaignSideBtn">+ New Campaign</button>
+      <button class="btn secondary" style="width:100%;margin-top:12px;" id="importBriefSideBtn">Import Messy Brief</button>
       <div class="side-section-title">Artist Folders</div>
       <div id="artistList" class="folder-list"></div>
-
       <div class="side-section-title">Account</div>
-      <button class="btn secondary" style="width:100%;" onclick="loadData()">Refresh</button>
-      <button class="btn danger" style="width:100%;margin-top:10px;" onclick="signOut()">Sign Out</button>
-      <p class="small" style="margin-top:18px;">Artist folders are generated from campaign artists. Create a campaign with a new artist to add a new folder.</p>
+      <button class="btn secondary" style="width:100%;" id="refreshBtn">Refresh</button>
+      <button class="btn danger" style="width:100%;margin-top:12px;" id="signOutBtn">Sign Out</button>
+      <p class="small" style="margin-top:20px;">Artist folders are generated from campaign artists. Create a campaign with a new artist to add a new folder.</p>
     </aside>
 
     <main class="main">
       <header class="topbar between">
-        <div>
-          <h1 id="pageTitle">All Artists</h1>
-          <p id="pageSubtitle" class="small" style="margin:4px 0 0;">Drag campaign cards between columns to update status.</p>
-        </div>
+        <div><h1 id="pageTitle">All Artists</h1><p class="small" style="margin:5px 0 0;">Drag campaign cards between columns to update status.</p></div>
         <div class="row">
-          <button class="btn secondary" onclick="copyStatusSummary()">Copy Status Summary</button>
-          <button class="btn secondary" onclick="openAiImportModal()">Import Brief</button>
-          <button class="btn" onclick="openNewCampaignModal()">+ New Campaign</button>
+          <button class="btn secondary" id="copySummaryBtn">Copy Status Summary</button>
+          <button class="btn secondary" id="importBriefTopBtn">Import Brief</button>
+          <button class="btn" id="newCampaignTopBtn">+ New Campaign</button>
         </div>
       </header>
-
       <section class="toolbar">
-        <input id="searchInput" class="search" placeholder="Search campaigns, artists, briefs or logs..." oninput="renderBoard()" />
+        <input id="searchInput" class="search" placeholder="Search campaigns, artists, briefs or logs..." />
         <div class="row">
-          <select id="artistFilterMobile" onchange="setActiveArtist(this.value)"></select>
-          <select id="sortSelect" onchange="renderBoard()">
+          <select id="artistFilterMobile"></select>
+          <select id="sortSelect">
             <option value="updated">Sort: recently updated</option>
             <option value="deadline">Sort: deadline</option>
             <option value="priority">Sort: priority</option>
@@ -520,7 +210,6 @@
           </select>
         </div>
       </section>
-
       <section id="board" class="board"></section>
     </main>
   </section>
@@ -529,49 +218,10 @@
   <div id="toast" class="toast hidden"></div>
 
   <script>
-    // ================================
-    // 1) SUPABASE CONFIG
-    // ================================
-    // Replace these two values with your Supabase project details:
-    // This is copied exactly from Supabase → Data API → API URL.
-    const SUPABASE_URL = "https://zpkfxdyvesftnhkknggz.supabase.co/rest/v1/";
+    const SUPABASE_URL_FROM_DASHBOARD = "https://zpkfxdyvesftnhkknggz.supabase.co/rest/v1/";
+    const SUPABASE_URL = SUPABASE_URL_FROM_DASHBOARD.replace(/\/rest\/v1\/?$/, "");
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpwa2Z4ZHl2ZXNmdG5oa2tuZ2d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMDM5NjgsImV4cCI6MjA5NTg3OTk2OH0._w0PMiMUVh7MPyGWpKyRU4Sm6DXok-Yz657ctjUml3k";
 
-    // This is copied from Supabase → API Keys → Publishable key.
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpwa2Z4ZHl2ZXNmdG5oa2tuZ2d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMDM5NjgsImV4cCI6MjA5NTg3OTk2OH0._w0PMiMUVh7MPyGWpKyRU4Sm6DXok-Yz657ctjUml3k";
-
-    // Supabase's JavaScript client needs the base project URL, so this removes /rest/v1/ automatically.
-    const SUPABASE_PROJECT_URL = SUPABASE_URL.replace(/\/rest\/v1\/?$/, "");
-
-    // Expose these for the emergency fallback login script at the bottom of the page.
-    window.JDW_SUPABASE_URL = SUPABASE_PROJECT_URL;
-    window.JDW_SUPABASE_KEY = SUPABASE_ANON_KEY;
-
-    // Optional AI Edge Function name. Create this later in Supabase.
-    const AI_FUNCTION_NAME = "organise-brief";
-
-    const hasSupabaseConfig = !SUPABASE_URL.includes("PASTE_YOUR") && !SUPABASE_ANON_KEY.includes("PASTE_YOUR");
-    let supabaseClient = null;
-
-    window.addEventListener("error", event => {
-      const message = event?.message || "Unknown JavaScript error";
-      const authBox = document.getElementById("authStatus");
-      if (authBox) {
-        authBox.textContent = "JavaScript error: " + message;
-        authBox.classList.remove("hidden");
-        authBox.style.color = "var(--red)";
-        authBox.style.borderColor = "rgba(255,95,109,0.35)";
-        authBox.style.background = "rgba(255,95,109,0.08)";
-      }
-      console.error("Page error:", event.error || message);
-    });
-
-    if (hasSupabaseConfig && window.supabase) {
-      supabaseClient = window.supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_ANON_KEY);
-    }
-
-    // ================================
-    // 2) APP CONSTANTS / STATE
-    // ================================
     const STATUSES = [
       { key: "New Brief", className: "new" },
       { key: "Ready to Build", className: "ready" },
@@ -597,68 +247,89 @@
       "Launch or mark awaiting approval"
     ];
 
+    let supabaseClient;
     let currentUser = null;
     let artists = [];
     let campaigns = [];
+    let checklistItems = [];
+    let workLogs = [];
     let activeArtistId = "all";
     let activeCampaignId = null;
     let activeTab = "brief";
-    let temporaryCampaignDraft = null;
+    let tempDraft = null;
 
-    // ================================
-    // 3) SUPABASE AUTH
-    // ================================
+    document.addEventListener("DOMContentLoaded", init);
+
     async function init() {
-      setupAuthUi();
+      try {
+        if (!window.supabase) throw new Error("Supabase library did not load.");
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        wireUi();
+        setAuthStatus("Login ready. Enter details and press Sign In.");
 
-      if (!hasSupabaseConfig) {
-        document.getElementById("setupWarning").classList.remove("hidden");
-        showAuthStatus("Supabase config missing from index.html.", true);
-        return;
+        const { data, error } = await supabaseClient.auth.getSession();
+        if (error) throw error;
+        currentUser = data.session?.user || null;
+
+        supabaseClient.auth.onAuthStateChange((_event, session) => {
+          currentUser = session?.user || null;
+          showCorrectScreen();
+        });
+
+        await showCorrectScreen();
+      } catch (error) {
+        setAuthStatus(error.message, true);
       }
+    }
 
-      if (!window.supabase || !supabaseClient) {
-        showAuthStatus("Supabase library did not load. Check the CDN script or your connection.", true);
-        return;
-      }
+    function wireUi() {
+      document.getElementById("authForm").addEventListener("submit", async event => { event.preventDefault(); await signIn(); });
+      document.getElementById("signUpButton").addEventListener("click", signUp);
+      document.getElementById("newCampaignSideBtn").addEventListener("click", () => openCampaignModal(null));
+      document.getElementById("newCampaignTopBtn").addEventListener("click", () => openCampaignModal(null));
+      document.getElementById("importBriefSideBtn").addEventListener("click", openImportModal);
+      document.getElementById("importBriefTopBtn").addEventListener("click", openImportModal);
+      document.getElementById("refreshBtn").addEventListener("click", loadData);
+      document.getElementById("signOutBtn").addEventListener("click", signOut);
+      document.getElementById("copySummaryBtn").addEventListener("click", copyStatusSummary);
+      document.getElementById("searchInput").addEventListener("input", renderBoard);
+      document.getElementById("artistFilterMobile").addEventListener("change", event => setActiveArtist(event.target.value));
+      document.getElementById("sortSelect").addEventListener("change", renderBoard);
+    }
 
-      showAuthStatus("Supabase connected. Enter email/password, then press Sign In.");
-
-      const { data, error } = await supabaseClient.auth.getSession();
-      if (error) {
-        showAuthStatus("Session check failed: " + error.message, true);
-        return;
-      }
-
-      currentUser = data.session?.user || null;
-
-      supabaseClient.auth.onAuthStateChange((_event, session) => {
-        currentUser = session?.user || null;
-        showCorrectScreen();
-      });
-
+    async function signIn() {
+      const email = document.getElementById("emailInput").value.trim();
+      const password = document.getElementById("passwordInput").value;
+      if (!email || !password) return setAuthStatus("Enter email and password.", true);
+      setAuthStatus("Signing in...");
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) return setAuthStatus(error.message, true);
+      currentUser = data.user;
+      setAuthStatus("Signed in. Loading dashboard...");
       await showCorrectScreen();
     }
 
-    function setupAuthUi() {
-      const form = document.getElementById("authForm");
-      const signUpButton = document.getElementById("signUpButton");
-
-      if (form && !form.dataset.wired) {
-        form.addEventListener("submit", event => {
-          event.preventDefault();
-          signIn();
-        });
-        form.dataset.wired = "true";
+    async function signUp() {
+      const email = document.getElementById("emailInput").value.trim();
+      const password = document.getElementById("passwordInput").value;
+      if (!email || !password) return setAuthStatus("Enter email and password.", true);
+      setAuthStatus("Creating account...");
+      const { data, error } = await supabaseClient.auth.signUp({ email, password });
+      if (error) return setAuthStatus(error.message, true);
+      if (data.session) {
+        currentUser = data.user;
+        await showCorrectScreen();
+      } else {
+        setAuthStatus("Account created. Check email confirmation settings in Supabase, then sign in.");
       }
+    }
 
-      if (signUpButton && !signUpButton.dataset.wired) {
-        signUpButton.addEventListener("click", event => {
-          event.preventDefault();
-          signUp();
-        });
-        signUpButton.dataset.wired = "true";
-      }
+    async function signOut() {
+      await supabaseClient.auth.signOut();
+      currentUser = null;
+      campaigns = [];
+      artists = [];
+      renderBoard();
     }
 
     async function showCorrectScreen() {
@@ -666,6 +337,7 @@
         document.getElementById("loginScreen").classList.add("hidden");
         document.getElementById("app").classList.remove("hidden");
         document.getElementById("userLabel").textContent = currentUser.email || "Signed in";
+        renderAll();
         await loadData();
       } else {
         document.getElementById("loginScreen").classList.remove("hidden");
@@ -673,1129 +345,341 @@
       }
     }
 
-    function showAuthStatus(message, isError = false) {
-      const el = document.getElementById("authStatus");
-      if (!el) return;
-      el.textContent = message;
-      el.classList.remove("hidden");
-      el.style.color = isError ? "var(--red)" : "var(--green)";
-      el.style.borderColor = isError ? "rgba(255,95,109,0.35)" : "rgba(114,255,153,0.35)";
-      el.style.background = isError ? "rgba(255,95,109,0.08)" : "rgba(114,255,153,0.08)";
-    }
-
-    async function signIn() {
-      try {
-        if (!hasSupabaseConfig) {
-          showAuthStatus("Add Supabase URL and publishable key first.", true);
-          return toast("Add Supabase URL and publishable key first.", true);
-        }
-
-        const email = document.getElementById("emailInput").value.trim();
-        const password = document.getElementById("passwordInput").value;
-        if (!email || !password) {
-          showAuthStatus("Enter both email and password.", true);
-          return toast("Enter email and password.", true);
-        }
-
-        const signInButton = document.getElementById("signInButton");
-        signInButton.disabled = true;
-        signInButton.textContent = "Signing in...";
-        showAuthStatus("Trying to sign in...");
-
-        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-
-        if (error) {
-          showAuthStatus(error.message, true);
-          toast(error.message, true);
-          return;
-        }
-
-        currentUser = data.user;
-        showAuthStatus("Signed in successfully. Loading dashboard...");
-        toast("Signed in.");
-        await showCorrectScreen();
-      } catch (error) {
-        console.error("Sign in failed:", error);
-        showAuthStatus("Sign in failed: " + error.message, true);
-        toast("Sign in failed: " + error.message, true);
-      } finally {
-        const signInButton = document.getElementById("signInButton");
-        if (signInButton) {
-          signInButton.disabled = false;
-          signInButton.textContent = "Sign In";
-        }
-      }
-    }
-
-    async function signUp() {
-      try {
-        if (!hasSupabaseConfig) {
-          showAuthStatus("Add Supabase URL and publishable key first.", true);
-          return toast("Add Supabase URL and publishable key first.", true);
-        }
-
-        const email = document.getElementById("emailInput").value.trim();
-        const password = document.getElementById("passwordInput").value;
-        if (!email || !password) {
-          showAuthStatus("Enter both email and password.", true);
-          return toast("Enter email and password.", true);
-        }
-
-        const signUpButton = document.getElementById("signUpButton");
-        signUpButton.disabled = true;
-        signUpButton.textContent = "Creating...";
-        showAuthStatus("Creating account...");
-
-        const { data, error } = await supabaseClient.auth.signUp({ email, password });
-
-        if (error) {
-          showAuthStatus(error.message, true);
-          toast(error.message, true);
-          return;
-        }
-
-        if (data.session) {
-          currentUser = data.user;
-          showAuthStatus("Account created and signed in. Loading dashboard...");
-          toast("Account created and signed in.");
-          await showCorrectScreen();
-        } else {
-          showAuthStatus("Account created. Supabase wants you to confirm the email before signing in. Check your inbox, or disable email confirmation in Supabase while testing.");
-          toast("Account created. Check email confirmation settings.");
-        }
-      } catch (error) {
-        console.error("Sign up failed:", error);
-        showAuthStatus("Sign up failed: " + error.message, true);
-        toast("Sign up failed: " + error.message, true);
-      } finally {
-        const signUpButton = document.getElementById("signUpButton");
-        if (signUpButton) {
-          signUpButton.disabled = false;
-          signUpButton.textContent = "Create Account";
-        }
-      }
-    }
-
-    async function signOut() {
-      await supabaseClient.auth.signOut();
-      campaigns = [];
-      artists = [];
-      toast("Signed out.");
-    }
-
-    function wireAuthButtons() {
-      const signInButton = document.getElementById("signInButton");
-      const signUpButton = document.getElementById("signUpButton");
-      const passwordInput = document.getElementById("passwordInput");
-
-      if (signInButton && !signInButton.dataset.wired) {
-        signInButton.addEventListener("click", signIn);
-        signInButton.dataset.wired = "true";
-      }
-
-      if (signUpButton && !signUpButton.dataset.wired) {
-        signUpButton.addEventListener("click", signUp);
-        signUpButton.dataset.wired = "true";
-      }
-
-      if (passwordInput && !passwordInput.dataset.wired) {
-        passwordInput.addEventListener("keydown", event => {
-          if (event.key === "Enter") signIn();
-        });
-        passwordInput.dataset.wired = "true";
-      }
-    }
-
-    // ================================
-    // 4) LOAD / RENDER
-    // ================================
     async function loadData() {
-      if (!supabaseClient) return;
+      try {
+        renderAll();
+        const [artistsRes, campaignsRes, checklistRes, logsRes] = await Promise.all([
+          supabaseClient.from("artists").select("*").order("name"),
+          supabaseClient.from("campaigns").select("*").order("updated_at", { ascending: false }),
+          supabaseClient.from("checklist_items").select("*").order("position"),
+          supabaseClient.from("work_logs").select("*").order("created_at")
+        ]);
+        if (artistsRes.error) throw artistsRes.error;
+        if (campaignsRes.error) throw campaignsRes.error;
+        if (checklistRes.error) throw checklistRes.error;
+        if (logsRes.error) throw logsRes.error;
+        artists = artistsRes.data || [];
+        campaigns = campaignsRes.data || [];
+        checklistItems = checklistRes.data || [];
+        workLogs = logsRes.data || [];
+        renderAll();
+      } catch (error) {
+        toast("Load failed: " + error.message, true);
+        renderAll();
+      }
+    }
 
-      const [artistResult, campaignResult] = await Promise.all([
-        supabaseClient.from("artists").select("*").order("name"),
-        supabaseClient
-          .from("campaigns")
-          .select("*, artists(id, name), checklist_items(*), work_logs(*)")
-          .order("updated_at", { ascending: false })
-      ]);
-
-      if (artistResult.error) return toast("Could not load artists: " + artistResult.error.message, true);
-      if (campaignResult.error) return toast("Could not load campaigns: " + campaignResult.error.message, true);
-
-      artists = artistResult.data || [];
-      campaigns = (campaignResult.data || []).map(normaliseCampaign);
+    function renderAll() {
       renderArtists();
       renderMobileArtistSelect();
       renderBoard();
     }
 
-    function normaliseCampaign(c) {
-      return {
-        ...c,
-        checklist_items: (c.checklist_items || []).sort((a,b) => (a.position || 0) - (b.position || 0)),
-        work_logs: (c.work_logs || []).sort((a,b) => new Date(a.created_at) - new Date(b.created_at))
-      };
+    function getArtistName(id) {
+      return artists.find(a => a.id === id)?.name || "Unknown Artist";
+    }
+
+    function getCampaignChecklist(id) {
+      return checklistItems.filter(item => item.campaign_id === id).sort((a,b) => (a.position || 0) - (b.position || 0));
+    }
+
+    function getCampaignLogs(id) {
+      return workLogs.filter(log => log.campaign_id === id).sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
     }
 
     function renderArtists() {
       const list = document.getElementById("artistList");
-      const allCount = campaigns.length;
-      const rows = [
-        `<button class="folder-item ${activeArtistId === "all" ? "active" : ""}" onclick="setActiveArtist('all')"><span>▸ All Artists</span><span class="badge">${allCount}</span></button>`,
-        ...artists.map(artist => {
-          const count = campaigns.filter(c => c.artist_id === artist.id).length;
-          return `<button class="folder-item ${activeArtistId === artist.id ? "active" : ""}" onclick="setActiveArtist('${artist.id}')"><span>▸ ${escapeHtml(artist.name)}</span><span class="badge">${count}</span></button>`;
-        })
-      ];
+      if (!list) return;
+      const rows = [`<button class="folder-item ${activeArtistId === "all" ? "active" : ""}" data-artist="all"><span>▸ All Artists</span><span class="badge">${campaigns.length}</span></button>`];
+      artists.forEach(artist => {
+        const count = campaigns.filter(c => c.artist_id === artist.id).length;
+        rows.push(`<button class="folder-item ${activeArtistId === artist.id ? "active" : ""}" data-artist="${artist.id}"><span>▸ ${escapeHtml(artist.name)}</span><span class="badge">${count}</span></button>`);
+      });
       list.innerHTML = rows.join("");
+      list.querySelectorAll("button").forEach(btn => btn.addEventListener("click", () => setActiveArtist(btn.dataset.artist)));
     }
 
     function renderMobileArtistSelect() {
       const select = document.getElementById("artistFilterMobile");
-      select.innerHTML = [
-        `<option value="all" ${activeArtistId === "all" ? "selected" : ""}>Artist: All</option>`,
-        ...artists.map(a => `<option value="${a.id}" ${activeArtistId === a.id ? "selected" : ""}>Artist: ${escapeHtml(a.name)}</option>`)
-      ].join("");
+      if (!select) return;
+      select.innerHTML = [`<option value="all">Artist: All</option>`, ...artists.map(a => `<option value="${a.id}">Artist: ${escapeHtml(a.name)}</option>`)].join("");
+      select.value = activeArtistId;
     }
 
-    function setActiveArtist(artistId) {
-      activeArtistId = artistId;
-      const artist = artists.find(a => a.id === artistId);
-      document.getElementById("pageTitle").textContent = artistId === "all" ? "All Artists" : artist?.name || "Artist";
-      renderArtists();
-      renderMobileArtistSelect();
-      renderBoard();
+    function setActiveArtist(id) {
+      activeArtistId = id;
+      const artistName = id === "all" ? "All Artists" : getArtistName(id);
+      document.getElementById("pageTitle").textContent = artistName;
+      renderAll();
     }
 
     function filteredCampaigns() {
       const search = document.getElementById("searchInput")?.value?.toLowerCase() || "";
       const sort = document.getElementById("sortSelect")?.value || "updated";
-
       let items = campaigns.filter(c => {
         const artistMatch = activeArtistId === "all" || c.artist_id === activeArtistId;
-        const blob = [
-          c.title,
-          c.artists?.name,
-          c.status,
-          c.priority,
-          c.raw_brief,
-          c.structured_brief,
-          c.missing_info,
-          c.work_logs?.map(l => l.text).join(" ")
-        ].join(" ").toLowerCase();
+        const blob = [c.title, getArtistName(c.artist_id), c.status, c.priority, c.raw_brief, c.structured_brief, c.missing_info, getCampaignLogs(c.id).map(l => l.text).join(" ")].join(" ").toLowerCase();
         return artistMatch && blob.includes(search);
       });
-
       items.sort((a,b) => {
         if (sort === "deadline") return (a.deadline || "9999").localeCompare(b.deadline || "9999");
-        if (sort === "artist") return (a.artists?.name || "").localeCompare(b.artists?.name || "");
+        if (sort === "artist") return getArtistName(a.artist_id).localeCompare(getArtistName(b.artist_id));
         if (sort === "priority") return priorityRank(a.priority) - priorityRank(b.priority);
         return new Date(b.updated_at || b.created_at) - new Date(a.updated_at || a.created_at);
       });
-
       return items;
     }
 
     function renderBoard() {
       const board = document.getElementById("board");
+      if (!board) return;
       const items = filteredCampaigns();
       board.innerHTML = STATUSES.map(status => {
         const statusItems = items.filter(c => c.status === status.key);
-        return `
-          <div class="column" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropOnStatus(event, '${status.key}')">
-            <div class="column-head">
-              <div class="column-title"><span class="status-dot ${status.className}"></span>${status.key}</div>
-              <span class="badge">${statusItems.length}</span>
-            </div>
-            <div class="cards">
-              ${statusItems.length ? statusItems.map(renderCampaignCard).join("") : `<div class="empty">Drop campaigns here.</div>`}
-            </div>
-          </div>
-        `;
+        return `<div class="column" data-status="${status.key}">
+          <div class="column-head"><div class="column-title"><span class="status-dot ${status.className}"></span>${status.key}</div><span class="badge">${statusItems.length}</span></div>
+          <div class="cards">${statusItems.length ? statusItems.map(renderCampaignCard).join("") : `<div class="empty">Drop campaigns here.</div>`}</div>
+        </div>`;
       }).join("");
+      board.querySelectorAll(".column").forEach(col => {
+        col.addEventListener("dragover", e => { e.preventDefault(); col.classList.add("drag-over"); });
+        col.addEventListener("dragleave", () => col.classList.remove("drag-over"));
+        col.addEventListener("drop", async e => { e.preventDefault(); col.classList.remove("drag-over"); await moveCampaign(e.dataTransfer.getData("text/plain"), col.dataset.status); });
+      });
+      board.querySelectorAll(".card").forEach(card => {
+        card.addEventListener("dragstart", e => { e.dataTransfer.setData("text/plain", card.dataset.id); card.classList.add("dragging"); });
+        card.addEventListener("dragend", () => card.classList.remove("dragging"));
+        card.addEventListener("click", () => openCampaignModal(card.dataset.id));
+      });
     }
 
     function renderCampaignCard(c) {
-      const total = c.checklist_items?.length || 0;
-      const done = c.checklist_items?.filter(i => i.done).length || 0;
+      const checklist = getCampaignChecklist(c.id);
+      const logs = getCampaignLogs(c.id);
+      const done = checklist.filter(i => i.done).length;
+      const total = checklist.length;
       const progress = total ? Math.round((done / total) * 100) : 0;
-      const lastLog = c.work_logs?.[c.work_logs.length - 1]?.text || c.structured_brief || "No work logs yet.";
-      return `
-        <article class="card" draggable="true" ondragstart="dragStart(event, '${c.id}')" ondragend="dragEnd(event)" onclick="openCampaign('${c.id}')">
-          <h3>${escapeHtml(c.artists?.name || "Unknown Artist")} — ${escapeHtml(c.title || "Untitled Campaign")}</h3>
-          <p>${escapeHtml(truncate(lastLog, 110))}</p>
-          <div class="meta-grid">
-            <span class="chip priority-${(c.priority || "Normal").toLowerCase()}">${escapeHtml(c.priority || "Normal")}</span>
-            ${c.deadline ? `<span class="chip">Due ${formatDate(c.deadline)}</span>` : ""}
-            ${c.budget ? `<span class="chip">${escapeHtml(truncate(c.budget, 18))}</span>` : ""}
-          </div>
-          <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
-          <p class="small" style="margin-top:7px;">Checklist ${done}/${total}</p>
-        </article>
-      `;
+      const lastLog = logs[logs.length - 1]?.text || c.structured_brief || "No work logs yet.";
+      return `<article class="card" draggable="true" data-id="${c.id}">
+        <h3>${escapeHtml(getArtistName(c.artist_id))} — ${escapeHtml(c.title || "Untitled Campaign")}</h3>
+        <p>${escapeHtml(truncate(lastLog, 110))}</p>
+        <div class="meta-grid"><span class="chip priority-${String(c.priority || "Normal").toLowerCase()}">${escapeHtml(c.priority || "Normal")}</span>${c.deadline ? `<span class="chip">Due ${formatDate(c.deadline)}</span>` : ""}${c.budget ? `<span class="chip">${escapeHtml(truncate(c.budget, 18))}</span>` : ""}</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+        <p class="small" style="margin-top:7px;">Checklist ${done}/${total}</p>
+      </article>`;
     }
 
-    // ================================
-    // 5) DRAG AND DROP
-    // ================================
-    function dragStart(event, campaignId) {
-      event.dataTransfer.setData("text/plain", campaignId);
-      event.currentTarget.classList.add("dragging");
-    }
-
-    function dragEnd(event) {
-      event.currentTarget.classList.remove("dragging");
-    }
-
-    function dragOver(event) {
-      event.preventDefault();
-      event.currentTarget.classList.add("drag-over");
-    }
-
-    function dragLeave(event) {
-      event.currentTarget.classList.remove("drag-over");
-    }
-
-    async function dropOnStatus(event, newStatus) {
-      event.preventDefault();
-      event.currentTarget.classList.remove("drag-over");
-      const campaignId = event.dataTransfer.getData("text/plain");
-      if (!campaignId) return;
-      await updateCampaignStatus(campaignId, newStatus);
-    }
-
-    async function updateCampaignStatus(campaignId, newStatus) {
-      const { error } = await supabaseClient
-        .from("campaigns")
-        .update({ status: newStatus, updated_at: new Date().toISOString() })
-        .eq("id", campaignId);
-      if (error) return toast("Could not move campaign: " + error.message, true);
-      await addWorkLog(campaignId, "Status", `Status changed to ${newStatus}.`, "System", false);
+    async function moveCampaign(id, status) {
+      if (!id || !status) return;
+      const { error } = await supabaseClient.from("campaigns").update({ status, updated_at: new Date().toISOString() }).eq("id", id);
+      if (error) return toast(error.message, true);
+      await supabaseClient.from("work_logs").insert({ campaign_id: id, logged_by: "System", log_type: "Status", text: `Status changed to ${status}.`, visible_to_james: true });
       await loadData();
-      toast("Campaign moved to " + newStatus + ".");
+      toast("Moved to " + status + ".");
     }
 
-    // ================================
-    // 6) CAMPAIGN CRUD
-    // ================================
+    function openCampaignModal(id, prefill = null) {
+      activeCampaignId = id;
+      activeTab = "brief";
+      tempDraft = prefill || (id ? campaignToDraft(campaigns.find(c => c.id === id)) : blankDraft());
+      renderModal();
+    }
+
+    function blankDraft() {
+      return { artistName: activeArtistId !== "all" ? getArtistName(activeArtistId) : "", title: "", status: "New Brief", priority: "Normal", deadline: "", budget: "", objective: "", campaign_link: "", territories: "", raw_brief: "", structured_brief: "", missing_info: "", report: "", checklist: DEFAULT_CHECKLIST };
+    }
+
+    function campaignToDraft(c) {
+      return { id: c.id, artistName: getArtistName(c.artist_id), title: c.title || "", status: c.status || "New Brief", priority: c.priority || "Normal", deadline: c.deadline || "", budget: c.budget || "", objective: c.objective || "", campaign_link: c.campaign_link || "", territories: c.territories || "", raw_brief: c.raw_brief || "", structured_brief: c.structured_brief || "", missing_info: c.missing_info || "", report: c.report || "", checklist_items: getCampaignChecklist(c.id), work_logs: getCampaignLogs(c.id) };
+    }
+
+    function renderModal() {
+      const isNew = !activeCampaignId;
+      const d = tempDraft;
+      document.getElementById("modalRoot").innerHTML = `<div class="modal-backdrop" id="modalBackdrop"><div class="modal">
+        <div class="modal-head between"><div><h2>${isNew ? "New Campaign" : `${escapeHtml(d.artistName)} — ${escapeHtml(d.title)}`}</h2><p class="small">${isNew ? "Create a campaign under an artist folder." : `Status: ${escapeHtml(d.status)} · Artist folder: ${escapeHtml(d.artistName)}`}</p></div><div class="row">${!isNew ? `<button class="btn danger" id="deleteCampaignBtn">Delete</button>` : ""}<button class="btn secondary" id="closeModalBtn">Close</button></div></div>
+        <div class="tabs">${["brief","checklist","logs","report"].map(t => `<button class="tab ${activeTab === t ? "active" : ""}" data-tab="${t}">${tabLabel(t)}</button>`).join("")}</div>
+        <div class="modal-body" id="modalBody"></div>
+      </div></div>`;
+      document.getElementById("closeModalBtn").addEventListener("click", closeModal);
+      document.getElementById("modalBackdrop").addEventListener("click", e => { if (e.target.id === "modalBackdrop") closeModal(); });
+      document.querySelectorAll(".tab").forEach(btn => btn.addEventListener("click", () => { collectDraft(); activeTab = btn.dataset.tab; renderModal(); }));
+      const del = document.getElementById("deleteCampaignBtn");
+      if (del) del.addEventListener("click", deleteActiveCampaign);
+      renderModalBody();
+    }
+
+    function renderModalBody() {
+      if (activeTab === "brief") renderBriefTab();
+      if (activeTab === "checklist") renderChecklistTab();
+      if (activeTab === "logs") renderLogsTab();
+      if (activeTab === "report") renderReportTab();
+    }
+
+    function renderBriefTab() {
+      const d = tempDraft;
+      document.getElementById("modalBody").innerHTML = `<div class="stack">
+        <div class="grid-3"><div class="field"><label>Artist Folder</label><input id="m_artistName" list="artistOptions" value="${escapeAttr(d.artistName)}" placeholder="e.g. Lilli"></div><div class="field"><label>Status</label><select id="m_status">${STATUSES.map(s => `<option ${d.status === s.key ? "selected" : ""}>${s.key}</option>`).join("")}</select></div><div class="field"><label>Priority</label><select id="m_priority">${["Urgent","Normal","Low"].map(p => `<option ${d.priority === p ? "selected" : ""}>${p}</option>`).join("")}</select></div></div>
+        <datalist id="artistOptions">${artists.map(a => `<option value="${escapeAttr(a.name)}"></option>`).join("")}</datalist>
+        <div class="grid-2"><div class="field"><label>Campaign / Track</label><input id="m_title" value="${escapeAttr(d.title)}" placeholder="e.g. Kein Schlaf"></div><div class="field"><label>Deadline</label><input id="m_deadline" type="date" value="${escapeAttr(d.deadline)}"></div></div>
+        <div class="grid-3"><div class="field"><label>Budget</label><input id="m_budget" value="${escapeAttr(d.budget)}" placeholder="e.g. €1,000 campaign cap"></div><div class="field"><label>Territories</label><input id="m_territories" value="${escapeAttr(d.territories)}" placeholder="Germany, Austria, Switzerland"></div><div class="field"><label>Campaign Link</label><input id="m_campaignLink" value="${escapeAttr(d.campaign_link)}" placeholder="https://..."></div></div>
+        <div class="field"><label>Objective / pixel / event setup</label><input id="m_objective" value="${escapeAttr(d.objective)}" placeholder="Objective, conversion location, pixel, event..."></div>
+        <div class="grid-2"><div class="field"><label>Raw messy brief</label><textarea id="m_rawBrief" placeholder="Paste James/Claude messy brief here...">${escapeHtml(d.raw_brief)}</textarea></div><div class="field"><label>Structured campaign brief</label><textarea id="m_structuredBrief">${escapeHtml(d.structured_brief)}</textarea></div></div>
+        <div class="field"><label>Missing info / questions for James</label><textarea id="m_missingInfo" style="min-height:90px;">${escapeHtml(d.missing_info)}</textarea></div>
+        <div class="row"><button class="btn" id="saveCampaignBtn">${activeCampaignId ? "Save Changes" : "Create Campaign"}</button><button class="btn secondary" id="organiseBtn">Organise Current Brief</button><button class="btn secondary" id="namesBtn">Generate Names</button></div>
+      </div>`;
+      document.getElementById("saveCampaignBtn").addEventListener("click", saveCampaign);
+      document.getElementById("organiseBtn").addEventListener("click", organiseCurrentBrief);
+      document.getElementById("namesBtn").addEventListener("click", generateNames);
+    }
+
+    function renderChecklistTab() {
+      const isNew = !activeCampaignId;
+      const items = isNew ? (tempDraft.checklist || []).map((t,i) => ({ id: "temp"+i, text: t, done: false })) : getCampaignChecklist(activeCampaignId);
+      document.getElementById("modalBody").innerHTML = `<div class="panel stack"><div class="between"><h3>Build Checklist</h3>${isNew ? `<span class="small">Save the campaign first to edit checklist live.</span>` : `<button class="btn secondary" id="addChecklistBtn">+ Add Item</button>`}</div><div>${items.length ? items.map(item => `<div class="check-item ${item.done ? "done" : ""}"><input type="checkbox" ${item.done ? "checked" : ""} ${isNew ? "disabled" : ""} data-check="${item.id}"><span>${escapeHtml(item.text)}</span></div>`).join("") : `<div class="empty">No checklist yet.</div>`}</div></div>`;
+      if (!isNew) {
+        document.getElementById("addChecklistBtn").addEventListener("click", addChecklistItem);
+        document.querySelectorAll("[data-check]").forEach(cb => cb.addEventListener("change", async () => { await supabaseClient.from("checklist_items").update({ done: cb.checked }).eq("id", cb.dataset.check); await loadData(); tempDraft = campaignToDraft(campaigns.find(c => c.id === activeCampaignId)); renderModal(); }));
+      }
+    }
+
+    function renderLogsTab() {
+      const isNew = !activeCampaignId;
+      const logs = isNew ? [] : getCampaignLogs(activeCampaignId);
+      document.getElementById("modalBody").innerHTML = `<div class="grid-2"><div class="panel stack"><h3>Add Work Log</h3>${isNew ? `<p class="small">Save the campaign first before adding work logs.</p>` : `<div class="grid-2"><div class="field"><label>Logged By</label><input id="log_by" value="Aidan"></div><div class="field"><label>Type</label><select id="log_type"><option>Brief</option><option>Setup</option><option>QA</option><option>Approval</option><option>Launch</option><option>Reporting</option><option>Issue</option><option>Status</option></select></div></div><div class="field"><label>What was done?</label><textarea id="log_text" placeholder="e.g. Created warm/LAL ad set and checked View Content event."></textarea></div><button class="btn" id="addLogBtn">Add Log</button>`}</div><div class="panel"><div class="between"><h3>Timeline</h3><button class="btn secondary" id="summariseLogsBtn">Summarise Logs</button></div><div class="log-list">${logs.length ? logs.slice().reverse().map(l => `<div class="log-item"><p>${escapeHtml(l.text)}</p><p class="small" style="margin-top:6px;">${escapeHtml(l.log_type)} · ${escapeHtml(l.logged_by)} · ${formatDateTime(l.created_at)}</p></div>`).join("") : `<div class="empty">No work logs yet.</div>`}</div></div></div>`;
+      if (!isNew) document.getElementById("addLogBtn").addEventListener("click", addLog);
+      document.getElementById("summariseLogsBtn").addEventListener("click", summariseLogs);
+    }
+
+    function renderReportTab() {
+      document.getElementById("modalBody").innerHTML = `<div class="panel stack"><div class="between"><h3>Report / Update</h3><div class="row"><button class="btn secondary" id="jamesUpdateBtn">Generate James Update</button><button class="btn secondary" id="clientReportBtn">Generate Client Report</button></div></div><div class="field"><label>Report</label><textarea id="m_report" style="min-height:330px;">${escapeHtml(tempDraft.report || "")}</textarea></div><div class="row"><button class="btn" id="saveReportBtn">Save Report</button><button class="btn secondary" id="copyReportBtn">Copy Report</button></div></div>`;
+      document.getElementById("jamesUpdateBtn").addEventListener("click", generateJamesUpdate);
+      document.getElementById("clientReportBtn").addEventListener("click", generateClientReport);
+      document.getElementById("saveReportBtn").addEventListener("click", saveCampaign);
+      document.getElementById("copyReportBtn").addEventListener("click", () => navigator.clipboard.writeText(document.getElementById("m_report").value).then(() => toast("Report copied.")));
+    }
+
+    function collectDraft() {
+      if (document.getElementById("m_artistName")) {
+        tempDraft.artistName = val("m_artistName"); tempDraft.title = val("m_title"); tempDraft.status = val("m_status"); tempDraft.priority = val("m_priority"); tempDraft.deadline = val("m_deadline"); tempDraft.budget = val("m_budget"); tempDraft.objective = val("m_objective"); tempDraft.campaign_link = val("m_campaignLink"); tempDraft.territories = val("m_territories"); tempDraft.raw_brief = val("m_rawBrief"); tempDraft.structured_brief = val("m_structuredBrief"); tempDraft.missing_info = val("m_missingInfo");
+      }
+      if (document.getElementById("m_report")) tempDraft.report = val("m_report");
+      return tempDraft;
+    }
+
     async function getOrCreateArtist(name) {
-      const cleanName = (name || "Untitled Artist").trim();
-      const { data, error } = await supabaseClient
-        .from("artists")
-        .upsert({ name: cleanName }, { onConflict: "name" })
-        .select()
-        .single();
+      const clean = name.trim();
+      const existing = artists.find(a => a.name.toLowerCase() === clean.toLowerCase());
+      if (existing) return existing;
+      const { data, error } = await supabaseClient.from("artists").insert({ name: clean }).select().single();
       if (error) throw error;
+      artists.push(data);
       return data;
     }
 
-    async function createCampaign(payload) {
-      const artist = await getOrCreateArtist(payload.artistName);
-
-      const { data: campaign, error } = await supabaseClient
-        .from("campaigns")
-        .insert({
-          artist_id: artist.id,
-          title: payload.title || "Untitled Campaign",
-          status: payload.status || "New Brief",
-          priority: payload.priority || "Normal",
-          deadline: payload.deadline || null,
-          budget: payload.budget || "",
-          objective: payload.objective || "",
-          campaign_link: payload.campaign_link || "",
-          territories: payload.territories || "",
-          raw_brief: payload.raw_brief || "",
-          structured_brief: payload.structured_brief || "",
-          missing_info: payload.missing_info || "",
-          report: payload.report || ""
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      const checklist = payload.checklist?.length ? payload.checklist : DEFAULT_CHECKLIST;
-      await supabaseClient.from("checklist_items").insert(
-        checklist.map((text, index) => ({ campaign_id: campaign.id, text, position: index }))
-      );
-
-      await addWorkLog(campaign.id, "Brief", "Campaign brief created.", "System", false);
-      return campaign;
+    async function saveCampaign() {
+      try {
+        const d = collectDraft();
+        if (!d.artistName || !d.title) return toast("Add artist and campaign/track name.", true);
+        const artist = await getOrCreateArtist(d.artistName);
+        const payload = { artist_id: artist.id, title: d.title, status: d.status, priority: d.priority, deadline: d.deadline || null, budget: d.budget, objective: d.objective, campaign_link: d.campaign_link, territories: d.territories, raw_brief: d.raw_brief, structured_brief: d.structured_brief, missing_info: d.missing_info, report: d.report || "", updated_at: new Date().toISOString() };
+        if (activeCampaignId) {
+          const { error } = await supabaseClient.from("campaigns").update(payload).eq("id", activeCampaignId);
+          if (error) throw error;
+          await supabaseClient.from("work_logs").insert({ campaign_id: activeCampaignId, logged_by: "System", log_type: "Update", text: "Campaign details updated.", visible_to_james: true });
+          toast("Campaign saved.");
+        } else {
+          const { data, error } = await supabaseClient.from("campaigns").insert(payload).select().single();
+          if (error) throw error;
+          activeCampaignId = data.id;
+          await supabaseClient.from("checklist_items").insert((d.checklist || DEFAULT_CHECKLIST).map((text, i) => ({ campaign_id: data.id, text, position: i })));
+          await supabaseClient.from("work_logs").insert({ campaign_id: data.id, logged_by: "System", log_type: "Brief", text: "Campaign brief created.", visible_to_james: true });
+          toast("Campaign created.");
+        }
+        await loadData();
+        tempDraft = campaignToDraft(campaigns.find(c => c.id === activeCampaignId));
+        renderModal();
+      } catch (error) { toast(error.message, true); }
     }
 
-    async function updateCampaign(campaignId, payload) {
-      const artist = await getOrCreateArtist(payload.artistName);
-      const { error } = await supabaseClient
-        .from("campaigns")
-        .update({
-          artist_id: artist.id,
-          title: payload.title || "Untitled Campaign",
-          status: payload.status || "New Brief",
-          priority: payload.priority || "Normal",
-          deadline: payload.deadline || null,
-          budget: payload.budget || "",
-          objective: payload.objective || "",
-          campaign_link: payload.campaign_link || "",
-          territories: payload.territories || "",
-          raw_brief: payload.raw_brief || "",
-          structured_brief: payload.structured_brief || "",
-          missing_info: payload.missing_info || "",
-          report: payload.report || "",
-          updated_at: new Date().toISOString()
-        })
-        .eq("id", campaignId);
-      if (error) throw error;
-    }
-
-    async function deleteCampaign(campaignId) {
-      if (!confirm("Delete this campaign and all attached checklist items/work logs?")) return;
-      const { error } = await supabaseClient.from("campaigns").delete().eq("id", campaignId);
-      if (error) return toast("Could not delete campaign: " + error.message, true);
+    async function deleteActiveCampaign() {
+      if (!activeCampaignId || !confirm("Delete this campaign and all attached checklist/logs?")) return;
+      const { error } = await supabaseClient.from("campaigns").delete().eq("id", activeCampaignId);
+      if (error) return toast(error.message, true);
       closeModal();
       await loadData();
       toast("Campaign deleted.");
     }
 
-    async function addWorkLog(campaignId, logType, text, loggedBy = "Aidan", reload = true) {
-      const { error } = await supabaseClient.from("work_logs").insert({
-        campaign_id: campaignId,
-        logged_by: loggedBy,
-        log_type: logType,
-        text,
-        visible_to_james: true
-      });
-      if (error) return toast("Could not add log: " + error.message, true);
-      await supabaseClient.from("campaigns").update({ updated_at: new Date().toISOString() }).eq("id", campaignId);
-      if (reload) await loadData();
-    }
-
-    // ================================
-    // 7) MODALS
-    // ================================
-    function openNewCampaignModal(prefill = null) {
-      activeCampaignId = null;
-      activeTab = "brief";
-      temporaryCampaignDraft = prefill || {
-        artistName: activeArtistId !== "all" ? artists.find(a => a.id === activeArtistId)?.name || "" : "",
-        title: "",
-        status: "New Brief",
-        priority: "Normal",
-        deadline: "",
-        budget: "",
-        objective: "",
-        campaign_link: "",
-        territories: "",
-        raw_brief: "",
-        structured_brief: "",
-        missing_info: "",
-        report: "",
-        checklist: DEFAULT_CHECKLIST
-      };
-      renderCampaignModal(temporaryCampaignDraft, true);
-    }
-
-    function openCampaign(campaignId) {
-      activeCampaignId = campaignId;
-      activeTab = "brief";
-      const c = campaigns.find(item => item.id === campaignId);
-      renderCampaignModal(dbCampaignToDraft(c), false);
-    }
-
-    function dbCampaignToDraft(c) {
-      return {
-        id: c.id,
-        artistName: c.artists?.name || "",
-        title: c.title || "",
-        status: c.status || "New Brief",
-        priority: c.priority || "Normal",
-        deadline: c.deadline || "",
-        budget: c.budget || "",
-        objective: c.objective || "",
-        campaign_link: c.campaign_link || "",
-        territories: c.territories || "",
-        raw_brief: c.raw_brief || "",
-        structured_brief: c.structured_brief || "",
-        missing_info: c.missing_info || "",
-        report: c.report || "",
-        checklist_items: c.checklist_items || [],
-        work_logs: c.work_logs || []
-      };
-    }
-
-    function renderCampaignModal(draft, isNew) {
-      const root = document.getElementById("modalRoot");
-      root.innerHTML = `
-        <div class="modal-backdrop" onclick="backdropClose(event)">
-          <div class="modal">
-            <div class="modal-head">
-              <div class="between">
-                <div>
-                  <h2>${isNew ? "New Campaign" : `${escapeHtml(draft.artistName || "Artist")} — ${escapeHtml(draft.title || "Campaign")}`}</h2>
-                  <p class="small">${isNew ? "Create a campaign under an artist folder." : `Status: ${escapeHtml(draft.status)} · Artist folder: ${escapeHtml(draft.artistName)}`}</p>
-                </div>
-                <div class="row">
-                  ${!isNew ? `<button class="btn danger" onclick="deleteCampaign('${draft.id}')">Delete</button>` : ""}
-                  <button class="btn secondary" onclick="closeModal()">Close</button>
-                </div>
-              </div>
-            </div>
-            <div class="tabs">
-              ${["brief", "checklist", "logs", "report"].map(tab => `<button class="tab ${activeTab === tab ? "active" : ""}" onclick="switchTab('${tab}', ${isNew})">${tabLabel(tab)}</button>`).join("")}
-            </div>
-            <div class="modal-body" id="modalBody"></div>
-          </div>
-        </div>
-      `;
-      renderModalBody(draft, isNew);
-    }
-
-    function renderModalBody(draft, isNew) {
-      const body = document.getElementById("modalBody");
-      if (activeTab === "brief") body.innerHTML = renderBriefTab(draft, isNew);
-      if (activeTab === "checklist") body.innerHTML = renderChecklistTab(draft, isNew);
-      if (activeTab === "logs") body.innerHTML = renderLogsTab(draft, isNew);
-      if (activeTab === "report") body.innerHTML = renderReportTab(draft, isNew);
-    }
-
-    function renderBriefTab(draft, isNew) {
-      return `
-        <div class="stack" style="gap:22px;">
-          <div class="grid-3">
-            <div class="field"><label>Artist Folder</label><input id="m_artistName" list="artistOptions" value="${escapeAttr(draft.artistName)}" placeholder="e.g. Lilli" /></div>
-            <div class="field"><label>Status</label><select id="m_status">${STATUSES.map(s => `<option ${draft.status === s.key ? "selected" : ""}>${s.key}</option>`).join("")}</select></div>
-            <div class="field"><label>Priority</label><select id="m_priority">${["Urgent","Normal","Low"].map(p => `<option ${draft.priority === p ? "selected" : ""}>${p}</option>`).join("")}</select></div>
-          </div>
-          <datalist id="artistOptions">${artists.map(a => `<option value="${escapeAttr(a.name)}"></option>`).join("")}</datalist>
-          <div class="grid-2">
-            <div class="field"><label>Campaign / Track</label><input id="m_title" value="${escapeAttr(draft.title)}" placeholder="e.g. Kein Schlaf" /></div>
-            <div class="field"><label>Deadline</label><input id="m_deadline" type="date" value="${escapeAttr(draft.deadline)}" /></div>
-          </div>
-          <div class="grid-3">
-            <div class="field"><label>Budget</label><input id="m_budget" value="${escapeAttr(draft.budget)}" placeholder="e.g. €1,000 campaign cap" /></div>
-            <div class="field"><label>Territories</label><input id="m_territories" value="${escapeAttr(draft.territories)}" placeholder="e.g. Germany, Austria, Sweden" /></div>
-            <div class="field"><label>Campaign Link</label><input id="m_campaignLink" value="${escapeAttr(draft.campaign_link)}" placeholder="https://..." /></div>
-          </div>
-          <div class="field"><label>Objective / pixel / event setup</label><input id="m_objective" value="${escapeAttr(draft.objective)}" placeholder="Objective, conversion location, pixel, event..." /></div>
-          <div class="grid-2">
-            <div class="field"><label>Raw messy brief</label><textarea id="m_rawBrief" placeholder="Paste James/Claude messy brief here...">${escapeHtml(draft.raw_brief)}</textarea></div>
-            <div class="field"><label>Structured campaign brief</label><textarea id="m_structuredBrief" placeholder="AI or manual structured campaign brief...">${escapeHtml(draft.structured_brief)}</textarea></div>
-          </div>
-          <div class="field"><label>Missing info / questions for James</label><textarea id="m_missingInfo" style="min-height:90px;" placeholder="Anything unclear or missing...">${escapeHtml(draft.missing_info)}</textarea></div>
-          <div class="row">
-            <button class="btn" onclick="saveCampaignFromModal(${isNew})">${isNew ? "Create Campaign" : "Save Changes"}</button>
-            <button class="btn secondary" onclick="organiseCurrentBrief(${isNew})">AI Organise Current Brief</button>
-            <button class="btn secondary" onclick="generateLocalNames()">Generate Names</button>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderChecklistTab(draft, isNew) {
-      const items = draft.checklist_items || (draft.checklist || []).map((text, i) => ({ id: "temp_" + i, text, done: false }));
-      return `
-        <div class="stack">
-          <div class="panel">
-            <div class="between">
-              <h3>Build Checklist</h3>
-              ${!isNew ? `<button class="btn secondary" onclick="addChecklistItem()">+ Add Item</button>` : `<span class="small">Save campaign first to edit checklist live.</span>`}
-            </div>
-            ${items.length ? items.map(item => `
-              <div class="check-item ${item.done ? "done" : ""}">
-                <input type="checkbox" ${item.done ? "checked" : ""} ${isNew ? "disabled" : `onchange="toggleChecklist('${item.id}', this.checked)"`} />
-                <span>${escapeHtml(item.text)}</span>
-              </div>`).join("") : `<div class="empty">No checklist yet.</div>`}
-          </div>
-        </div>
-      `;
-    }
-
-    function renderLogsTab(draft, isNew) {
-      return `
-        <div class="grid-2">
-          <div class="panel stack">
-            <h3>Add Work Log</h3>
-            ${isNew ? `<p class="small">Save the campaign first before adding work logs.</p>` : `
-              <div class="grid-2">
-                <div class="field"><label>Logged by</label><input id="log_by" value="Aidan" /></div>
-                <div class="field"><label>Type</label><select id="log_type"><option>Brief</option><option>Setup</option><option>QA</option><option>Approval</option><option>Launch</option><option>Reporting</option><option>Issue</option><option>Status</option></select></div>
-              </div>
-              <div class="field"><label>What was done?</label><textarea id="log_text" placeholder="e.g. Created warm/LAL ad set and checked View Content event."></textarea></div>
-              <button class="btn" onclick="submitLog()">Add Log</button>
-            `}
-          </div>
-          <div class="panel">
-            <div class="between">
-              <h3>Timeline</h3>
-              <button class="btn secondary" onclick="summariseLogsToReport(${isNew})">Summarise Logs</button>
-            </div>
-            <div class="log-list">
-              ${(draft.work_logs || []).slice().reverse().map(log => `
-                <div class="log-item">
-                  <p>${escapeHtml(log.text)}</p>
-                  <div class="small">${escapeHtml(log.log_type)} · ${escapeHtml(log.logged_by)} · ${formatDateTime(log.created_at)}</div>
-                </div>
-              `).join("") || `<div class="empty">No work logs yet.</div>`}
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderReportTab(draft, isNew) {
-      return `
-        <div class="panel stack">
-          <div class="between">
-            <h3>Report / Update</h3>
-            <div class="row">
-              <button class="btn secondary" onclick="generateJamesUpdate(${isNew})">Generate James Update</button>
-              <button class="btn secondary" onclick="generateClientReport(${isNew})">Generate Client Report</button>
-            </div>
-          </div>
-          <div class="field"><label>Report</label><textarea id="m_report" style="min-height:330px;">${escapeHtml(draft.report || "")}</textarea></div>
-          <div class="row">
-            <button class="btn" onclick="saveCampaignFromModal(${isNew})">Save Report</button>
-            <button class="btn secondary" onclick="copyReport()">Copy Report</button>
-          </div>
-        </div>
-      `;
-    }
-
-    function collectModalPayload() {
-      return {
-        artistName: val("m_artistName"),
-        title: val("m_title"),
-        status: val("m_status"),
-        priority: val("m_priority"),
-        deadline: val("m_deadline"),
-        budget: val("m_budget"),
-        objective: val("m_objective"),
-        campaign_link: val("m_campaignLink"),
-        territories: val("m_territories"),
-        raw_brief: val("m_rawBrief"),
-        structured_brief: val("m_structuredBrief"),
-        missing_info: val("m_missingInfo"),
-        report: val("m_report") || (activeCampaignId ? campaigns.find(c => c.id === activeCampaignId)?.report : "") || ""
-      };
-    }
-
-    async function saveCampaignFromModal(isNew) {
-      try {
-        const payload = collectModalPayload();
-        if (!payload.artistName || !payload.title) return toast("Add at least artist and campaign/track name.", true);
-        if (isNew || !activeCampaignId) {
-          const campaign = await createCampaign(payload);
-          activeCampaignId = campaign.id;
-          toast("Campaign created.");
-        } else {
-          await updateCampaign(activeCampaignId, payload);
-          await addWorkLog(activeCampaignId, "Update", "Campaign brief details updated.", "System", false);
-          toast("Campaign updated.");
-        }
-        await loadData();
-        const refreshed = campaigns.find(c => c.id === activeCampaignId);
-        renderCampaignModal(dbCampaignToDraft(refreshed), false);
-      } catch (error) {
-        toast(error.message, true);
-      }
-    }
-
-    function switchTab(tab, isNew) {
-      if (isNew) temporaryCampaignDraft = { ...temporaryCampaignDraft, ...collectModalPayload() };
-      activeTab = tab;
-      const draft = activeCampaignId ? dbCampaignToDraft(campaigns.find(c => c.id === activeCampaignId)) : temporaryCampaignDraft;
-      renderCampaignModal(draft, isNew || !activeCampaignId);
-    }
-
-    function tabLabel(tab) {
-      return { brief: "Brief", checklist: "Checklist", logs: "Work Log", report: "Report" }[tab];
-    }
-
-    function closeModal() { document.getElementById("modalRoot").innerHTML = ""; activeCampaignId = null; temporaryCampaignDraft = null; }
-    function backdropClose(e) { if (e.target.classList.contains("modal-backdrop")) closeModal(); }
-
-    // ================================
-    // 8) CHECKLIST / LOGS / REPORTS
-    // ================================
     async function addChecklistItem() {
       const text = prompt("Checklist item:");
-      if (!text || !activeCampaignId) return;
-      const campaign = campaigns.find(c => c.id === activeCampaignId);
-      const position = campaign?.checklist_items?.length || 0;
+      if (!text) return;
+      const position = getCampaignChecklist(activeCampaignId).length;
       const { error } = await supabaseClient.from("checklist_items").insert({ campaign_id: activeCampaignId, text, position });
       if (error) return toast(error.message, true);
-      await addWorkLog(activeCampaignId, "Checklist", `Checklist item added: ${text}`, "System", false);
-      await loadData();
-      renderCampaignModal(dbCampaignToDraft(campaigns.find(c => c.id === activeCampaignId)), false);
+      await loadData(); tempDraft = campaignToDraft(campaigns.find(c => c.id === activeCampaignId)); renderModal();
     }
 
-    async function toggleChecklist(itemId, done) {
-      const { error } = await supabaseClient.from("checklist_items").update({ done }).eq("id", itemId);
-      if (error) return toast(error.message, true);
-      await loadData();
-      renderCampaignModal(dbCampaignToDraft(campaigns.find(c => c.id === activeCampaignId)), false);
-    }
-
-    async function submitLog() {
-      const by = val("log_by") || "Aidan";
-      const type = val("log_type") || "Setup";
+    async function addLog() {
       const text = val("log_text");
       if (!text) return toast("Write a log first.", true);
-      await addWorkLog(activeCampaignId, type, text, by, true);
-      renderCampaignModal(dbCampaignToDraft(campaigns.find(c => c.id === activeCampaignId)), false);
+      const { error } = await supabaseClient.from("work_logs").insert({ campaign_id: activeCampaignId, logged_by: val("log_by") || "Aidan", log_type: val("log_type") || "Setup", text, visible_to_james: true });
+      if (error) return toast(error.message, true);
+      await supabaseClient.from("campaigns").update({ updated_at: new Date().toISOString() }).eq("id", activeCampaignId);
+      await loadData(); tempDraft = campaignToDraft(campaigns.find(c => c.id === activeCampaignId)); renderModal(); toast("Log added.");
     }
 
-    function generateJamesUpdate(isNew) {
-      const payload = collectModalPayload();
-      const c = activeCampaignId ? campaigns.find(item => item.id === activeCampaignId) : null;
-      const logs = c?.work_logs || [];
-      const checklist = c?.checklist_items || [];
-      const done = checklist.filter(i => i.done).length;
-      const total = checklist.length;
-      const logText = logs.slice(-5).map(l => `- ${l.text}`).join("\n") || "- No work logs added yet.";
-      const update = `Hey mate, quick update on ${payload.artistName} — ${payload.title}.\n\nStatus: ${payload.status}.\n${total ? `Checklist: ${done}/${total} setup items completed.\n` : ""}\nWhat has been done:\n${logText}\n\n${payload.missing_info && !payload.missing_info.toLowerCase().includes("no obvious") ? `Need to confirm:\n${payload.missing_info}` : "No major missing info flagged at the moment."}`;
-      activeTab = "report";
-      const draft = { ...(activeCampaignId ? dbCampaignToDraft(c) : temporaryCampaignDraft), ...payload, report: update };
-      temporaryCampaignDraft = draft;
-      renderCampaignModal(draft, isNew || !activeCampaignId);
+    function openImportModal() {
+      document.getElementById("modalRoot").innerHTML = `<div class="modal-backdrop" id="importBackdrop"><div class="modal" style="width:min(900px,100%);"><div class="modal-head between"><div><h2>Import Messy Brief</h2><p class="small">Paste James's rough brief. This organiser is local for now; AI Edge Function can be added later.</p></div><button class="btn secondary" id="closeImportBtn">Close</button></div><div class="modal-body stack"><div class="field"><label>Messy brief</label><textarea id="importRaw" style="min-height:330px;" placeholder="Paste brief here..."></textarea></div><div class="row"><button class="btn" id="organiseImportBtn">Organise Brief</button><button class="btn secondary" id="cancelImportBtn">Cancel</button></div></div></div></div>`;
+      document.getElementById("closeImportBtn").addEventListener("click", closeModal);
+      document.getElementById("cancelImportBtn").addEventListener("click", closeModal);
+      document.getElementById("importBackdrop").addEventListener("click", e => { if (e.target.id === "importBackdrop") closeModal(); });
+      document.getElementById("organiseImportBtn").addEventListener("click", () => { const raw = val("importRaw"); if (!raw) return toast("Paste a brief first.", true); const organised = localBriefOrganiser(raw); closeModal(); openCampaignModal(null, organised); });
     }
 
-    function generateClientReport(isNew) {
-      const payload = collectModalPayload();
-      const c = activeCampaignId ? campaigns.find(item => item.id === activeCampaignId) : null;
-      const logs = c?.work_logs || [];
-      const report = `Campaign Report — ${payload.artistName} / ${payload.title}\n\nStatus: ${payload.status}\nObjective / Setup: ${payload.objective || "TBC"}\nBudget: ${payload.budget || "TBC"}\nTerritories: ${payload.territories || "TBC"}\nDestination: ${payload.campaign_link || "TBC"}\n\nBrief Summary:\n${payload.structured_brief || payload.raw_brief || "No brief added yet."}\n\nWork Completed:\n${logs.map(l => `- ${l.text}`).join("\n") || "No work logs added yet."}\n\nNext Steps:\n${payload.status === "Complete" ? "Campaign is marked complete. Continue reporting if required." : "Continue setup, approval, launch or reporting based on current status."}`;
-      activeTab = "report";
-      const draft = { ...(activeCampaignId ? dbCampaignToDraft(c) : temporaryCampaignDraft), ...payload, report };
-      temporaryCampaignDraft = draft;
-      renderCampaignModal(draft, isNew || !activeCampaignId);
-    }
-
-    function summariseLogsToReport(isNew) {
-      const c = activeCampaignId ? campaigns.find(item => item.id === activeCampaignId) : null;
-      const logs = c?.work_logs || [];
-      const summary = logs.map(l => `- ${formatDateTime(l.created_at)}: ${l.text}`).join("\n") || "No logs yet.";
-      activeTab = "report";
-      const draft = { ...(activeCampaignId ? dbCampaignToDraft(c) : temporaryCampaignDraft), report: `Work log summary:\n\n${summary}` };
-      temporaryCampaignDraft = draft;
-      renderCampaignModal(draft, isNew || !activeCampaignId);
-    }
-
-    function copyReport() {
-      const text = val("m_report");
-      navigator.clipboard.writeText(text).then(() => toast("Report copied."));
-    }
-
-    function copyStatusSummary() {
-      const lines = filteredCampaigns().map(c => `${c.artists?.name} — ${c.title}: ${c.status}. Last update: ${c.work_logs?.slice(-1)[0]?.text || "No log."}`);
-      navigator.clipboard.writeText(lines.join("\n"));
-      toast("Status summary copied.");
-    }
-
-    // ================================
-    // 9) AI IMPORT
-    // ================================
-    function openAiImportModal() {
-      document.getElementById("modalRoot").innerHTML = `
-        <div class="modal-backdrop" onclick="backdropClose(event)">
-          <div class="modal" style="width:min(900px,100%);">
-            <div class="modal-head between">
-              <div>
-                <h2>Import Messy Brief</h2>
-                <p class="small">Paste James's rough notes. The app will try your Supabase Edge Function first, then fall back to a basic local organiser.</p>
-              </div>
-              <button class="btn secondary" onclick="closeModal()">Close</button>
-            </div>
-            <div class="modal-body stack">
-              <div class="field"><label>Messy brief</label><textarea id="ai_raw" style="min-height:300px;" placeholder="Paste the brief here..."></textarea></div>
-              <div class="row">
-                <button class="btn" onclick="runAiImport()">Organise Brief</button>
-                <button class="btn secondary" onclick="closeModal()">Cancel</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    async function runAiImport() {
-      const rawBrief = val("ai_raw");
-      if (!rawBrief) return toast("Paste a brief first.", true);
-      toast("Organising brief...");
-
-      let organised;
-      try {
-        const { data, error } = await supabaseClient.functions.invoke(AI_FUNCTION_NAME, { body: { rawBrief } });
-        if (error) throw error;
-        organised = data;
-      } catch (error) {
-        console.warn("AI function unavailable, using local organiser:", error);
-        organised = localBriefOrganiser(rawBrief);
-        toast("AI Edge Function not connected yet, so I used the built-in local organiser.");
-      }
-
-      const draft = aiResultToDraft(rawBrief, organised);
-      closeModal();
-      openNewCampaignModal(draft);
-    }
-
-    async function organiseCurrentBrief(isNew) {
-      const payload = collectModalPayload();
-      if (!payload.raw_brief) return toast("Paste a raw brief first.", true);
-      let organised;
-      try {
-        const { data, error } = await supabaseClient.functions.invoke(AI_FUNCTION_NAME, { body: { rawBrief: payload.raw_brief } });
-        if (error) throw error;
-        organised = data;
-      } catch (error) {
-        organised = localBriefOrganiser(payload.raw_brief);
-        toast("AI Edge Function not connected yet, so I used the built-in local organiser.");
-      }
-      const draft = { ...payload, ...aiResultToDraft(payload.raw_brief, organised) };
-      temporaryCampaignDraft = draft;
-      renderCampaignModal(draft, isNew || !activeCampaignId);
-    }
+    function organiseCurrentBrief() { collectDraft(); if (!tempDraft.raw_brief) return toast("Paste a raw brief first.", true); tempDraft = { ...tempDraft, ...localBriefOrganiser(tempDraft.raw_brief) }; renderModal(); }
 
     function localBriefOrganiser(raw) {
-      const NL = String.fromCharCode(10);
-      const sections = parseBriefSections(raw);
-      const campaignText = sections.Campaign || raw;
-      const adSetsText = sections["Ad sets"] || "";
-      const targetingText = sections.Targeting || "";
-      const adText = sections.Ad || "";
-      const accessText = sections.Access || "";
-      const allText = raw;
       const lower = raw.toLowerCase();
-
-      const quoted = getQuotedText(raw);
-      const title = cleanValue(quoted[0] || getAfterWords(raw, ["track", "song", "single"], 5) || "Untitled Campaign");
-      const artistFromIntro = getArtistBeforeTitle(raw, title);
-      const artistFromPixel = getWordsBefore(raw, "pixel", 3).replace("the ", "").trim();
-      const artist = cleanValue(artistFromIntro || artistFromPixel || "Untitled Artist");
-
-      const objective = cleanValue(getLineValue(campaignText, "Objective") || (lower.includes("engagement") ? "Engagement" : lower.includes("traffic") ? "Traffic" : lower.includes("conversion") ? "Conversions" : "Confirm objective"));
-      const conversionLocation = lower.includes("conversion location to website") || lower.includes("location to website") ? "Website" : "Confirm conversion location";
+      const title = getQuotedText(raw)[0] || "Untitled Campaign";
+      const artist = getArtistBeforeTitle(raw, title) || getWordsBefore(raw, "pixel", 2).replace(/^the /i, "") || "Untitled Artist";
+      const objective = lower.includes("engagement") ? "Engagement" : lower.includes("traffic") ? "Traffic" : lower.includes("conversion") ? "Conversions" : "Confirm objective";
+      const conversionLocation = lower.includes("website") ? "Website" : "Confirm conversion location";
       const event = lower.includes("view content") ? "View Content" : "Confirm optimisation event";
       const pixel = artist !== "Untitled Artist" ? artist + " pixel" : "Confirm pixel";
       const link = findUrl(raw, "song.so") || findUrl(raw, "http") || "";
-      const instagramPost = findUrl(adText, "instagram.com") || findUrl(raw, "instagram.com") || "";
-      const budget = getLineValue(campaignText, "Budget") || findMoneyLine(raw, "cap") || findMoneyLine(raw, "ceiling") || findMoneyLine(raw, "budget") || findMoneyLine(raw, "");
-      const dailyBudget = findMoneyLine(raw, "day");
-      const territories = extractTerritoriesNoRegex(raw).join(", ");
-      const placements = getLineValue(targetingText, "Placements") || (lower.includes("feeds") && lower.includes("reels") && lower.includes("stories") ? "Instagram and Facebook feeds, reels and stories only" : "Confirm placements");
-      const naming = getLineValue(campaignText, "Naming") || "Use the agreed Atlantic/JDW naming convention";
-      const adSetOne = getNumberedItem(adSetsText, "1.") || "Warm / retargeting ad set. Confirm custom audiences and lookalikes.";
-      const adSetTwo = getNumberedItem(adSetsText, "2.") || "Prospecting ad set. Confirm related artist interests.";
-      const account = accessText ? accessText.split(NL).map(x => x.trim()).filter(Boolean).join(" ") : "Confirm access/account details.";
-
-      const importantSwitches = [];
-      if (adSetOne.toLowerCase().includes("advantage+ audience off")) importantSwitches.push("Warm/retargeting Advantage+ audience OFF");
-      if (adSetTwo.toLowerCase().includes("advantage+ audience on")) importantSwitches.push("Prospecting Advantage+ audience ON");
-      if (targetingText.toLowerCase().includes("turn off every other placement")) importantSwitches.push("Turn off every other placement");
-      if (targetingText.toLowerCase().includes("suggested placement expansion")) importantSwitches.push("Turn off suggested placement expansion");
-      if (adText.toLowerCase().includes("advantage+ creative enhancements")) importantSwitches.push("Turn off Advantage+ creative enhancements");
-
-      const structuredBrief = [
-        "Artist: " + artist,
-        "Campaign / track: " + title,
-        "Access: " + account,
-        "Campaign setup: Objective is " + objective + ". Set conversion location to " + conversionLocation + ". Optimise for " + event + " using " + pixel + ".",
-        "Conversion link: " + (link || "Confirm link"),
-        "Budget: " + (budget || "Confirm budget") + (dailyBudget ? "; ad sets start at " + dailyBudget : "") + ".",
-        "Naming: " + naming,
-        "Ad set 1: " + adSetOne,
-        "Ad set 2: " + adSetTwo,
-        "Targeting: " + (territories || "Confirm territories") + ". Placements: " + placements + ".",
-        "Ad creative: Use existing post " + (instagramPost || "TBC") + ".",
-        importantSwitches.length ? "Important switches: " + importantSwitches.join("; ") + "." : "",
-        "Once built, send the campaign link over for review before it goes live."
-      ].filter(Boolean).join(NL + NL);
-
-      const missing = [];
-      if (artist === "Untitled Artist") missing.push("Confirm artist name.");
-      if (title === "Untitled Campaign") missing.push("Confirm campaign / track title.");
-      if (!link) missing.push("Confirm conversion link.");
-      if (!instagramPost) missing.push("Confirm existing post / creative URL.");
-      if (!lower.includes("age")) missing.push("Confirm age range.");
-      if (!lower.includes("clients@jdw.social")) missing.push("Confirm final access/password details from JD.");
-
-      const checklist = [
-        "Open Meta Ads Manager in a fresh browser/profile",
-        "Sign in as clients@jdw.social once JD sends the password",
-        "Open the Good Luck Kid portfolio",
-        "Work on the " + pixel,
-        "Create campaign with objective: " + objective,
-        "Set conversion location to: " + conversionLocation,
-        "Optimise for event: " + event,
-        "Use conversion link: " + (link || "TBC"),
-        "Add campaign-level spend cap: " + (budget || "TBC"),
-        "Use the agreed Atlantic/JDW naming convention",
-        "Create Ad Set 1: Warm / retargeting",
-        "Set Warm / retargeting Advantage+ audience OFF",
-        "Add Lilli custom audiences, 5% lookalike, engagers and followers",
-        "Create Ad Set 2: Prospecting",
-        "Set Prospecting Advantage+ audience ON",
-        "Add soft/acoustic interests such as Hozier and Lana Del Rey",
-        "Set territories: " + (territories || "TBC"),
-        "Set placements to Instagram and Facebook feeds, reels and stories only",
-        "Turn off every other placement and suggested placement expansion",
-        "Use existing post: " + (instagramPost || "TBC"),
-        "Turn off Advantage+ creative enhancements",
-        "Send the campaign link over for review before launch"
-      ];
-
-      return {
-        artist,
-        title,
-        objective: objective + ". Conversion location: " + conversionLocation + ". Optimisation event: " + event + ". Pixel: " + pixel + ".",
-        link,
-        budget: [budget, dailyBudget].filter(Boolean).join(" / "),
-        territories,
-        structured_brief: structuredBrief,
-        missing_info: missing.length ? missing.join(NL) : "No major missing information detected.",
-        checklist
-      };
+      const instagramPost = findUrl(raw, "instagram.com") || "";
+      const budget = findMoneyLine(raw, "cap") || findMoneyLine(raw, "budget") || findMoneyLine(raw, "");
+      const daily = findMoneyLine(raw, "day");
+      const territories = extractTerritories(raw).join(", ");
+      const structured = [`Artist: ${artist}`, `Campaign / track: ${title}`, `Campaign setup: Objective is ${objective}. Set conversion location to ${conversionLocation}. Optimise for ${event} using ${pixel}.`, `Conversion link: ${link || "TBC"}`, `Budget: ${budget || "TBC"}${daily ? "; ad sets start at " + daily : ""}.`, `Targeting: ${territories || "TBC"}.`, `Ad creative: Use existing post ${instagramPost || "TBC"}.`, "Once built, send the campaign link over for review before it goes live."].join("\n\n");
+      return { artistName: clean(artist), title: clean(title), status: "New Brief", priority: "Normal", deadline: "", budget: [budget,daily].filter(Boolean).join(" / "), objective: `${objective}. Conversion location: ${conversionLocation}. Optimisation event: ${event}. Pixel: ${pixel}.`, campaign_link: link, territories, raw_brief: raw, structured_brief: structured, missing_info: lower.includes("age") ? "No major missing information detected." : "Confirm age range.", report: "", checklist: DEFAULT_CHECKLIST };
     }
 
-    function parseBriefSections(raw) {
-      const names = ["Access", "Campaign", "Ad sets", "Targeting", "Ad"];
-      const lines = String(raw || "").split(String.fromCharCode(10));
-      const sections = {};
-      let current = "";
-      lines.forEach(line => {
-        const trimmed = line.trim();
-        const found = names.find(name => trimmed.toLowerCase() === name.toLowerCase());
-        if (found) {
-          current = found;
-          sections[current] = "";
-        } else if (current) {
-          sections[current] += line + String.fromCharCode(10);
-        }
-      });
-      Object.keys(sections).forEach(key => sections[key] = sections[key].trim());
-      return sections;
-    }
-
-    function getQuotedText(text) {
-      const results = [];
-      let current = "";
-      let open = false;
-      String(text || "").split("").forEach(ch => {
-        if (ch === '"' || ch === "“" || ch === "”") {
-          if (open && current.trim()) results.push(current.trim());
-          current = "";
-          open = !open;
-        } else if (open) {
-          current += ch;
-        }
-      });
-      return results;
-    }
-
-    function getArtistBeforeTitle(raw, title) {
-      if (!title) return "";
-      const marker = "write up the ";
-      const lowerRaw = raw.toLowerCase();
-      const start = lowerRaw.indexOf(marker);
-      const titleIndex = lowerRaw.indexOf(title.toLowerCase());
-      if (start === -1 || titleIndex === -1 || titleIndex <= start) return "";
-      return raw.slice(start + marker.length, titleIndex).replaceAll('"', "").replaceAll("“", "").replaceAll("”", "").trim();
-    }
-
-    function getWordsBefore(raw, word, count) {
-      const words = String(raw || "").replaceAll(".", " ").replaceAll(",", " ").split(" ").filter(Boolean);
-      const index = words.findIndex(w => w.toLowerCase() === word.toLowerCase());
-      if (index === -1) return "";
-      return words.slice(Math.max(0, index - count), index).join(" ");
-    }
-
-    function getAfterWords(raw, markers, count) {
-      const words = String(raw || "").split(" ").filter(Boolean);
-      const lowerWords = words.map(w => w.toLowerCase());
-      for (const marker of markers) {
-        const index = lowerWords.indexOf(marker.toLowerCase());
-        if (index !== -1) return words.slice(index + 1, index + 1 + count).join(" ");
-      }
-      return "";
-    }
-
-    function getLineValue(text, label) {
-      const lines = String(text || "").split(String.fromCharCode(10));
-      const found = lines.find(line => line.trim().toLowerCase().startsWith(label.toLowerCase() + ":"));
-      return found ? found.slice(found.indexOf(":") + 1).trim().replace(/^set /i, "") : "";
-    }
-
-    function findUrl(text, domain) {
-      const tokens = String(text || "").split(/ |
-|	/).map(t => t.trim().replace(/[),.]+$/g, ""));
-      const found = tokens.find(t => t.toLowerCase().includes(domain.toLowerCase()) && t.includes("."));
-      if (!found) return "";
-      return found.startsWith("http") ? found : "https://" + found;
-    }
-
-    function findMoneyLine(text, keyword) {
-      const lines = String(text || "").split(String.fromCharCode(10));
-      const found = lines.find(line => line.includes("€") && (!keyword || line.toLowerCase().includes(keyword.toLowerCase())));
-      return found ? found.trim().replace(/^[- ]+/, "") : "";
-    }
-
-    function extractTerritoriesNoRegex(raw) {
-      const lower = String(raw || "").toLowerCase();
-      const territories = [];
-      if (lower.includes("germany")) territories.push("Germany");
-      if (lower.includes("austria")) territories.push("Austria");
-      if (lower.includes("switzerland")) territories.push("Switzerland");
-      if (lower.includes("sweden")) territories.push("Sweden");
-      if (lower.includes("united kingdom") || lower.includes(" uk ")) territories.push("United Kingdom");
-      if (lower.includes("united states") || lower.includes(" usa ")) territories.push("United States");
-      return [...new Set(territories)];
-    }
-
-    function getNumberedItem(text, marker) {
-      const lines = String(text || "").split(String.fromCharCode(10));
-      const start = lines.findIndex(line => line.trim().startsWith(marker));
-      if (start === -1) return "";
-      const next = lines.findIndex((line, index) => index > start && line.trim().match(/^[0-9]+[.]/));
-      const end = next === -1 ? lines.length : next;
-      return lines.slice(start, end).join(" ").replace(marker, "").trim();
-    }
-
-    function cleanValue(text) {
-      return String(text || "").replaceAll("-", " ").replaceAll("  ", " ").trim().replace(/^the /i, "");
-    }
-
-    function aiResultToDraft(rawBrief, result) {
-      return {
-        artistName: result.artist || result.artistName || "Untitled Artist",
-        title: result.title || result.campaign || result.track || "Untitled Campaign",
-        status: "New Brief",
-        priority: result.priority || "Normal",
-        deadline: result.deadline || "",
-        budget: result.budget || "",
-        objective: result.objective || result.setup || "",
-        campaign_link: result.link || result.campaign_link || result.destination_url || "",
-        territories: Array.isArray(result.territories) ? result.territories.join(", ") : (result.territories || ""),
-        raw_brief: rawBrief,
-        structured_brief: result.structured_brief || result.structuredBrief || "",
-        missing_info: Array.isArray(result.missing_info) ? result.missing_info.join("\n") : (result.missing_info || result.missingInfo || ""),
-        report: "",
-        checklist: Array.isArray(result.checklist) ? result.checklist : DEFAULT_CHECKLIST
-      };
-    }
-
-    function generateLocalNames() {
-      const payload = collectModalPayload();
-      const artist = slug(payload.artistName || "artist");
-      const title = slug(payload.title || "campaign");
-      const territories = slug((payload.territories || "core").replaceAll(",", "-"));
-      const names = `Suggested naming convention:\n\nCampaign:\n${artist}_eng-${title}_vc_${territories}\n\nAd Set 1:\nca_warm-lal_${artist}_18-50_${territories}_ig-fb\n\nAd Set 2:\nint_ra-related-artists_${artist}_18-50_${territories}_ig-fb\n\nAd naming:\nvid_dark-${title}_hook01_${artist}\nvid_native-${title}_hook02_${artist}`;
-      document.getElementById("m_structuredBrief").value = payload.structured_brief ? `${payload.structured_brief}\n\n${names}` : names;
-      toast("Naming suggestions added.");
-    }
-
-    // ================================
-    // 10) HELPERS
-    // ================================
+    function generateNames() { collectDraft(); const artist = slug(tempDraft.artistName || "artist"); const title = slug(tempDraft.title || "campaign"); const terr = slug((tempDraft.territories || "core").replaceAll(",", "-")); const names = `Suggested naming convention:\n\nCampaign:\n${artist}_eng-${title}_vc_${terr}\n\nAd Set 1:\nca_warm-lal_${artist}_18-50_${terr}_ig-fb\n\nAd Set 2:\nint_ra-related-artists_${artist}_18-50_${terr}_ig-fb`; document.getElementById("m_structuredBrief").value = (tempDraft.structured_brief ? tempDraft.structured_brief + "\n\n" : "") + names; collectDraft(); toast("Names added."); }
+    function summariseLogs() { const logs = activeCampaignId ? getCampaignLogs(activeCampaignId) : []; tempDraft.report = logs.length ? logs.map(l => `- ${formatDateTime(l.created_at)}: ${l.text}`).join("\n") : "No logs yet."; activeTab = "report"; renderModal(); }
+    function generateJamesUpdate() { collectDraft(); const logs = activeCampaignId ? getCampaignLogs(activeCampaignId) : []; tempDraft.report = `Hey mate, quick update on ${tempDraft.artistName} — ${tempDraft.title}.\n\nStatus: ${tempDraft.status}.\n\nWhat has been done:\n${logs.slice(-5).map(l => `- ${l.text}`).join("\n") || "- No work logs added yet."}\n\n${tempDraft.missing_info || "No major missing info flagged."}`; activeTab = "report"; renderModal(); }
+    function generateClientReport() { collectDraft(); const logs = activeCampaignId ? getCampaignLogs(activeCampaignId) : []; tempDraft.report = `Campaign Report — ${tempDraft.artistName} / ${tempDraft.title}\n\nStatus: ${tempDraft.status}\nObjective / Setup: ${tempDraft.objective || "TBC"}\nBudget: ${tempDraft.budget || "TBC"}\nTerritories: ${tempDraft.territories || "TBC"}\nDestination: ${tempDraft.campaign_link || "TBC"}\n\nBrief Summary:\n${tempDraft.structured_brief || tempDraft.raw_brief || "No brief added yet."}\n\nWork Completed:\n${logs.map(l => `- ${l.text}`).join("\n") || "No work logs added yet."}`; activeTab = "report"; renderModal(); }
+    function copyStatusSummary() { navigator.clipboard.writeText(filteredCampaigns().map(c => `${getArtistName(c.artist_id)} — ${c.title}: ${c.status}`).join("\n")).then(() => toast("Status summary copied.")); }
+    function closeModal() { document.getElementById("modalRoot").innerHTML = ""; activeCampaignId = null; tempDraft = null; }
+    function setAuthStatus(message, error=false) { const el = document.getElementById("authStatus"); if (!el) return; el.textContent = message; el.className = "status-box" + (error ? " error" : ""); }
+    function toast(message, error=false) { const el = document.getElementById("toast"); el.textContent = message; el.className = "toast" + (error ? " error" : ""); el.classList.remove("hidden"); setTimeout(() => el.classList.add("hidden"), 3500); }
     function val(id) { return document.getElementById(id)?.value?.trim() || ""; }
     function priorityRank(p) { return { Urgent: 0, Normal: 1, Low: 2 }[p] ?? 1; }
-    function truncate(text, max) { return String(text || "").length > max ? String(text).slice(0, max - 1) + "…" : String(text || ""); }
-    function slug(text) { return String(text || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
-    function titleCase(text) { return String(text || "").replace(/\w\S*/g, t => t[0].toUpperCase() + t.slice(1).toLowerCase()); }
-    function formatDate(date) { return date ? new Date(date + "T00:00:00").toLocaleDateString(undefined, { day: "2-digit", month: "short" }) : ""; }
-    function formatDateTime(date) { return date ? new Date(date).toLocaleString(undefined, { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : ""; }
-    function escapeHtml(str) { return String(str ?? "").replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c])); }
-    function escapeAttr(str) { return escapeHtml(str).replace(/`/g, "&#96;"); }
-    function toast(message, isError = false) {
-      const el = document.getElementById("toast");
-      el.textContent = message;
-      el.style.color = isError ? "var(--red)" : "var(--green)";
-      el.style.borderColor = isError ? "rgba(255,95,109,0.35)" : "rgba(114,255,153,0.28)";
-      el.style.background = isError ? "rgba(40,20,24,0.94)" : "rgba(20,35,25,0.94)";
-      el.classList.remove("hidden");
-      setTimeout(() => el.classList.add("hidden"), 3500);
-    }
-
-    init();
-  </script>
-  <script>
-    // Emergency auth wiring. This runs after the main app script and makes the login form impossible to be a dead button.
-    window.addEventListener("DOMContentLoaded", () => {
-      const authForm = document.getElementById("authForm");
-      const signUpButton = document.getElementById("signUpButton");
-      const authStatus = document.getElementById("authStatus");
-
-      function status(message, isError = false) {
-        if (!authStatus) return;
-        authStatus.textContent = message;
-        authStatus.classList.remove("hidden");
-        authStatus.style.color = isError ? "var(--red)" : "var(--green)";
-        authStatus.style.borderColor = isError ? "rgba(255,95,109,0.35)" : "rgba(114,255,153,0.35)";
-        authStatus.style.background = isError ? "rgba(255,95,109,0.08)" : "rgba(114,255,153,0.08)";
-      }
-
-      function getClient() {
-        if (window.supabaseClient) return window.supabaseClient;
-        if (!window.supabase) {
-          status("Supabase library did not load. The CDN script may be blocked.", true);
-          return null;
-        }
-        const fallbackUrl = window.JDW_SUPABASE_URL || "https://zpkfxdyvesftnhkknggz.supabase.co";
-        const fallbackKey = window.JDW_SUPABASE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpwa2Z4ZHl2ZXNmdG5oa2tuZ2d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMDM5NjgsImV4cCI6MjA5NTg3OTk2OH0._w0PMiMUVh7MPyGWpKyRU4Sm6DXok-Yz657ctjUml3k";
-        if (!fallbackUrl || !fallbackKey) {
-          status("Supabase URL/key not found in the page script.", true);
-          return null;
-        }
-        window.supabaseClient = window.supabase.createClient(fallbackUrl, fallbackKey);
-        return window.supabaseClient;
-      }
-
-      async function emergencySignIn(event) {
-        event?.preventDefault();
-        const client = getClient();
-        if (!client) return;
-        const email = document.getElementById("emailInput")?.value?.trim();
-        const password = document.getElementById("passwordInput")?.value;
-        if (!email || !password) return status("Enter email and password.", true);
-        status("Signing in...");
-        const { data, error } = await client.auth.signInWithPassword({ email, password });
-        if (error) return status(error.message, true);
-        status("Signed in. Loading dashboard...");
-        window.currentUser = data.user;
-        document.getElementById("loginScreen")?.classList.add("hidden");
-        document.getElementById("app")?.classList.remove("hidden");
-        if (typeof loadData === "function") await loadData();
-      }
-
-      async function emergencySignUp(event) {
-        event?.preventDefault();
-        const client = getClient();
-        if (!client) return;
-        const email = document.getElementById("emailInput")?.value?.trim();
-        const password = document.getElementById("passwordInput")?.value;
-        if (!email || !password) return status("Enter email and password.", true);
-        status("Creating account...");
-        const { data, error } = await client.auth.signUp({ email, password });
-        if (error) return status(error.message, true);
-        if (data.session) {
-          status("Account created and signed in. Loading dashboard...");
-          document.getElementById("loginScreen")?.classList.add("hidden");
-          document.getElementById("app")?.classList.remove("hidden");
-          if (typeof loadData === "function") await loadData();
-        } else {
-          status("Account created. Check email confirmation settings in Supabase, then sign in.");
-        }
-      }
-
-      if (authForm && !authForm.dataset.emergencyWired) {
-        authForm.addEventListener("submit", emergencySignIn);
-        authForm.dataset.emergencyWired = "true";
-      }
-      if (signUpButton && !signUpButton.dataset.emergencyWired) {
-        signUpButton.addEventListener("click", emergencySignUp);
-        signUpButton.dataset.emergencyWired = "true";
-      }
-      status("Login ready. Enter details and press Sign In.");
-    });
+    function tabLabel(t) { return { brief: "Brief", checklist: "Checklist", logs: "Work Log", report: "Report" }[t]; }
+    function truncate(t, n) { return String(t || "").length > n ? String(t).slice(0, n-1) + "…" : String(t || ""); }
+    function slug(t) { return String(t || "").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); }
+    function clean(t) { return String(t || "").replaceAll("-", " ").replace(/\s+/g, " ").trim().replace(/^the /i, ""); }
+    function formatDate(d) { return d ? new Date(d + "T00:00:00").toLocaleDateString(undefined, { day: "2-digit", month: "short" }) : ""; }
+    function formatDateTime(d) { return d ? new Date(d).toLocaleString(undefined, { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : ""; }
+    function escapeHtml(s) { return String(s ?? "").replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c])); }
+    function escapeAttr(s) { return escapeHtml(s).replace(/`/g,"&#96;"); }
+    function getQuotedText(t) { const m = String(t).match(/["“](.*?)["”]/); return m ? [m[1].trim()] : []; }
+    function getArtistBeforeTitle(raw, title) { const marker = "write up the "; const lower = raw.toLowerCase(); const start = lower.indexOf(marker); const idx = lower.indexOf(String(title).toLowerCase()); if (start === -1 || idx === -1 || idx <= start) return ""; return clean(raw.slice(start + marker.length, idx).replaceAll('"',"").replaceAll("“","").replaceAll("”","")); }
+    function getWordsBefore(raw, word, count) { const words = String(raw).replace(/[.,()]/g," ").split(/\s+/).filter(Boolean); const idx = words.findIndex(w => w.toLowerCase() === word.toLowerCase()); return idx === -1 ? "" : words.slice(Math.max(0, idx-count), idx).join(" "); }
+    function findUrl(text, domain) { const tokens = String(text).split(/\s+/).map(t => t.trim().replace(/[),.]+$/g,"")); const found = tokens.find(t => t.toLowerCase().includes(domain.toLowerCase()) && t.includes(".")); return found ? (found.startsWith("http") ? found : "https://" + found) : ""; }
+    function findMoneyLine(text, keyword) { const found = String(text).split("\n").find(line => line.includes("€") && (!keyword || line.toLowerCase().includes(keyword.toLowerCase()))); return found ? found.trim().replace(/^[- ]+/,"") : ""; }
+    function extractTerritories(raw) { const l = String(raw).toLowerCase(); const out = []; if (l.includes("germany")) out.push("Germany"); if (l.includes("austria")) out.push("Austria"); if (l.includes("switzerland")) out.push("Switzerland"); if (l.includes("sweden")) out.push("Sweden"); if (l.includes("united kingdom") || l.includes(" uk ")) out.push("United Kingdom"); if (l.includes("united states") || l.includes(" usa ")) out.push("United States"); return [...new Set(out)]; }
   </script>
 </body>
 </html>
