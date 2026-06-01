@@ -438,20 +438,16 @@
       </div>
       <div>
         <h1>Briefs, builds, logs and reports in one place.</h1>
-        <p class="muted">Sign in to access shared artist folders and campaign boards.</p>
-      </div>
+        <p class="muted">Enter the shared portal password to access artist folders and campaign boards.</p>
       <div id="setupWarning" class="setup-warning hidden">
-        Add your Supabase Project URL and anon key inside the script section before deploying.
+        Add your Supabase Project URL and publishable key inside the script section before deploying.
       </div>
-      <div class="grid-2">
-        <div class="field"><label>Email</label><input id="emailInput" type="email" placeholder="you@example.com" /></div>
-        <div class="field"><label>Password</label><input id="passwordInput" type="password" placeholder="Password" /></div>
+      <div class="field">
+        <label>Portal Password</label>
+        <input id="passwordInput" type="password" placeholder="Enter password" />
       </div>
-      <div class="row">
-        <button class="btn" onclick="signIn()">Sign In</button>
-        <button class="btn secondary" onclick="signUp()">Create Account</button>
-      </div>
-      <p class="small">Create accounts only for you and James. For production, keep Row Level Security enabled in Supabase.</p>
+      <button class="btn" onclick="unlockPortal()">Unlock Portal</button>
+      <p class="small">This is simple shared-password access. It is fine for a private prototype, but proper user accounts are safer for production.</p>
     </div>
   </section>
 
@@ -473,7 +469,7 @@
 
       <div class="side-section-title">Account</div>
       <button class="btn secondary" style="width:100%;" onclick="loadData()">Refresh</button>
-      <button class="btn danger" style="width:100%;margin-top:10px;" onclick="signOut()">Sign Out</button>
+      <button class="btn danger" style="width:100%;margin-top:10px;" onclick="lockPortal()">Lock Portal</button>
       <p class="small" style="margin-top:18px;">Artist folders are generated from campaign artists. Create a campaign with a new artist to add a new folder.</p>
     </aside>
 
@@ -521,6 +517,9 @@
     // Optional AI Edge Function name. Create this later in Supabase.
     const AI_FUNCTION_NAME = "organise-brief";
 
+    // Change this before deploying.
+    const PORTAL_PASSWORD = "change-this-password";
+
     const hasSupabaseConfig = !SUPABASE_URL.includes("PASTE_YOUR") && !SUPABASE_ANON_KEY.includes("PASTE_YOUR");
     const supabaseClient = hasSupabaseConfig ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
@@ -561,7 +560,7 @@
     let temporaryCampaignDraft = null;
 
     // ================================
-    // 3) AUTH
+    // 3) SIMPLE PASSWORD ACCESS
     // ================================
     async function init() {
       if (!hasSupabaseConfig) {
@@ -569,51 +568,38 @@
         return;
       }
 
-      const { data } = await supabaseClient.auth.getSession();
-      currentUser = data.session?.user || null;
-
-      supabaseClient.auth.onAuthStateChange((_event, session) => {
-        currentUser = session?.user || null;
-        showCorrectScreen();
-      });
-
-      showCorrectScreen();
-    }
-
-    async function showCorrectScreen() {
-      if (currentUser) {
-        document.getElementById("loginScreen").classList.add("hidden");
-        document.getElementById("app").classList.remove("hidden");
-        document.getElementById("userLabel").textContent = currentUser.email;
-        await loadData();
-      } else {
-        document.getElementById("loginScreen").classList.remove("hidden");
-        document.getElementById("app").classList.add("hidden");
+      if (sessionStorage.getItem("jdw_portal_unlocked") === "true") {
+        showApp();
       }
     }
 
-    async function signIn() {
-      if (!hasSupabaseConfig) return toast("Add Supabase URL and anon key first.", true);
-      const email = document.getElementById("emailInput").value.trim();
+    async function unlockPortal() {
       const password = document.getElementById("passwordInput").value;
-      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-      if (error) return toast(error.message, true);
-      toast("Signed in.");
+      if (password !== PORTAL_PASSWORD) {
+        return toast("Incorrect password.", true);
+      }
+
+      sessionStorage.setItem("jdw_portal_unlocked", "true");
+      await showApp();
     }
 
-    async function signUp() {
-      if (!hasSupabaseConfig) return toast("Add Supabase URL and anon key first.", true);
-      const email = document.getElementById("emailInput").value.trim();
-      const password = document.getElementById("passwordInput").value;
-      const { error } = await supabaseClient.auth.signUp({ email, password });
-      if (error) return toast(error.message, true);
-      toast("Account created. Confirm email if Supabase asks you to.");
+    async function showApp() {
+      document.getElementById("loginScreen").classList.add("hidden");
+      document.getElementById("app").classList.remove("hidden");
+      document.getElementById("userLabel").textContent = "Shared password access";
+      await loadData();
     }
 
-    async function signOut() {
-      await supabaseClient.auth.signOut();
-      toast("Signed out.");
+    function lockPortal() {
+      sessionStorage.removeItem("jdw_portal_unlocked");
+      document.getElementById("loginScreen").classList.remove("hidden");
+      document.getElementById("app").classList.add("hidden");
+      toast("Portal locked.");
     }
+
+    document.getElementById("passwordInput")?.addEventListener("keydown", event => {
+      if (event.key === "Enter") unlockPortal();
+    });
 
     // ================================
     // 4) LOAD / RENDER
