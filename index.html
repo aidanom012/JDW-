@@ -1252,39 +1252,210 @@
     }
 
     function localBriefOrganiser(raw) {
+      const NL = String.fromCharCode(10);
+      const sections = parseBriefSections(raw);
+      const campaignText = sections.Campaign || raw;
+      const adSetsText = sections["Ad sets"] || "";
+      const targetingText = sections.Targeting || "";
+      const adText = sections.Ad || "";
+      const accessText = sections.Access || "";
+      const allText = raw;
       const lower = raw.toLowerCase();
-      const urlMatch = raw.match(/https?:\/\/\S+|\b\w+\.so\/\S+/i);
-      const budgetMatch = raw.match(/[€£$]\s?\d[\d,.]*(?:\s?(?:cap|budget|spend))?|\d[\d,.]*\s?(?:euro|eur|gbp|pounds|pound|dollars|usd)/i);
-      const territories = [];
-      [["Germany","germany|deutschland|\bde\b"],["Austria","austria|\bat\b"],["Sweden","sweden|\bse\b"],["UK","\buk\b|united kingdom|britain"],["US","\bus\b|usa|united states"]].forEach(([name, pattern]) => { if (new RegExp(pattern, "i").test(raw)) territories.push(name); });
-      const artistGuess = raw.split(/\s+/).slice(0, 2).join(" ").replace(/campaign|brief|new/ig, "").trim() || "Untitled Artist";
-      const titleGuess = raw.match(/["“](.*?)["”]/)?.[1] || raw.split(/campaign|use|objective/i)[0].replace(artistGuess, "").trim() || "Untitled Campaign";
-      const objective = lower.includes("engagement") ? "Engagement" : lower.includes("traffic") ? "Traffic" : lower.includes("conversion") ? "Conversions" : "Confirm objective";
-      const event = lower.includes("view content") ? "View Content" : lower.includes("landing page") ? "Landing Page Views" : "Confirm event";
+
+      const quoted = getQuotedText(raw);
+      const title = cleanValue(quoted[0] || getAfterWords(raw, ["track", "song", "single"], 5) || "Untitled Campaign");
+      const artistFromIntro = getArtistBeforeTitle(raw, title);
+      const artistFromPixel = getWordsBefore(raw, "pixel", 3).replace("the ", "").trim();
+      const artist = cleanValue(artistFromIntro || artistFromPixel || "Untitled Artist");
+
+      const objective = cleanValue(getLineValue(campaignText, "Objective") || (lower.includes("engagement") ? "Engagement" : lower.includes("traffic") ? "Traffic" : lower.includes("conversion") ? "Conversions" : "Confirm objective"));
+      const conversionLocation = lower.includes("conversion location to website") || lower.includes("location to website") ? "Website" : "Confirm conversion location";
+      const event = lower.includes("view content") ? "View Content" : "Confirm optimisation event";
+      const pixel = artist !== "Untitled Artist" ? artist + " pixel" : "Confirm pixel";
+      const link = findUrl(raw, "song.so") || findUrl(raw, "http") || "";
+      const instagramPost = findUrl(adText, "instagram.com") || findUrl(raw, "instagram.com") || "";
+      const budget = getLineValue(campaignText, "Budget") || findMoneyLine(raw, "cap") || findMoneyLine(raw, "ceiling") || findMoneyLine(raw, "budget") || findMoneyLine(raw, "");
+      const dailyBudget = findMoneyLine(raw, "day");
+      const territories = extractTerritoriesNoRegex(raw).join(", ");
+      const placements = getLineValue(targetingText, "Placements") || (lower.includes("feeds") && lower.includes("reels") && lower.includes("stories") ? "Instagram and Facebook feeds, reels and stories only" : "Confirm placements");
+      const naming = getLineValue(campaignText, "Naming") || "Use the agreed Atlantic/JDW naming convention";
+      const adSetOne = getNumberedItem(adSetsText, "1.") || "Warm / retargeting ad set. Confirm custom audiences and lookalikes.";
+      const adSetTwo = getNumberedItem(adSetsText, "2.") || "Prospecting ad set. Confirm related artist interests.";
+      const account = accessText ? accessText.split(NL).map(x => x.trim()).filter(Boolean).join(" ") : "Confirm access/account details.";
+
+      const importantSwitches = [];
+      if (adSetOne.toLowerCase().includes("advantage+ audience off")) importantSwitches.push("Warm/retargeting Advantage+ audience OFF");
+      if (adSetTwo.toLowerCase().includes("advantage+ audience on")) importantSwitches.push("Prospecting Advantage+ audience ON");
+      if (targetingText.toLowerCase().includes("turn off every other placement")) importantSwitches.push("Turn off every other placement");
+      if (targetingText.toLowerCase().includes("suggested placement expansion")) importantSwitches.push("Turn off suggested placement expansion");
+      if (adText.toLowerCase().includes("advantage+ creative enhancements")) importantSwitches.push("Turn off Advantage+ creative enhancements");
+
+      const structuredBrief = [
+        "Artist: " + artist,
+        "Campaign / track: " + title,
+        "Access: " + account,
+        "Campaign setup: Objective is " + objective + ". Set conversion location to " + conversionLocation + ". Optimise for " + event + " using " + pixel + ".",
+        "Conversion link: " + (link || "Confirm link"),
+        "Budget: " + (budget || "Confirm budget") + (dailyBudget ? "; ad sets start at " + dailyBudget : "") + ".",
+        "Naming: " + naming,
+        "Ad set 1: " + adSetOne,
+        "Ad set 2: " + adSetTwo,
+        "Targeting: " + (territories || "Confirm territories") + ". Placements: " + placements + ".",
+        "Ad creative: Use existing post " + (instagramPost || "TBC") + ".",
+        importantSwitches.length ? "Important switches: " + importantSwitches.join("; ") + "." : "",
+        "Once built, send the campaign link over for review before it goes live."
+      ].filter(Boolean).join(NL + NL);
+
+      const missing = [];
+      if (artist === "Untitled Artist") missing.push("Confirm artist name.");
+      if (title === "Untitled Campaign") missing.push("Confirm campaign / track title.");
+      if (!link) missing.push("Confirm conversion link.");
+      if (!instagramPost) missing.push("Confirm existing post / creative URL.");
+      if (!lower.includes("age")) missing.push("Confirm age range.");
+      if (!lower.includes("clients@jdw.social")) missing.push("Confirm final access/password details from JD.");
+
       const checklist = [
-        "Confirm correct ad account / portfolio",
-        `Confirm campaign objective: ${objective}`,
-        `Confirm optimisation event: ${event}`,
-        "Confirm pixel / dataset",
-        "Confirm destination link",
-        "Confirm budget cap and daily budget",
-        "Build warm / retargeting ad set if applicable",
-        "Build related artist / interest ad set if applicable",
-        "Check naming convention",
-        "Upload creatives",
-        "Send setup preview to James"
+        "Open Meta Ads Manager in a fresh browser/profile",
+        "Sign in as clients@jdw.social once JD sends the password",
+        "Open the Good Luck Kid portfolio",
+        "Work on the " + pixel,
+        "Create campaign with objective: " + objective,
+        "Set conversion location to: " + conversionLocation,
+        "Optimise for event: " + event,
+        "Use conversion link: " + (link || "TBC"),
+        "Add campaign-level spend cap: " + (budget || "TBC"),
+        "Use the agreed Atlantic/JDW naming convention",
+        "Create Ad Set 1: Warm / retargeting",
+        "Set Warm / retargeting Advantage+ audience OFF",
+        "Add Lilli custom audiences, 5% lookalike, engagers and followers",
+        "Create Ad Set 2: Prospecting",
+        "Set Prospecting Advantage+ audience ON",
+        "Add soft/acoustic interests such as Hozier and Lana Del Rey",
+        "Set territories: " + (territories || "TBC"),
+        "Set placements to Instagram and Facebook feeds, reels and stories only",
+        "Turn off every other placement and suggested placement expansion",
+        "Use existing post: " + (instagramPost || "TBC"),
+        "Turn off Advantage+ creative enhancements",
+        "Send the campaign link over for review before launch"
       ];
+
       return {
-        artist: titleCase(artistGuess),
-        title: titleCase(titleGuess),
-        objective: `${objective}. Conversion/event note: ${event}.`,
-        link: urlMatch ? (urlMatch[0].startsWith("http") ? urlMatch[0] : "https://" + urlMatch[0]) : "",
-        budget: budgetMatch ? budgetMatch[0] : "",
-        territories: territories.join(", "),
-        structured_brief: `Build a Meta campaign from the supplied brief. Objective: ${objective}. Event: ${event}. Use the supplied campaign link, budget, territories, audience notes and creative notes. Keep setup consistent with JDW / Atlantic naming conventions.`,
-        missing_info: "Confirm exact artist name, campaign title, age range, creative assets, pixel/dataset and final naming convention before launch.",
+        artist,
+        title,
+        objective: objective + ". Conversion location: " + conversionLocation + ". Optimisation event: " + event + ". Pixel: " + pixel + ".",
+        link,
+        budget: [budget, dailyBudget].filter(Boolean).join(" / "),
+        territories,
+        structured_brief: structuredBrief,
+        missing_info: missing.length ? missing.join(NL) : "No major missing information detected.",
         checklist
       };
+    }
+
+    function parseBriefSections(raw) {
+      const names = ["Access", "Campaign", "Ad sets", "Targeting", "Ad"];
+      const lines = String(raw || "").split(String.fromCharCode(10));
+      const sections = {};
+      let current = "";
+      lines.forEach(line => {
+        const trimmed = line.trim();
+        const found = names.find(name => trimmed.toLowerCase() === name.toLowerCase());
+        if (found) {
+          current = found;
+          sections[current] = "";
+        } else if (current) {
+          sections[current] += line + String.fromCharCode(10);
+        }
+      });
+      Object.keys(sections).forEach(key => sections[key] = sections[key].trim());
+      return sections;
+    }
+
+    function getQuotedText(text) {
+      const results = [];
+      let current = "";
+      let open = false;
+      String(text || "").split("").forEach(ch => {
+        if (ch === '"' || ch === "“" || ch === "”") {
+          if (open && current.trim()) results.push(current.trim());
+          current = "";
+          open = !open;
+        } else if (open) {
+          current += ch;
+        }
+      });
+      return results;
+    }
+
+    function getArtistBeforeTitle(raw, title) {
+      if (!title) return "";
+      const marker = "write up the ";
+      const lowerRaw = raw.toLowerCase();
+      const start = lowerRaw.indexOf(marker);
+      const titleIndex = lowerRaw.indexOf(title.toLowerCase());
+      if (start === -1 || titleIndex === -1 || titleIndex <= start) return "";
+      return raw.slice(start + marker.length, titleIndex).replaceAll('"', "").replaceAll("“", "").replaceAll("”", "").trim();
+    }
+
+    function getWordsBefore(raw, word, count) {
+      const words = String(raw || "").replaceAll(".", " ").replaceAll(",", " ").split(" ").filter(Boolean);
+      const index = words.findIndex(w => w.toLowerCase() === word.toLowerCase());
+      if (index === -1) return "";
+      return words.slice(Math.max(0, index - count), index).join(" ");
+    }
+
+    function getAfterWords(raw, markers, count) {
+      const words = String(raw || "").split(" ").filter(Boolean);
+      const lowerWords = words.map(w => w.toLowerCase());
+      for (const marker of markers) {
+        const index = lowerWords.indexOf(marker.toLowerCase());
+        if (index !== -1) return words.slice(index + 1, index + 1 + count).join(" ");
+      }
+      return "";
+    }
+
+    function getLineValue(text, label) {
+      const lines = String(text || "").split(String.fromCharCode(10));
+      const found = lines.find(line => line.trim().toLowerCase().startsWith(label.toLowerCase() + ":"));
+      return found ? found.slice(found.indexOf(":") + 1).trim().replace(/^set /i, "") : "";
+    }
+
+    function findUrl(text, domain) {
+      const tokens = String(text || "").split(/ |\n|\t/).map(t => t.trim().replace(/[),.]+$/g, ""));
+      const found = tokens.find(t => t.toLowerCase().includes(domain.toLowerCase()) && t.includes("."));
+      if (!found) return "";
+      return found.startsWith("http") ? found : "https://" + found;
+    }
+
+    function findMoneyLine(text, keyword) {
+      const lines = String(text || "").split(String.fromCharCode(10));
+      const found = lines.find(line => line.includes("€") && (!keyword || line.toLowerCase().includes(keyword.toLowerCase())));
+      return found ? found.trim().replace(/^[- ]+/, "") : "";
+    }
+
+    function extractTerritoriesNoRegex(raw) {
+      const lower = String(raw || "").toLowerCase();
+      const territories = [];
+      if (lower.includes("germany")) territories.push("Germany");
+      if (lower.includes("austria")) territories.push("Austria");
+      if (lower.includes("switzerland")) territories.push("Switzerland");
+      if (lower.includes("sweden")) territories.push("Sweden");
+      if (lower.includes("united kingdom") || lower.includes(" uk ")) territories.push("United Kingdom");
+      if (lower.includes("united states") || lower.includes(" usa ")) territories.push("United States");
+      return [...new Set(territories)];
+    }
+
+    function getNumberedItem(text, marker) {
+      const lines = String(text || "").split(String.fromCharCode(10));
+      const start = lines.findIndex(line => line.trim().startsWith(marker));
+      if (start === -1) return "";
+      const next = lines.findIndex((line, index) => index > start && line.trim().match(/^[0-9]+[.]/));
+      const end = next === -1 ? lines.length : next;
+      return lines.slice(start, end).join(" ").replace(marker, "").trim();
+    }
+
+    function cleanValue(text) {
+      return String(text || "").replaceAll("-", " ").replaceAll("  ", " ").trim().replace(/^the /i, "");
     }
 
     function aiResultToDraft(rawBrief, result) {
