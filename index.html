@@ -2996,18 +2996,23 @@
 
     function localBriefOrganiser(raw){
       const lower = raw.toLowerCase();
-      const title = getQuotedText(raw)[0] || "Untitled Campaign";
-      const artist = getArtistBeforeTitle(raw,title) || getWordsBefore(raw,"pixel",2).replace(/^the /i,"") || "Untitled Artist";
+
+      const title = getQuotedText(raw)[0] || inferTitleFromBrief(raw) || "Untitled Campaign";
+
+      const artist =
+        getArtistBeforeTitle(raw,title) ||
+        inferArtistFromBrief(raw,title) ||
+        getWordsBefore(raw,"pixel",2).replace(/^the /i,"") ||
+        "Untitled Artist";
+
       const objective = lower.includes("engagement") ? "Engagement" : "Confirm objective";
       const conversionLocation = lower.includes("website") ? "Website" : "Confirm conversion location";
       const event = lower.includes("view content") ? "View Content" : "Confirm optimisation event";
       const pixel = artist!=="Untitled Artist" ? artist+" pixel" : "Confirm pixel";
       const link = findUrl(raw,"song.so") || findUrl(raw,"http") || "";
       const budget = findOverallBudget(raw);
-      const daily = findMoneyLine(raw,"day");
       const territories = extractTerritories(raw).join(", ");
-      const split = extractAdSetBudgetSplit(raw,daily);
-      const names = extractAdSetNames(raw);
+      const extractedAdSets = extractAdSetsFromBrief(raw);
 
       const structured = [
         `Artist: ${artist}`,
@@ -3015,7 +3020,7 @@
         `Campaign setup: Objective is ${objective}. Set conversion location to ${conversionLocation}. Optimise for ${event} using ${pixel}.`,
         `Conversion link: ${link || "TBC"}`,
         `Campaign budget: ${budget || "TBC"}.`,
-        `Ad set budget split: ${names[0]} ${split[0] || "TBC"}; ${names[1]} ${split[1] || "TBC"}.`,
+        `Ad set budget split: ${extractedAdSets.map(adset=>`${adset.name} ${adset.budget || "TBC"}`).join("; ")}.`,
         `Targeting: ${territories || "TBC"}.`
       ].join("\\n\\n");
 
@@ -3034,24 +3039,14 @@
         missing_info:"No major missing information detected.",
         report:"",
         checklist:DEFAULT_CHECKLIST,
-        ad_sets:[
-          {
-            name:names[0],
-            objective:`${conversionLocation} / ${event}`,
-            budget:split[0] || daily || "TBC",
-            budget_type:"Daily Budget",
-            status:"Running",
-            audience:"Warm custom audiences, lookalike, engagers and followers."
-          },
-          {
-            name:names[1],
-            objective:`${conversionLocation} / ${event}`,
-            budget:split[1] || daily || "TBC",
-            budget_type:"Daily Budget",
-            status:"Running",
-            audience:"Related artist / interest prospecting."
-          }
-        ]
+        ad_sets:extractedAdSets.map(adset=>({
+          name:adset.name,
+          objective:`${conversionLocation} / ${event}`,
+          budget:adset.budget || "TBC",
+          budget_type:"Daily Budget",
+          status:"Running",
+          audience:adset.audience || ""
+        }))
       };
     }
 
@@ -3198,7 +3193,7 @@
     function formatCampaignBudget(value){
       const text = String(value || "");
       const compact = text.replace("Budget:","").replace("Campaign spend cap:","").trim();
-      const found = compact.match(new RegExp("[€£$]? *[0-9][0-9,.]* *(euro|eur|gbp|usd|pounds?)?","i"));
+      const found = compact.match(/[€£$]\s*[0-9][0-9,.]*|[0-9][0-9,.]*\s*(euro|eur|gbp|usd|pounds?)/i);
 
       return found ? found[0].trim() : compact;
     }
@@ -3212,7 +3207,7 @@
         .replace("if confirmed","")
         .trim();
 
-      const found = amount.match(new RegExp("[€£$]? *[0-9][0-9,.]* *(per day|/day|daily|euro|eur|gbp|usd|pounds?)?","i"));
+      const found = amount.match(/[€£$]\s*[0-9][0-9,.]*|[0-9][0-9,.]*\s*(per day|\/day|daily|euro|eur|gbp|usd|pounds?)/i);
 
       amount = found ? found[0].trim() : amount || "TBC";
 
@@ -3220,7 +3215,7 @@
         ? "lifetime"
         : "daily";
 
-      return (amount+" "+type).replace(new RegExp(" +","g")," ").trim();
+      return (amount+" "+type).replace(/ +/g," ").trim();
     }
 
     function slug(text){
@@ -3268,6 +3263,52 @@
       const match = String(text).match(/["“](.*?)["”]/);
 
       return match ? [match[1].trim()] : [];
+    }
+
+    function inferTitleFromBrief(raw){
+      const text = String(raw || "");
+      const match = text.match(/write up the\s+(.+?)\s+campaign/i);
+
+      if(match){
+        const value = match[1]
+          .replace(/["“”]/g,"")
+          .trim();
+
+        const parts = value.split(/\s+/);
+
+        if(parts.length>1){
+          return parts.slice(1).join(" ");
+        }
+
+        return value;
+      }
+
+      return "";
+    }
+
+    function inferArtistFromBrief(raw,title){
+      const text = String(raw || "");
+      const match = text.match(/write up the\s+(.+?)\s+campaign/i);
+
+      if(match){
+        const value = match[1]
+          .replace(/["“”]/g,"")
+          .trim();
+
+        const parts = value.split(/\s+/);
+
+        if(parts.length>1){
+          return parts[0];
+        }
+      }
+
+      const pixelMatch = text.match(/using the\s+(.+?)\s+pixel/i);
+
+      if(pixelMatch){
+        return pixelMatch[1].trim();
+      }
+
+      return "";
     }
 
     function getArtistBeforeTitle(raw,title){
@@ -3374,31 +3415,165 @@
         const lower = item.toLowerCase();
 
         return hasNumber(item) && (
-          lower.includes("budget") ||
-          lower.includes("spend cap") ||
-          lower.includes("campaign level") ||
           lower.includes("campaign-level") ||
-          lower.includes("total")
+          lower.includes("campaign level") ||
+          lower.includes("spend cap") ||
+          lower.includes("total budget") ||
+          lower.includes("budget:")
         );
       });
 
       if(line){
-        const numbers = getNumbers(line).filter(number=>Number(cleanNumberToken(number))>10);
+        const budget = extractBudgetFromText(line);
 
-        if(numbers.length){
-          return amountWithSymbol(numbers[0],text);
+        if(budget){
+          return budget;
         }
       }
 
-      const numbers = getNumbers(text).filter(number=>Number(cleanNumberToken(number))>10);
+      const fallback = lines.find(item=>{
+        const lower = item.toLowerCase();
 
-      return numbers.length ? amountWithSymbol(numbers[0],text) : "";
+        return lower.includes("budget") && extractBudgetFromText(item);
+      });
+
+      return fallback ? extractBudgetFromText(fallback) : "";
     }
 
     function cleanBudgetAmount(value,raw){
+      const budget = extractBudgetFromText(value);
+
+      if(budget){
+        return budget;
+      }
+
       const numbers = getNumbers(value).filter(number=>Number(cleanNumberToken(number))>0);
 
       return numbers.length ? amountWithSymbol(numbers[0],raw || value) : "";
+    }
+
+    function extractBudgetFromText(text){
+      const value = String(text || "");
+
+      const currencyMatch = value.match(/[€£$]\s*([0-9][0-9,.]*)/);
+
+      if(currencyMatch){
+        return currencyMatch[0].replace(/\s+/g,"").trim();
+      }
+
+      const wordCurrencyMatch = value.match(/([0-9][0-9,.]*)\s*(euro|eur|gbp|usd|pounds?)/i);
+
+      if(wordCurrencyMatch){
+        const symbol = /gbp|pound/i.test(wordCurrencyMatch[2])
+          ? "£"
+          : /usd/i.test(wordCurrencyMatch[2])
+            ? "$"
+            : "€";
+
+        return symbol + wordCurrencyMatch[1];
+      }
+
+      return "";
+    }
+
+    function extractAdSetsFromBrief(raw){
+      const text = String(raw || "");
+      const lines = text.split(String.fromCharCode(10));
+      const sharedBudget = extractSharedAdSetBudget(text);
+
+      const adSetBlocks = [];
+      let current = null;
+
+      for(const line of lines){
+        const trimmed = line.trim();
+        const headingMatch = trimmed.match(/^(\d+)[.)]\s+(.+)/);
+
+        if(headingMatch){
+          if(current){
+            adSetBlocks.push(current);
+          }
+
+          current = {
+            number:Number(headingMatch[1]),
+            name:cleanAdSetHeading(headingMatch[2]),
+            lines:[]
+          };
+
+          continue;
+        }
+
+        if(current){
+          current.lines.push(trimmed);
+        }
+      }
+
+      if(current){
+        adSetBlocks.push(current);
+      }
+
+      if(!adSetBlocks.length){
+        const split = extractAdSetBudgetSplit(raw,sharedBudget);
+
+        return [
+          {
+            name:"Warm / Retargeting",
+            budget:split[0] || sharedBudget || "TBC",
+            audience:"Warm custom audiences, lookalike, engagers and followers."
+          },
+          {
+            name:"Prospecting",
+            budget:split[1] || sharedBudget || "TBC",
+            audience:"Related artist / interest prospecting."
+          }
+        ];
+      }
+
+      return adSetBlocks.map(block=>{
+        const blockText = block.lines.join(" ");
+        const budget = extractBudgetFromText(blockText) || sharedBudget || "TBC";
+        const audience = extractAudienceSummary(block.name,blockText);
+
+        return {
+          name:block.name,
+          budget,
+          audience
+        };
+      });
+    }
+
+    function extractSharedAdSetBudget(raw){
+      const text = String(raw || "");
+      const lines = text.split(String.fromCharCode(10));
+
+      const line = lines.find(item=>{
+        const lower = item.toLowerCase();
+
+        return (
+          (lower.includes("ad set") || lower.includes("ad sets")) &&
+          (
+            lower.includes("each") ||
+            lower.includes("/day") ||
+            lower.includes("per day") ||
+            lower.includes("daily")
+          ) &&
+          extractBudgetFromText(item)
+        );
+      });
+
+      if(line){
+        return extractBudgetFromText(line);
+      }
+
+      const fallback = lines.find(item=>{
+        const lower = item.toLowerCase();
+
+        return (
+          (lower.includes("/day") || lower.includes("per day") || lower.includes("daily")) &&
+          extractBudgetFromText(item)
+        );
+      });
+
+      return fallback ? extractBudgetFromText(fallback) : "";
     }
 
     function extractAdSetBudgetSplit(raw,fallback){
@@ -3410,7 +3585,7 @@
       const firstLine = lines.find(line=>{
         const lower = line.toLowerCase();
 
-        return hasNumber(line) && (
+        return extractBudgetFromText(line) && (
           lower.includes("warm") ||
           lower.includes("retarget") ||
           lower.includes("first") ||
@@ -3423,7 +3598,7 @@
       const secondLine = lines.find(line=>{
         const lower = line.toLowerCase();
 
-        return hasNumber(line) && (
+        return extractBudgetFromText(line) && (
           lower.includes("prospecting") ||
           lower.includes("cold") ||
           lower.includes("interest") ||
@@ -3435,47 +3610,11 @@
       });
 
       if(firstLine){
-        const numbers = getNumbers(firstLine).filter(number=>Number(cleanNumberToken(number))>10);
-
-        if(numbers.length){
-          first = amountWithSymbol(numbers[numbers.length-1],text);
-        }
+        first = extractBudgetFromText(firstLine);
       }
 
       if(secondLine){
-        const numbers = getNumbers(secondLine).filter(number=>Number(cleanNumberToken(number))>10);
-
-        if(numbers.length){
-          second = amountWithSymbol(numbers[numbers.length-1],text);
-        }
-      }
-
-      if(!first || !second){
-        const lower = text.toLowerCase();
-        const startWords = ["split","ad sets","adsets","first","warm","prospecting"];
-        let start = 0;
-
-        for(const word of startWords){
-          const index = lower.indexOf(word);
-
-          if(index>=0){
-            start = index;
-            break;
-          }
-        }
-
-        const relevant = text.slice(start,start+320);
-
-        const numbers = getNumbers(relevant).filter(number=>{
-          const value = Number(cleanNumberToken(number));
-
-          return value>10 && value<10000;
-        });
-
-        if(numbers.length>=2){
-          first = first || amountWithSymbol(numbers[0],text);
-          second = second || amountWithSymbol(numbers[1],text);
-        }
+        second = extractBudgetFromText(secondLine);
       }
 
       if(!first && fallback){
@@ -3490,54 +3629,20 @@
     }
 
     function extractAdSetNames(raw){
-      const text = String(raw || "");
-      const lines = text.split(String.fromCharCode(10));
+      const sets = extractAdSetsFromBrief(raw);
 
-      let first = "";
-      let second = "";
-
-      const firstLine = lines.find(line=>{
-        const lower = line.toLowerCase();
-
-        return (
-          lower.includes("warm") ||
-          lower.includes("retarget") ||
-          lower.includes("lookalike") ||
-          lower.includes("lal") ||
-          lower.includes("first") ||
-          lower.includes("1st") ||
-          lower.includes("ad set 1") ||
-          lower.includes("adset 1")
-        );
-      });
-
-      const secondLine = lines.find(line=>{
-        const lower = line.toLowerCase();
-
-        return (
-          lower.includes("prospecting") ||
-          lower.includes("related artist") ||
-          lower.includes("interest") ||
-          lower.includes("cold") ||
-          lower.includes("second") ||
-          lower.includes("2nd") ||
-          lower.includes("ad set 2") ||
-          lower.includes("adset 2")
-        );
-      });
-
-      if(firstLine){
-        first = cleanAdSetName(firstLine,"Warm / Retargeting");
+      if(sets.length){
+        return sets.map(item=>item.name);
       }
 
-      if(secondLine){
-        second = cleanAdSetName(secondLine,"Prospecting");
-      }
+      return ["Warm / Retargeting","Prospecting"];
+    }
 
-      return [
-        first || "Warm / Retargeting",
-        second || "Prospecting"
-      ];
+    function cleanAdSetHeading(text){
+      return String(text || "")
+        .replace(/^\s*[-*]+/,"")
+        .replace(/\s+/g," ")
+        .trim();
     }
 
     function cleanAdSetName(line,fallback){
@@ -3556,6 +3661,25 @@
       }
 
       return value || fallback;
+    }
+
+    function extractAudienceSummary(name,blockText){
+      const lowerName = String(name || "").toLowerCase();
+      const lowerBlock = String(blockText || "").toLowerCase();
+
+      if(lowerName.includes("warm") || lowerName.includes("retarget")){
+        return "Warm audiences, engagers, followers, video viewers, custom audiences and lookalikes.";
+      }
+
+      if(lowerName.includes("related") || lowerBlock.includes("hozier") || lowerBlock.includes("lana")){
+        return "Related artist / acoustic singer-songwriter prospecting.";
+      }
+
+      if(lowerName.includes("indie") || lowerName.includes("female") || lowerBlock.includes("billie") || lowerBlock.includes("clairo")){
+        return "Broader indie pop / female-led alternative prospecting.";
+      }
+
+      return blockText.slice(0,180) || "Audience TBC.";
     }
 
     function extractTerritories(raw){
