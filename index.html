@@ -43,6 +43,15 @@
     button { cursor: pointer; }
     .hidden { display: none !important; }
 
+    .auth-actions {
+      margin-top: 10px;
+      margin-bottom: 8px;
+    }
+
+    .modal-body .row {
+      margin-top: 8px;
+    }
+
     .setup-warning {
       margin: 18px 0 0;
       padding: 12px 14px;
@@ -135,7 +144,7 @@
     .btn {
       border: 0;
       border-radius: 14px;
-      padding: 11px 14px;
+      padding: 13px 18px;
       background: var(--accent);
       color: #060606;
       font-weight: 900;
@@ -160,8 +169,8 @@
     .btn.danger { background: rgba(255,95,109,0.12); color: var(--red); border: 1px solid rgba(255,95,109,0.32); }
 
     .stack { display: grid; gap: 14px; }
-    .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .between { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .between { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
 
     .app {
       height: 100vh;
@@ -453,11 +462,11 @@
           <input id="passwordInput" type="password" placeholder="Password" />
         </div>
       </div>
-      <div class="row">
-        <button id="signInButton" class="btn" onclick="signIn()">Sign In</button>
-        <button id="signUpButton" class="btn secondary" onclick="signUp()">Create Account</button>
+      <div class="row auth-actions">
+        <button id="signInButton" class="btn" type="button">Sign In</button>
+        <button id="signUpButton" class="btn secondary" type="button">Create Account</button>
       </div>
-      <div id="authStatus" class="setup-warning hidden"></div>
+      <div id="authStatus" class="setup-warning">Ready. Click Sign In or Create Account.</div>
       <p class="small">Use this only for you and James. Keep Row Level Security enabled and use authenticated-only policies in Supabase.</p>
     </div>
   </section>
@@ -529,7 +538,24 @@
     const AI_FUNCTION_NAME = "organise-brief";
 
     const hasSupabaseConfig = !SUPABASE_URL.includes("PASTE_YOUR") && !SUPABASE_ANON_KEY.includes("PASTE_YOUR");
-    const supabaseClient = hasSupabaseConfig ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+    let supabaseClient = null;
+
+    window.addEventListener("error", event => {
+      const message = event?.message || "Unknown JavaScript error";
+      const authBox = document.getElementById("authStatus");
+      if (authBox) {
+        authBox.textContent = "JavaScript error: " + message;
+        authBox.classList.remove("hidden");
+        authBox.style.color = "var(--red)";
+        authBox.style.borderColor = "rgba(255,95,109,0.35)";
+        authBox.style.background = "rgba(255,95,109,0.08)";
+      }
+      console.error("Page error:", event.error || message);
+    });
+
+    if (hasSupabaseConfig && window.supabase) {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
 
     // ================================
     // 2) APP CONSTANTS / STATE
@@ -571,10 +597,20 @@
     // 3) SUPABASE AUTH
     // ================================
     async function init() {
+      wireAuthButtons();
+
       if (!hasSupabaseConfig) {
         document.getElementById("setupWarning").classList.remove("hidden");
+        showAuthStatus("Supabase config missing from index.html.", true);
         return;
       }
+
+      if (!window.supabase || !supabaseClient) {
+        showAuthStatus("Supabase library did not load. Check internet connection or CDN blocking.", true);
+        return;
+      }
+
+      showAuthStatus("Supabase connected. Enter email/password, then click Sign In.");
 
       const { data } = await supabaseClient.auth.getSession();
       currentUser = data.session?.user || null;
@@ -709,9 +745,28 @@
       toast("Signed out.");
     }
 
-    document.getElementById("passwordInput")?.addEventListener("keydown", event => {
-      if (event.key === "Enter") signIn();
-    });
+    function wireAuthButtons() {
+      const signInButton = document.getElementById("signInButton");
+      const signUpButton = document.getElementById("signUpButton");
+      const passwordInput = document.getElementById("passwordInput");
+
+      if (signInButton && !signInButton.dataset.wired) {
+        signInButton.addEventListener("click", signIn);
+        signInButton.dataset.wired = "true";
+      }
+
+      if (signUpButton && !signUpButton.dataset.wired) {
+        signUpButton.addEventListener("click", signUp);
+        signUpButton.dataset.wired = "true";
+      }
+
+      if (passwordInput && !passwordInput.dataset.wired) {
+        passwordInput.addEventListener("keydown", event => {
+          if (event.key === "Enter") signIn();
+        });
+        passwordInput.dataset.wired = "true";
+      }
+    }
 
     // ================================
     // 4) LOAD / RENDER
