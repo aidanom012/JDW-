@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>JDW Campaign Hub</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -10,7 +10,7 @@
     :root{
       --bg:#07070a;
       --panel:#111119;
-      --panel2:#171720;
+      --panel2:#1b1b24;
       --text:#f5f5f7;
       --muted:#a1a1aa;
       --muted2:#71717a;
@@ -27,14 +27,13 @@
     }
 
     *{box-sizing:border-box}
-
     body{
       margin:0;
       min-height:100vh;
       font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
       background:
-        radial-gradient(circle at 15% 0%,rgba(var(--accent-rgb),.13),transparent 28%),
-        radial-gradient(circle at 80% 20%,rgba(122,167,255,.10),transparent 25%),
+        radial-gradient(circle at 14% 0%,rgba(var(--accent-rgb),.13),transparent 28%),
+        radial-gradient(circle at 82% 18%,rgba(122,167,255,.10),transparent 27%),
         var(--bg);
       color:var(--text);
       overflow:hidden;
@@ -42,50 +41,48 @@
 
     button,input,textarea,select{font:inherit}
     button{cursor:pointer}
-    .hidden{display:none!important}
     h1,h2,h3,p{margin-top:0}
+    .hidden{display:none!important}
+    .small{font-size:12px;line-height:1.5;color:var(--muted2)}
     .muted{color:var(--muted)}
-    .small{font-size:12px;line-height:1.55;color:var(--muted2)}
 
     label{
       display:block;
       font-size:11px;
-      letter-spacing:.075em;
+      letter-spacing:.09em;
       text-transform:uppercase;
       color:var(--muted);
-      font-weight:850;
-      line-height:1.35;
+      font-weight:900;
+      margin-bottom:8px;
     }
 
     input,textarea,select{
       width:100%;
+      min-width:0;
       border:1px solid var(--line);
       border-radius:14px;
-      background:rgba(0,0,0,.26);
+      background:rgba(0,0,0,.28);
       color:var(--text);
       padding:14px 15px;
       outline:none;
-      min-width:0;
     }
 
     textarea{
-      resize:vertical;
       min-height:130px;
+      resize:vertical;
       line-height:1.48;
     }
 
     input:focus,textarea:focus,select:focus{
-      border-color:rgba(var(--accent-rgb),.65);
+      border-color:rgba(var(--accent-rgb),.7);
       box-shadow:0 0 0 4px rgba(var(--accent-rgb),.08);
-      background:rgba(0,0,0,.38);
     }
 
-    .field{display:grid;gap:10px;min-width:0}
-    .stack{display:grid;gap:22px}
-    .row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-    .between{display:flex;align-items:center;justify-content:space-between;gap:18px}
-    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
-    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+    .row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .between{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .stack{display:grid;gap:18px}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
 
     .btn{
       border:0;
@@ -98,26 +95,22 @@
       align-items:center;
       justify-content:center;
       gap:8px;
-      white-space:nowrap;
       transition:.16s;
+      white-space:nowrap;
     }
 
     .btn:hover{transform:translateY(-1px)}
     .btn.secondary{
-      background:rgba(255,255,255,.055);
+      background:rgba(255,255,255,.06);
       color:var(--text);
       border:1px solid var(--line);
     }
     .btn.danger{
       background:rgba(255,95,109,.12);
       color:var(--red);
-      border:1px solid rgba(255,95,109,.32);
+      border:1px solid rgba(255,95,109,.34);
     }
-    .btn:disabled{
-      opacity:.45;
-      cursor:not-allowed;
-      transform:none;
-    }
+    .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
 
     .login-screen{
       min-height:100vh;
@@ -127,33 +120,29 @@
     }
 
     .login-card{
-      width:min(540px,100%);
-      padding:36px;
+      width:min(560px,100%);
       border:1px solid var(--line);
       border-radius:30px;
       background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.025));
       box-shadow:var(--shadow);
+      padding:36px;
     }
 
-    .logo-row{display:flex;gap:14px;align-items:center;margin-bottom:30px}
-
+    .logo-row{display:flex;align-items:center;gap:14px;margin-bottom:30px}
     .logo{
-      width:48px;
-      height:48px;
-      border-radius:16px;
-      display:grid;
-      place-items:center;
+      width:50px;height:50px;border-radius:16px;
       background:var(--accent);
       color:#050505;
+      display:grid;
+      place-items:center;
       font-weight:950;
-      letter-spacing:-.08em;
       box-shadow:0 0 35px rgba(var(--accent-rgb),.25);
     }
 
     .login-card h1{
-      font-size:34px;
-      line-height:.98;
-      letter-spacing:-.065em;
+      font-size:36px;
+      line-height:.96;
+      letter-spacing:-.07em;
       margin-bottom:14px;
     }
 
@@ -166,7 +155,6 @@
       font-size:13px;
       line-height:1.45;
     }
-
     .status-box.error{
       border-color:rgba(255,95,109,.35);
       background:rgba(255,95,109,.08);
@@ -176,150 +164,86 @@
     .app{
       height:100vh;
       display:grid;
-      grid-template-columns:280px 1fr;
+      grid-template-columns:285px 1fr;
     }
 
     .sidebar{
       border-right:1px solid var(--line);
-      background:rgba(10,10,14,.78);
+      background:rgba(10,10,14,.82);
       backdrop-filter:blur(16px);
       padding:18px;
       overflow-y:auto;
     }
 
     .side-title h2{
-      font-size:14px;
       margin:0;
-      letter-spacing:.08em;
+      font-size:14px;
+      letter-spacing:.09em;
       text-transform:uppercase;
     }
 
-    .side-title p{
-      margin:3px 0 0;
-      font-size:12px;
-      color:var(--muted);
-    }
+    .side-title p{margin:3px 0 0;color:var(--muted);font-size:12px}
 
-    .side-section-title{
+    .section-title{
+      margin:24px 0 10px;
       font-size:11px;
-      letter-spacing:.11em;
       color:var(--muted2);
+      letter-spacing:.12em;
       text-transform:uppercase;
-      font-weight:900;
-      margin:24px 0 9px;
+      font-weight:950;
     }
 
     .folder-toolbar{
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:10px;
-      margin:24px 0 9px;
+      margin:24px 0 10px;
       font-size:11px;
-      letter-spacing:.11em;
       color:var(--muted2);
+      letter-spacing:.12em;
       text-transform:uppercase;
-      font-weight:900;
+      font-weight:950;
     }
 
-    .folder-add-btn{
-      width:24px;
-      height:24px;
+    .folder-add{
+      width:24px;height:24px;
       border-radius:8px;
       border:1px solid var(--line);
-      background:rgba(255,255,255,.055);
+      background:rgba(255,255,255,.06);
       color:var(--accent);
       font-weight:950;
-      line-height:1;
-    }
-
-    .folder-add-btn:hover{
-      background:rgba(var(--accent-rgb),.12);
-      border-color:rgba(var(--accent-rgb),.35);
     }
 
     .folder-list{display:grid;gap:7px}
 
-    .folder-item{
-      width:100%;
+    .folder-row{
       display:flex;
       align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding:11px 12px;
-      border:1px solid transparent;
+      gap:8px;
       border-radius:13px;
-      background:transparent;
-      color:var(--muted);
-      text-align:left;
+      padding:0;
     }
 
-    .folder-item:hover{
-      background:rgba(255,255,255,.05);
-      color:var(--text);
-    }
-
-    .folder-item.active{
-      background:rgba(var(--accent-rgb),.10);
-      color:var(--accent);
-      border-color:rgba(var(--accent-rgb),.20);
-    }
-
-    .folder-item-inner{
+    .folder-btn{
+      flex:1;
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:8px;
-      width:100%;
-      background:none;
-      border:0;
-      color:inherit;
-      text-align:left;
-      padding:0;
-    }
-
-    .folder-delete-x{
-      width:22px;
-      height:22px;
-      border-radius:999px;
       border:1px solid transparent;
+      border-radius:13px;
+      padding:11px 12px;
       background:transparent;
-      color:var(--muted2);
-      font-size:14px;
-      font-weight:900;
-      display:grid;
-      place-items:center;
-      flex:0 0 auto;
-    }
-
-    .folder-delete-x:hover{
-      color:var(--red);
-      background:rgba(255,95,109,.10);
-      border-color:rgba(255,95,109,.25);
-    }
-
-    .campaign-sublist{
-      display:grid;
-      gap:6px;
-      margin:6px 0 10px 18px;
-    }
-
-    .campaign-subitem{
-      width:100%;
-      border:1px solid transparent;
-      border-radius:12px;
-      background:rgba(255,255,255,.028);
       color:var(--muted);
-      padding:9px 10px;
       text-align:left;
-      font-size:12px;
-      line-height:1.25;
+      min-width:0;
     }
 
-    .campaign-subitem:hover{
-      background:rgba(255,255,255,.06);
-      color:var(--text);
-      border-color:var(--line);
+    .folder-btn:hover{background:rgba(255,255,255,.05);color:var(--text)}
+    .folder-btn.active{
+      background:rgba(var(--accent-rgb),.10);
+      color:var(--accent);
+      border-color:rgba(var(--accent-rgb),.22);
     }
 
     .folder-name{
@@ -331,8 +255,49 @@
 
     .folder-name span:last-child{
       overflow:hidden;
-      text-overflow:ellipsis;
       white-space:nowrap;
+      text-overflow:ellipsis;
+    }
+
+    .delete-x{
+      width:24px;height:24px;
+      border-radius:999px;
+      border:1px solid transparent;
+      background:transparent;
+      color:var(--muted2);
+      font-weight:950;
+      display:grid;
+      place-items:center;
+    }
+
+    .delete-x:hover{
+      color:var(--red);
+      background:rgba(255,95,109,.10);
+      border-color:rgba(255,95,109,.25);
+    }
+
+    .sublist{
+      display:grid;
+      gap:6px;
+      margin:6px 0 10px 18px;
+    }
+
+    .subitem{
+      width:100%;
+      border:1px solid transparent;
+      border-radius:12px;
+      background:rgba(255,255,255,.03);
+      color:var(--muted);
+      padding:9px 10px;
+      text-align:left;
+      font-size:12px;
+      line-height:1.25;
+    }
+
+    .subitem:hover{
+      color:var(--text);
+      background:rgba(255,255,255,.06);
+      border-color:var(--line);
     }
 
     .badge{
@@ -346,7 +311,7 @@
       background:rgba(255,255,255,.07);
       color:var(--muted);
       font-size:11px;
-      font-weight:850;
+      font-weight:900;
     }
 
     .main{
@@ -360,16 +325,15 @@
       padding:18px 22px;
       border-bottom:1px solid var(--line);
       background:rgba(11,11,16,.62);
-      backdrop-filter:blur(16px);
     }
 
     .topbar h1{
       margin:0;
-      font-size:27px;
-      letter-spacing:-.055em;
+      font-size:28px;
+      letter-spacing:-.06em;
     }
 
-    .stats-grid{
+    .stats{
       display:grid;
       grid-template-columns:repeat(5,minmax(150px,1fr));
       gap:12px;
@@ -378,32 +342,23 @@
       background:rgba(255,255,255,.018);
     }
 
-    .stat-card{
+    .stat{
       border:1px solid var(--line);
-      background:rgba(255,255,255,.035);
       border-radius:16px;
+      background:rgba(255,255,255,.035);
       padding:13px;
     }
 
-    .stat-card strong{
-      display:block;
-      font-size:24px;
-      letter-spacing:-.04em;
-    }
-
-    .stat-card span{
-      color:var(--muted);
-      font-size:12px;
-      font-weight:800;
-    }
+    .stat strong{display:block;font-size:25px;letter-spacing:-.05em}
+    .stat span{color:var(--muted);font-size:12px;font-weight:850}
 
     .toolbar{
       padding:16px 22px;
+      border-bottom:1px solid var(--line);
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:16px;
-      border-bottom:1px solid var(--line);
       background:rgba(7,7,10,.38);
     }
 
@@ -418,78 +373,15 @@
       align-items:start;
     }
 
-    .stack-board{
+    .board.stack-view{
       display:block;
-      overflow:auto;
-    }
-
-    .stack-group{
-      border:1px solid var(--line);
-      border-radius:20px;
-      background:rgba(255,255,255,.028);
-      padding:14px;
-      margin-bottom:16px;
-    }
-
-    .stack-group-head{margin-bottom:12px}
-
-    .stack-group-head h3{
-      margin:0;
-      font-size:18px;
-      letter-spacing:-.04em;
-    }
-
-    .stack-list{
-      display:grid;
-      gap:10px;
-    }
-
-    .stack-campaign{
-      border:1px solid var(--line);
-      border-radius:16px;
-      background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.03));
-      padding:14px;
-      display:grid;
-      grid-template-columns:minmax(220px,1fr) minmax(240px,1fr) auto;
-      gap:14px;
-      align-items:center;
-      cursor:pointer;
-    }
-
-    .stack-campaign:hover{
-      border-color:rgba(var(--accent-rgb),.35);
-      background:rgba(255,255,255,.07);
-    }
-
-    .stack-campaign h3{
-      margin:0 0 5px;
-      font-size:15px;
-    }
-
-    .stack-campaign p{
-      margin:0;
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.4;
-    }
-
-    .stack-budget{
-      display:grid;
-      gap:4px;
-      font-size:12px;
-      color:var(--muted);
-    }
-
-    .stack-budget strong,
-    .stack-budget span{
-      color:var(--text);
     }
 
     .column{
-      background:rgba(255,255,255,.035);
+      min-height:calc(100vh - 265px);
       border:1px solid var(--line);
       border-radius:20px;
-      min-height:calc(100vh - 250px);
+      background:rgba(255,255,255,.035);
       padding:12px;
     }
 
@@ -503,48 +395,37 @@
       align-items:center;
       justify-content:space-between;
       gap:10px;
-      margin-bottom:12px;
-      padding:3px 3px 7px;
+      padding:3px 3px 10px;
     }
 
     .column-title{
       display:flex;
       align-items:center;
       gap:8px;
-      color:var(--text);
-      font-weight:950;
       font-size:13px;
+      font-weight:950;
     }
 
-    .status-dot{
-      width:9px;
-      height:9px;
-      border-radius:999px;
-      background:var(--muted);
-    }
+    .dot{width:9px;height:9px;border-radius:999px;background:var(--muted)}
+    .dot.new{background:var(--blue)}
+    .dot.needs{background:var(--red)}
+    .dot.ready{background:var(--accent)}
+    .dot.progress{background:var(--orange)}
+    .dot.approval{background:var(--purple)}
+    .dot.live{background:var(--green)}
+    .dot.reporting{background:var(--cyan)}
+    .dot.complete{background:var(--muted)}
 
-    .status-dot.new{background:var(--blue)}
-    .status-dot.needs{background:var(--red)}
-    .status-dot.ready{background:var(--accent)}
-    .status-dot.progress{background:var(--orange)}
-    .status-dot.approval{background:var(--purple)}
-    .status-dot.live{background:var(--green)}
-    .status-dot.reporting{background:var(--cyan)}
-    .status-dot.complete{background:var(--muted)}
-
-    .cards{
-      display:grid;
-      gap:10px;
-    }
+    .cards{display:grid;gap:10px}
 
     .card{
       border:1px solid var(--line);
-      background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.03));
       border-radius:17px;
       padding:14px;
+      background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.03));
       box-shadow:0 12px 28px rgba(0,0,0,.16);
-      transition:.16s;
       cursor:grab;
+      transition:.16s;
     }
 
     .card:hover{
@@ -554,33 +435,24 @@
     }
 
     .card h3{
-      margin:0 0 8px;
+      margin:0 0 9px;
       font-size:15px;
       letter-spacing:-.025em;
     }
 
-    .card p{
-      margin:0;
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.45;
-    }
-
-    .budget-summary{
+    .budget-box{
       display:grid;
       gap:6px;
-      margin-top:12px;
       border:1px solid var(--line);
       border-radius:13px;
-      background:rgba(0,0,0,.18);
+      background:rgba(0,0,0,.20);
       padding:10px;
       font-size:12px;
-      line-height:1.35;
       color:var(--muted);
+      line-height:1.35;
     }
 
-    .budget-summary strong{color:var(--text)}
-    .main-budget{font-size:13px}
+    .budget-box strong{color:var(--text)}
 
     .adset-line{
       display:flex;
@@ -592,7 +464,6 @@
       width:8px;
       height:8px;
       border-radius:999px;
-      display:inline-block;
       flex:0 0 auto;
     }
 
@@ -601,11 +472,11 @@
     .adset-ended{background:var(--muted2)}
     .adset-review{background:var(--red)}
 
-    .meta-grid{
-      margin-top:12px;
+    .chips{
       display:flex;
       gap:7px;
       flex-wrap:wrap;
+      margin-top:12px;
     }
 
     .chip{
@@ -613,18 +484,18 @@
       align-items:center;
       gap:6px;
       border:1px solid var(--line);
-      background:rgba(0,0,0,.18);
       border-radius:999px;
-      padding:5px 8px;
+      background:rgba(0,0,0,.18);
       color:var(--muted);
+      padding:5px 8px;
       font-size:11px;
-      font-weight:800;
+      font-weight:850;
     }
 
-    .progress-bar{
+    .progress{
       height:7px;
       border-radius:999px;
-      background:rgba(255,255,255,.07);
+      background:rgba(255,255,255,.08);
       overflow:hidden;
       margin-top:12px;
     }
@@ -637,17 +508,48 @@
 
     .empty{
       border:1px dashed var(--line);
-      color:var(--muted2);
       border-radius:16px;
       padding:18px;
       text-align:center;
+      color:var(--muted2);
       font-size:13px;
     }
+
+    .stack-group{
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:rgba(255,255,255,.028);
+      padding:14px;
+      margin-bottom:16px;
+    }
+
+    .stack-group h3{margin:0;font-size:18px;letter-spacing:-.04em}
+    .stack-list{display:grid;gap:10px;margin-top:12px}
+
+    .stack-card{
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.03));
+      padding:14px;
+      display:grid;
+      grid-template-columns:minmax(220px,1fr) minmax(260px,1fr) auto;
+      gap:14px;
+      align-items:center;
+      cursor:pointer;
+    }
+
+    .stack-card:hover{
+      background:rgba(255,255,255,.07);
+      border-color:rgba(var(--accent-rgb),.32);
+    }
+
+    .stack-card h3{margin:0 0 5px;font-size:15px}
+    .stack-card p{margin:0;color:var(--muted);font-size:12px;line-height:1.4}
 
     .modal-backdrop{
       position:fixed;
       inset:0;
-      background:rgba(0,0,0,.62);
+      background:rgba(0,0,0,.64);
       display:grid;
       place-items:center;
       padding:22px;
@@ -688,79 +590,35 @@
 
     .tab{
       border:1px solid var(--line);
+      border-radius:999px;
       background:transparent;
       color:var(--muted);
-      border-radius:999px;
       padding:8px 12px;
-      font-weight:850;
       font-size:12px;
+      font-weight:900;
     }
 
     .tab.active{
-      background:rgba(var(--accent-rgb),.1);
       color:var(--accent);
-      border-color:rgba(var(--accent-rgb),.25);
+      border-color:rgba(var(--accent-rgb),.28);
+      background:rgba(var(--accent-rgb),.10);
     }
 
     .modal-body{
       overflow:auto;
-      padding:28px 24px 32px;
+      padding:24px;
     }
 
     .panel{
       border:1px solid var(--line);
-      background:rgba(255,255,255,.035);
       border-radius:18px;
+      background:rgba(255,255,255,.035);
       padding:16px;
     }
 
-    .panel h3{
-      margin:0 0 13px;
-      font-size:14px;
-      letter-spacing:-.02em;
-    }
+    .panel h3{margin:0 0 13px;font-size:14px}
 
-    .check-item,
-    .build-step{
-      display:flex;
-      align-items:flex-start;
-      gap:11px;
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:11px;
-      background:rgba(0,0,0,.16);
-      margin-bottom:9px;
-    }
-
-    .check-item input,
-    .build-step input{
-      width:auto;
-      margin-top:3px;
-      accent-color:var(--accent);
-    }
-
-    .check-item.done span,
-    .build-step.done span{
-      color:var(--muted2);
-      text-decoration:line-through;
-    }
-
-    .log-list{
-      display:grid;
-      gap:10px;
-    }
-
-    .log-item{
-      border-left:3px solid rgba(var(--accent-rgb),.45);
-      background:rgba(255,255,255,.035);
-      border-radius:0 14px 14px 0;
-      padding:12px;
-    }
-
-    .quality-list{
-      display:grid;
-      gap:8px;
-    }
+    .quality-list,.log-list{display:grid;gap:9px}
 
     .quality-item{
       display:flex;
@@ -772,51 +630,74 @@
       background:rgba(0,0,0,.16);
     }
 
-    .quality-ok{
-      color:var(--green);
-      font-weight:900;
+    .ok{color:var(--green);font-weight:950}
+    .bad{color:var(--red);font-weight:950}
+
+    .log-item{
+      border-left:3px solid rgba(var(--accent-rgb),.45);
+      border-radius:0 14px 14px 0;
+      background:rgba(255,255,255,.035);
+      padding:12px;
     }
 
-    .quality-missing{
-      color:var(--red);
-      font-weight:900;
+    .check-item{
+      display:flex;
+      gap:11px;
+      align-items:flex-start;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:11px;
+      background:rgba(0,0,0,.16);
+      margin-bottom:9px;
+    }
+
+    .check-item input{
+      width:auto;
+      margin-top:3px;
+      accent-color:var(--accent);
+    }
+
+    .check-item.done span{
+      color:var(--muted2);
+      text-decoration:line-through;
     }
 
     .autosave-note{
-      font-size:12px;
       color:var(--muted2);
-      font-weight:800;
+      font-size:12px;
+      font-weight:850;
     }
 
     .toast{
       position:fixed;
       right:18px;
       bottom:18px;
-      z-index:80;
+      z-index:90;
       max-width:460px;
-      padding:13px 14px;
-      border-radius:16px;
       border:1px solid rgba(114,255,153,.28);
-      background:rgba(20,35,25,.94);
+      background:rgba(20,35,25,.95);
       color:var(--green);
+      border-radius:16px;
       box-shadow:var(--shadow);
+      padding:13px 14px;
       font-size:13px;
     }
 
     .toast.error{
-      border-color:rgba(255,95,109,.35);
-      background:rgba(40,20,24,.94);
       color:var(--red);
+      border-color:rgba(255,95,109,.35);
+      background:rgba(40,20,24,.95);
     }
 
     @media(max-width:900px){
-      .app{grid-template-columns:1fr}
+      body{overflow:auto}
+      .app{height:auto;min-height:100vh;grid-template-columns:1fr}
       .sidebar{display:none}
       .grid-2,.grid-3{grid-template-columns:1fr}
-      .stack-campaign{grid-template-columns:1fr}
-      .stats-grid{grid-template-columns:repeat(2,1fr)}
+      .stats{grid-template-columns:repeat(2,1fr)}
       .toolbar{align-items:flex-start;flex-direction:column}
       .search{max-width:none}
+      .stack-card{grid-template-columns:1fr}
     }
   </style>
 </head>
@@ -839,20 +720,19 @@
 
       <form id="authForm" class="stack">
         <div class="grid-2">
-          <div class="field">
+          <div>
             <label>Email</label>
-            <input id="emailInput" type="email" required>
+            <input id="emailInput" type="email" required />
           </div>
-
-          <div class="field">
+          <div>
             <label>Password</label>
-            <input id="passwordInput" type="password" required>
+            <input id="passwordInput" type="password" required />
           </div>
         </div>
 
         <div class="row">
-          <button id="signInButton" class="btn" type="submit">Sign In</button>
-          <button id="signUpButton" class="btn secondary" type="button">Create Account</button>
+          <button class="btn" type="submit">Sign In</button>
+          <button class="btn secondary" id="signUpBtn" type="button">Create Account</button>
         </div>
 
         <div id="authStatus" class="status-box">Loading login...</div>
@@ -870,37 +750,35 @@
         </div>
       </div>
 
-      <button class="btn" style="width:100%;" id="newCampaignSideBtn">+ New Campaign</button>
-      <button class="btn secondary" style="width:100%;margin-top:12px;" id="importBriefSideBtn">Import Messy Brief</button>
+      <button class="btn" style="width:100%;" id="newCampaignBtn">+ New Campaign</button>
+      <button class="btn secondary" style="width:100%;margin-top:12px;" id="importBriefBtn">Import Messy Brief</button>
       <button class="btn secondary" style="width:100%;margin-top:12px;" id="settingsBtn">Settings</button>
 
       <div class="folder-toolbar">
         <span>Artists</span>
-        <button class="folder-add-btn" id="addArtistBtn" title="Add artist folder">+</button>
+        <button class="folder-add" id="addArtistBtn">+</button>
       </div>
 
       <div id="artistList" class="folder-list"></div>
 
-      <div class="side-section-title">Actions</div>
+      <div class="section-title">Actions</div>
       <button class="btn secondary" style="width:100%;" id="undoBtn" disabled>Undo Last Action</button>
     </aside>
 
     <main class="main">
-      <header class="topbar between">
-        <div>
-          <h1 id="pageTitle">All Artists</h1>
-          <p class="small" style="margin:5px 0 0;">Drag campaign cards between columns to update status.</p>
-        </div>
+      <header class="topbar">
+        <h1 id="pageTitle">All Artists</h1>
+        <p class="small" style="margin:5px 0 0;">Drag campaign cards between columns to update status.</p>
       </header>
 
-      <section class="stats-grid" id="statsGrid"></section>
+      <section class="stats" id="stats"></section>
 
       <section class="toolbar">
-        <input id="searchInput" class="search" placeholder="Search campaigns, artists, briefs or logs...">
+        <input id="searchInput" class="search" placeholder="Search campaigns, artists, briefs or logs..." />
 
         <div class="row">
           <button class="btn secondary" id="viewToggleBtn">Stack View</button>
-          <select id="artistFilterMobile"></select>
+          <select id="artistFilter"></select>
           <select id="sortSelect">
             <option value="updated">Sort: recently updated</option>
             <option value="deadline">Sort: deadline</option>
@@ -921,144 +799,97 @@
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpwa2Z4ZHl2ZXNmdG5oa2tuZ2d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMDM5NjgsImV4cCI6MjA5NTg3OTk2OH0._w0PMiMUVh7MPyGWpKyRU4Sm6DXok-Yz657ctjUml3k";
 
     const STATUSES = [
-      { key:"New Brief", className:"new" },
-      { key:"Needs Info", className:"needs" },
-      { key:"Ready to Build", className:"ready" },
-      { key:"In Progress", className:"progress" },
-      { key:"Awaiting Approval", className:"approval" },
-      { key:"Live", className:"live" },
-      { key:"Reporting", className:"reporting" },
-      { key:"Complete", className:"complete" }
+      {key:"New Brief",cls:"new"},
+      {key:"Needs Info",cls:"needs"},
+      {key:"Ready to Build",cls:"ready"},
+      {key:"In Progress",cls:"progress"},
+      {key:"Awaiting Approval",cls:"approval"},
+      {key:"Live",cls:"live"},
+      {key:"Reporting",cls:"reporting"},
+      {key:"Complete",cls:"complete"}
     ];
 
     const DEFAULT_CHECKLIST = [
-      "Interpret brief: real objective, release status, territories, budget and assets",
-      "Choose platform split: Meta / TikTok / YouTube depending on objective",
-      "Confirm account/business access and advertiser settings",
-      "Generate or confirm ACID compliance code if required",
-      "Confirm tracking link, pixel/dataset and View Content or equivalent event",
-      "Test destination link on mobile before build",
-      "Confirm native vs dark ad preference and artist optics",
+      "Interpret brief: objective, release status, territories, budget and assets",
+      "Confirm account/business access",
+      "Confirm ACID compliance code if required",
+      "Confirm tracking link, pixel/dataset and View Content event",
+      "Test destination link on mobile",
+      "Confirm native vs dark ad preference",
       "Create campaign with correct objective and budget structure",
-      "Create warm / retargeting ad set if audience exists",
+      "Create warm / retargeting ad set",
       "Create prospecting / related artist ad set",
-      "Set age, territories, audience type and exclusions",
-      "Use manual placements and exclude low-quality placements where relevant",
-      "Build or attach approved creative assets",
-      "Disable unwanted AI/site-link/creative enhancements",
+      "Set age, locations, placements and exclusions",
+      "Turn off unwanted Advantage+ creative/placement expansion",
       "Check naming convention across campaign, ad sets and ads",
       "Preview campaign and send setup summary to James",
-      "Confirm approval, delivery, tracking and spend pacing after launch",
-      "Check early CPM/CPC/CPV and engagement quality",
-      "Optimise after enough data, not too early",
+      "Confirm approval before launch",
+      "Check delivery and spend pacing",
       "Generate first report / update for James"
     ];
 
-    let supabaseClient;
-    let currentUser = null;
+    let sb;
+    let user = null;
     let artists = [];
     let campaigns = [];
-    let checklistItems = [];
-    let workLogs = [];
-    let adSets = [];
+    let checklist = [];
+    let logs = [];
+    let adsets = [];
 
     let activeArtistId = "all";
     let activeCampaignId = null;
     let activeTab = "overview";
-    let tempDraft = null;
+    let draft = null;
     let expandedArtists = new Set();
-
     let undoAction = null;
-    let boardView = localStorage.getItem("jdw_board_view") || "columns";
     let autosaveTimer = null;
-    let adSetAutosaveTimers = {};
+    let adsetTimers = {};
+    let boardView = localStorage.getItem("jdw_board_view") || "columns";
 
-    function applyTheme(hex){
-      const colour = hex || "#d7ff38";
-      const number = parseInt(colour.replace("#",""),16);
-      document.documentElement.style.setProperty("--accent",colour);
-      document.documentElement.style.setProperty("--accent-rgb",`${(number>>16)&255},${(number>>8)&255},${number&255}`);
-    }
-
-    function applySavedSettings(){
-      try{
-        const saved = JSON.parse(localStorage.getItem("jdw_settings") || "{}");
-        applyTheme(saved.accent || "#d7ff38");
-      }catch(e){
-        applyTheme("#d7ff38");
-      }
-    }
-
-    function defaultLoggedBy(){
-      try{
-        return JSON.parse(localStorage.getItem("jdw_settings") || "{}").loggedBy || "Aidan";
-      }catch(e){
-        return "Aidan";
-      }
-    }
+    start();
 
     function start(){
       applySavedSettings();
 
-      try{
-        if(!window.supabase){
-          throw new Error("Supabase library did not load. Refresh or check internet.");
-        }
+      if(!window.supabase){
+        setAuthStatus("Supabase library did not load. Refresh the page.",true);
+        return;
+      }
 
-        supabaseClient = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-        wireUi();
-        setAuthStatus("Login ready. Enter details and press Sign In.");
+      sb = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+      wireBaseEvents();
+      setAuthStatus("Login ready. Enter details and press Sign In.");
 
-        supabaseClient.auth.getSession().then(({data,error})=>{
-          if(error) throw error;
+      sb.auth.getSession().then(({data,error})=>{
+        if(error) throw error;
 
-          currentUser = data.session?.user || null;
+        user = data.session?.user || null;
 
-          supabaseClient.auth.onAuthStateChange((_event,session)=>{
-            currentUser = session?.user || null;
-            showCorrectScreen();
-          });
-
+        sb.auth.onAuthStateChange((_event,session)=>{
+          user = session?.user || null;
           showCorrectScreen();
-        }).catch(error=>{
-          setAuthStatus(error.message,true);
         });
-      }catch(error){
-        setAuthStatus(error.message,true);
-      }
+
+        showCorrectScreen();
+      }).catch(error=>setAuthStatus(error.message,true));
     }
 
-    if(document.readyState === "loading"){
-      document.addEventListener("DOMContentLoaded",start);
-    }else{
-      start();
-    }
-
-    function on(id,event,fn){
-      const element = document.getElementById(id);
-
-      if(element && !element.dataset.wired){
-        element.addEventListener(event,fn);
-        element.dataset.wired = "true";
-      }
-    }
-
-    function wireUi(){
-      on("authForm","submit",async event=>{
+    function wireBaseEvents(){
+      document.getElementById("authForm").addEventListener("submit",async event=>{
         event.preventDefault();
         await signIn();
       });
 
-      on("signUpButton","click",signUp);
-      on("newCampaignSideBtn","click",()=>openCampaignModal(null));
-      on("importBriefSideBtn","click",openImportModal);
-      on("settingsBtn","click",openSettingsModal);
-      on("addArtistBtn","click",createArtistFolder);
-      on("undoBtn","click",undoLastAction);
-      on("searchInput","input",renderAll);
-      on("viewToggleBtn","click",toggleBoardView);
-      on("artistFilterMobile","change",event=>setActiveArtist(event.target.value));
-      on("sortSelect","change",renderAll);
+      document.getElementById("signUpBtn").addEventListener("click",signUp);
+      document.getElementById("newCampaignBtn").addEventListener("click",()=>openCampaignModal(null));
+      document.getElementById("importBriefBtn").addEventListener("click",openImportModal);
+      document.getElementById("settingsBtn").addEventListener("click",openSettingsModal);
+      document.getElementById("addArtistBtn").addEventListener("click",createArtistFolder);
+      document.getElementById("undoBtn").addEventListener("click",undoLastAction);
+      document.getElementById("searchInput").addEventListener("input",renderAll);
+      document.getElementById("sortSelect").addEventListener("change",renderAll);
+      document.getElementById("artistFilter").addEventListener("change",event=>setActiveArtist(event.target.value));
+      document.getElementById("viewToggleBtn").addEventListener("click",toggleBoardView);
     }
 
     async function signIn(){
@@ -1072,15 +903,15 @@
 
       setAuthStatus("Signing in...");
 
-      const {data,error} = await supabaseClient.auth.signInWithPassword({email,password});
+      const {data,error} = await sb.auth.signInWithPassword({email,password});
 
       if(error){
         setAuthStatus(error.message,true);
         return;
       }
 
-      currentUser = data.user;
-      await showCorrectScreen();
+      user = data.user;
+      showCorrectScreen();
     }
 
     async function signUp(){
@@ -1094,7 +925,7 @@
 
       setAuthStatus("Creating account...");
 
-      const {data,error} = await supabaseClient.auth.signUp({email,password});
+      const {data,error} = await sb.auth.signUp({email,password});
 
       if(error){
         setAuthStatus(error.message,true);
@@ -1102,27 +933,24 @@
       }
 
       if(data.session){
-        currentUser = data.user;
-        await showCorrectScreen();
+        user = data.user;
+        showCorrectScreen();
       }else{
         setAuthStatus("Account created. Check email confirmation settings, then sign in.");
       }
     }
 
     async function signOut(){
-      await supabaseClient.auth.signOut();
-      currentUser = null;
-      artists = [];
-      campaigns = [];
+      await sb.auth.signOut();
+      user = null;
       showCorrectScreen();
     }
 
     async function showCorrectScreen(){
-      if(currentUser){
+      if(user){
         document.getElementById("loginScreen").classList.add("hidden");
         document.getElementById("app").classList.remove("hidden");
-        document.getElementById("userLabel").textContent = currentUser.email || "Signed in";
-        renderAll();
+        document.getElementById("userLabel").textContent = user.email || "Signed in";
         await loadData();
       }else{
         document.getElementById("loginScreen").classList.remove("hidden");
@@ -1132,152 +960,104 @@
 
     async function loadData(){
       try{
-        renderAll();
-
-        const [artistsRes,campaignsRes,checklistRes,logsRes,adSetsRes] = await Promise.all([
-          supabaseClient.from("artists").select("*").order("name"),
-          supabaseClient.from("campaigns").select("*").order("updated_at",{ascending:false}),
-          supabaseClient.from("checklist_items").select("*").order("position"),
-          supabaseClient.from("work_logs").select("*").order("created_at"),
-          supabaseClient.from("ad_sets").select("*").order("position")
+        const [a,c,ch,l,ad] = await Promise.all([
+          sb.from("artists").select("*").order("name"),
+          sb.from("campaigns").select("*").order("updated_at",{ascending:false}),
+          sb.from("checklist_items").select("*").order("position"),
+          sb.from("work_logs").select("*").order("created_at"),
+          sb.from("ad_sets").select("*").order("position")
         ]);
 
-        if(artistsRes.error) throw artistsRes.error;
-        if(campaignsRes.error) throw campaignsRes.error;
-        if(checklistRes.error) throw checklistRes.error;
-        if(logsRes.error) throw logsRes.error;
-        if(adSetsRes.error) throw adSetsRes.error;
+        if(a.error) throw a.error;
+        if(c.error) throw c.error;
+        if(ch.error) throw ch.error;
+        if(l.error) throw l.error;
+        if(ad.error) throw ad.error;
 
-        artists = artistsRes.data || [];
-        campaigns = campaignsRes.data || [];
-        checklistItems = checklistRes.data || [];
-        workLogs = logsRes.data || [];
-        adSets = adSetsRes.data || [];
+        artists = a.data || [];
+        campaigns = c.data || [];
+        checklist = ch.data || [];
+        logs = l.data || [];
+        adsets = ad.data || [];
 
         renderAll();
       }catch(error){
-        toast("Load failed: " + error.message,true);
+        toast("Load failed: "+error.message,true);
         renderAll();
-      }
-    }
-
-    function setUndo(label,fn){
-      undoAction = {label,fn};
-
-      const button = document.getElementById("undoBtn");
-
-      if(button){
-        button.disabled = false;
-        button.textContent = label;
-      }
-    }
-
-    function clearUndo(){
-      undoAction = null;
-
-      const button = document.getElementById("undoBtn");
-
-      if(button){
-        button.disabled = true;
-        button.textContent = "Undo Last Action";
-      }
-    }
-
-    async function undoLastAction(){
-      if(!undoAction) return;
-
-      const action = undoAction;
-      clearUndo();
-
-      try{
-        await action.fn();
-        toast("Undo complete.");
-      }catch(error){
-        toast("Undo failed: " + error.message,true);
       }
     }
 
     function renderAll(){
       renderArtists();
-      renderMobileArtistSelect();
+      renderArtistFilter();
       renderStats();
       renderBoard();
     }
 
     function getArtistName(id){
-      return artists.find(artist=>artist.id===id)?.name || "Unknown Artist";
+      return artists.find(a=>a.id===id)?.name || "Unknown Artist";
     }
 
     function getCampaignChecklist(id){
-      return checklistItems
-        .filter(item=>item.campaign_id===id)
-        .sort((a,b)=>(a.position||0)-(b.position||0));
+      return checklist.filter(i=>i.campaign_id===id).sort((a,b)=>(a.position||0)-(b.position||0));
     }
 
     function getCampaignLogs(id){
-      return workLogs
-        .filter(log=>log.campaign_id===id)
-        .sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+      return logs.filter(l=>l.campaign_id===id).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
     }
 
     function getCampaignAdSets(id){
-      return adSets
-        .filter(adSet=>adSet.campaign_id===id)
-        .sort((a,b)=>(a.position||0)-(b.position||0));
+      return adsets.filter(a=>a.campaign_id===id).sort((a,b)=>(a.position||0)-(b.position||0));
     }
 
     function renderArtists(){
       const list = document.getElementById("artistList");
 
-      if(!list) return;
-
-      const rows = [
-        `<button class="folder-item ${activeArtistId==="all" ? "active" : ""}" data-artist="all">
-          <span class="folder-name"><span>▾</span><span>All Artists</span></span>
-          <span class="badge">${campaigns.length}</span>
-        </button>`
-      ];
+      let html = `
+        <div class="folder-row">
+          <button class="folder-btn ${activeArtistId==="all"?"active":""}" data-artist="all">
+            <span class="folder-name"><span>▾</span><span>All Artists</span></span>
+            <span class="badge">${campaigns.length}</span>
+          </button>
+        </div>
+      `;
 
       artists.forEach(artist=>{
-        const artistCampaigns = campaigns.filter(campaign=>campaign.artist_id===artist.id);
+        const artistCampaigns = campaigns.filter(c=>c.artist_id===artist.id);
         const open = expandedArtists.has(artist.id) || activeArtistId===artist.id;
 
-        rows.push(`
-          <div class="folder-item ${activeArtistId===artist.id ? "active" : ""}" data-artist-row="${artist.id}">
-            <button class="folder-item-inner" data-artist="${artist.id}">
+        html += `
+          <div class="folder-row">
+            <button class="folder-btn ${activeArtistId===artist.id?"active":""}" data-artist="${artist.id}">
               <span class="folder-name">
                 <span>${open ? "▾" : "▸"}</span>
-                <span>${escapeHtml(artist.name)}</span>
+                <span>${esc(artist.name)}</span>
               </span>
               <span class="badge">${artistCampaigns.length}</span>
             </button>
-            <button class="folder-delete-x" data-delete-artist="${artist.id}" title="Delete artist folder">×</button>
+            <button class="delete-x" data-delete-artist="${artist.id}">×</button>
           </div>
-        `);
+        `;
 
         if(open){
-          rows.push(`
-            <div class="campaign-sublist">
-              ${
-                artistCampaigns.length
-                  ? artistCampaigns.map(campaign=>`
-                    <button class="campaign-subitem" data-campaign-folder-item="${campaign.id}">
-                      ${escapeHtml(campaign.title || "Untitled Campaign")}<br>
-                      <span class="small">${escapeHtml(campaign.status || "New Brief")}</span>
-                    </button>
-                  `).join("")
-                  : `<div class="empty" style="padding:10px;font-size:12px;">No campaigns yet.</div>`
-              }
-            </div>
-          `);
+          html += `<div class="sublist">`;
+          html += artistCampaigns.length
+            ? artistCampaigns.map(c=>`
+              <button class="subitem" data-open-campaign="${c.id}">
+                ${esc(c.title || "Untitled Campaign")}<br>
+                <span class="small">${esc(c.status || "New Brief")}</span>
+              </button>
+            `).join("")
+            : `<div class="empty" style="padding:10px;font-size:12px;">No campaigns yet.</div>`;
+          html += `</div>`;
         }
       });
 
-      list.innerHTML = rows.join("");
+      list.innerHTML = html;
 
-      list.querySelectorAll("[data-artist]").forEach(button=>{
-        button.addEventListener("click",()=>{
-          const id = button.dataset.artist;
+      list.querySelectorAll("[data-artist]").forEach(btn=>{
+        btn.addEventListener("click",()=>{
+          const id = btn.dataset.artist;
 
           if(id==="all"){
             activeArtistId = "all";
@@ -1303,251 +1083,54 @@
         });
       });
 
-      list.querySelectorAll("[data-delete-artist]").forEach(button=>{
-        button.addEventListener("click",event=>{
+      list.querySelectorAll("[data-open-campaign]").forEach(btn=>{
+        btn.addEventListener("click",event=>{
           event.stopPropagation();
-          openDeleteArtistConfirm(button.dataset.deleteArtist);
+          openCampaignModal(btn.dataset.openCampaign);
         });
       });
 
-      list.querySelectorAll("[data-campaign-folder-item]").forEach(button=>{
-        button.addEventListener("click",event=>{
+      list.querySelectorAll("[data-delete-artist]").forEach(btn=>{
+        btn.addEventListener("click",event=>{
           event.stopPropagation();
-          openCampaignModal(button.dataset.campaignFolderItem);
+          openDeleteArtistConfirm(btn.dataset.deleteArtist);
         });
       });
     }
 
-    async function createArtistFolder(){
-      const name = prompt("New artist folder name:");
-
-      if(!name || !name.trim()) return;
-
-      const cleanName = name.trim();
-
-      try{
-        const existing = artists.find(artist=>artist.name.toLowerCase()===cleanName.toLowerCase());
-
-        if(existing){
-          activeArtistId = existing.id;
-          expandedArtists.add(existing.id);
-          document.getElementById("pageTitle").textContent = existing.name;
-          renderAll();
-          toast("Artist folder already exists.");
-          return;
-        }
-
-        const {data,error} = await supabaseClient
-          .from("artists")
-          .insert({name:cleanName})
-          .select()
-          .single();
-
-        if(error) throw error;
-
-        artists.push(data);
-        activeArtistId = data.id;
-        expandedArtists.add(data.id);
-        document.getElementById("pageTitle").textContent = data.name;
-
-        setUndo("Undo artist create",async()=>{
-          await supabaseClient.from("artists").delete().eq("id",data.id);
-          activeArtistId = "all";
-          document.getElementById("pageTitle").textContent = "All Artists";
-          await loadData();
-        });
-
-        renderAll();
-        toast("Artist folder created.");
-      }catch(error){
-        toast(error.message,true);
-      }
-    }
-
-    function openDeleteArtistConfirm(artistId){
-      const artist = artists.find(item=>item.id===artistId);
-
-      if(!artist) return;
-
-      const artistCampaigns = campaigns.filter(campaign=>campaign.artist_id===artistId);
-      const campaignIds = artistCampaigns.map(campaign=>campaign.id);
-      const checklistCount = checklistItems.filter(item=>campaignIds.includes(item.campaign_id)).length;
-      const logCount = workLogs.filter(log=>campaignIds.includes(log.campaign_id)).length;
-      const adSetCount = adSets.filter(adSet=>campaignIds.includes(adSet.campaign_id)).length;
-
-      document.getElementById("modalRoot").innerHTML = `
-        <div class="modal-backdrop">
-          <div class="modal" style="width:min(620px,100%);">
-            <div class="modal-head between">
-              <div>
-                <h2>Delete artist folder?</h2>
-                <p class="small">Type the exact artist name to confirm.</p>
-              </div>
-              <button class="btn secondary" id="cancelDeleteArtistBtn">Close</button>
-            </div>
-
-            <div class="modal-body stack">
-              <div class="panel" style="border-color:rgba(255,95,109,.35);background:rgba(255,95,109,.06);">
-                <h3 style="color:var(--red);">Delete ${escapeHtml(artist.name)}</h3>
-                <div class="quality-list">
-                  <div class="quality-item"><span>Campaigns</span><strong>${artistCampaigns.length}</strong></div>
-                  <div class="quality-item"><span>Ad sets</span><strong>${adSetCount}</strong></div>
-                  <div class="quality-item"><span>Checklist items</span><strong>${checklistCount}</strong></div>
-                  <div class="quality-item"><span>Work logs</span><strong>${logCount}</strong></div>
-                </div>
-              </div>
-
-              <div class="field">
-                <label>Type artist name to confirm</label>
-                <input id="deleteArtistConfirmInput" placeholder="${escapeAttr(artist.name)}">
-              </div>
-
-              <div class="row">
-                <button class="btn secondary" id="cancelDeleteArtistBtn2">Cancel</button>
-                <button class="btn danger" id="confirmDeleteArtistBtn" disabled>Delete Folder</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-
-      const input = document.getElementById("deleteArtistConfirmInput");
-      const deleteButton = document.getElementById("confirmDeleteArtistBtn");
-
-      input.addEventListener("input",()=>{
-        deleteButton.disabled = input.value.trim() !== artist.name;
-      });
-
-      document.getElementById("cancelDeleteArtistBtn").addEventListener("click",closeModal);
-      document.getElementById("cancelDeleteArtistBtn2").addEventListener("click",closeModal);
-
-      deleteButton.addEventListener("click",async()=>{
-        await deleteArtistById(artistId);
-        closeModal();
-      });
-    }
-
-    async function deleteArtistById(artistId){
-      const artist = artists.find(item=>item.id===artistId);
-
-      if(!artist) return;
-
-      const artistCampaigns = campaigns.filter(campaign=>campaign.artist_id===artistId);
-      const campaignIds = artistCampaigns.map(campaign=>campaign.id);
-
-      const backup = {
-        artist,
-        campaigns:artistCampaigns,
-        checklist:checklistItems.filter(item=>campaignIds.includes(item.campaign_id)),
-        logs:workLogs.filter(log=>campaignIds.includes(log.campaign_id)),
-        adsets:adSets.filter(adSet=>campaignIds.includes(adSet.campaign_id))
-      };
-
-      const {error} = await supabaseClient
-        .from("artists")
-        .delete()
-        .eq("id",artistId);
-
-      if(error){
-        toast(error.message,true);
-        return;
-      }
-
-      setUndo("Undo artist delete",async()=>{
-        await supabaseClient.from("artists").insert(backup.artist);
-
-        if(backup.campaigns.length){
-          await supabaseClient.from("campaigns").insert(backup.campaigns);
-        }
-
-        if(backup.checklist.length){
-          await supabaseClient.from("checklist_items").insert(backup.checklist);
-        }
-
-        if(backup.logs.length){
-          await supabaseClient.from("work_logs").insert(backup.logs);
-        }
-
-        if(backup.adsets.length){
-          await supabaseClient.from("ad_sets").insert(backup.adsets);
-        }
-
-        activeArtistId = backup.artist.id;
-        expandedArtists.add(backup.artist.id);
-        document.getElementById("pageTitle").textContent = backup.artist.name;
-
-        await loadData();
-      });
-
-      activeArtistId = "all";
-      document.getElementById("pageTitle").textContent = "All Artists";
-
-      await loadData();
-      toast("Artist folder deleted.");
-    }
-
-    function renderMobileArtistSelect(){
-      const select = document.getElementById("artistFilterMobile");
-
-      if(!select) return;
-
-      select.innerHTML = [
-        `<option value="all">Artist: All</option>`,
-        ...artists.map(artist=>`<option value="${artist.id}">Artist: ${escapeHtml(artist.name)}</option>`)
-      ].join("");
-
+    function renderArtistFilter(){
+      const select = document.getElementById("artistFilter");
+      select.innerHTML = `<option value="all">Artist: All</option>` + artists.map(a=>`
+        <option value="${a.id}">Artist: ${esc(a.name)}</option>
+      `).join("");
       select.value = activeArtistId;
     }
 
-    function setActiveArtist(id){
-      activeArtistId = id;
-
-      if(id!=="all"){
-        expandedArtists.add(id);
-      }
-
-      document.getElementById("pageTitle").textContent = id==="all" ? "All Artists" : getArtistName(id);
-      renderAll();
-    }
-
     function filteredCampaigns(){
-      const search = document.getElementById("searchInput")?.value?.toLowerCase() || "";
-      const sort = document.getElementById("sortSelect")?.value || "updated";
+      const search = val("searchInput").toLowerCase();
+      const sort = val("sortSelect") || "updated";
 
-      let items = campaigns.filter(campaign=>{
-        const artistMatch = activeArtistId==="all" || campaign.artist_id===activeArtistId;
+      let items = campaigns.filter(c=>{
+        const artistOk = activeArtistId==="all" || c.artist_id===activeArtistId;
 
-        const text = [
-          campaign.title,
-          getArtistName(campaign.artist_id),
-          campaign.status,
-          campaign.priority,
-          campaign.raw_brief,
-          campaign.structured_brief,
-          campaign.missing_info,
-          getCampaignAdSets(campaign.id).map(adSet=>[
-            adSet.name,
-            adSet.objective,
-            adSet.audience,
-            adSet.notes,
-            adSet.status,
-            adSet.budget
-          ].join(" ")).join(" "),
-          getCampaignLogs(campaign.id).map(log=>log.text).join(" ")
+        const blob = [
+          c.title,
+          getArtistName(c.artist_id),
+          c.status,
+          c.priority,
+          c.raw_brief,
+          c.structured_brief,
+          c.missing_info,
+          getCampaignAdSets(c.id).map(a=>[a.name,a.status,a.budget,a.objective,a.audience,a.notes].join(" ")).join(" "),
+          getCampaignLogs(c.id).map(l=>l.text).join(" ")
         ].join(" ").toLowerCase();
 
-        return artistMatch && text.includes(search);
+        return artistOk && blob.includes(search);
       });
 
       items.sort((a,b)=>{
-        if(sort==="artist"){
-          return getArtistName(a.artist_id).localeCompare(getArtistName(b.artist_id));
-        }
-
-        if(sort==="deadline"){
-          return (a.deadline || "9999").localeCompare(b.deadline || "9999");
-        }
-
+        if(sort==="artist") return getArtistName(a.artist_id).localeCompare(getArtistName(b.artist_id));
+        if(sort==="deadline") return (a.deadline || "9999").localeCompare(b.deadline || "9999");
         return new Date(b.updated_at || b.created_at) - new Date(a.updated_at || a.created_at);
       });
 
@@ -1556,22 +1139,151 @@
 
     function renderStats(){
       const items = filteredCampaigns();
-      const count = status=>items.filter(campaign=>campaign.status===status).length;
-
-      const dueThisWeek = items.filter(campaign=>{
-        if(!campaign.deadline) return false;
-
-        const diff = new Date(campaign.deadline+"T00:00:00") - new Date();
-
+      const count = status=>items.filter(c=>c.status===status).length;
+      const due = items.filter(c=>{
+        if(!c.deadline) return false;
+        const diff = new Date(c.deadline+"T00:00:00") - new Date();
         return diff <= 6048e5 && diff >= -864e5;
       }).length;
 
-      document.getElementById("statsGrid").innerHTML = `
-        <div class="stat-card"><strong>${items.length}</strong><span>Campaigns</span></div>
-        <div class="stat-card"><strong>${count("Needs Info")}</strong><span>Needs Info</span></div>
-        <div class="stat-card"><strong>${count("Awaiting Approval")}</strong><span>Awaiting Approval</span></div>
-        <div class="stat-card"><strong>${count("Live")}</strong><span>Live</span></div>
-        <div class="stat-card"><strong>${dueThisWeek}</strong><span>Due This Week</span></div>
+      document.getElementById("stats").innerHTML = `
+        <div class="stat"><strong>${items.length}</strong><span>Campaigns</span></div>
+        <div class="stat"><strong>${count("Needs Info")}</strong><span>Needs Info</span></div>
+        <div class="stat"><strong>${count("Awaiting Approval")}</strong><span>Awaiting Approval</span></div>
+        <div class="stat"><strong>${count("Live")}</strong><span>Live</span></div>
+        <div class="stat"><strong>${due}</strong><span>Due This Week</span></div>
+      `;
+    }
+
+    function renderBoard(){
+      const board = document.getElementById("board");
+      const items = filteredCampaigns();
+
+      document.getElementById("viewToggleBtn").textContent = boardView==="columns" ? "Stack View" : "Column View";
+
+      if(boardView==="stack"){
+        renderStackBoard(board,items);
+        return;
+      }
+
+      board.className = "board";
+
+      board.innerHTML = STATUSES.map(s=>{
+        const statusItems = items.filter(c=>c.status===s.key);
+
+        return `
+          <div class="column" data-status="${s.key}">
+            <div class="column-head">
+              <div class="column-title"><span class="dot ${s.cls}"></span>${s.key}</div>
+              <span class="badge">${statusItems.length}</span>
+            </div>
+            <div class="cards">
+              ${statusItems.length ? statusItems.map(renderCampaignCard).join("") : `<div class="empty">Drop campaigns here.</div>`}
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      board.querySelectorAll(".column").forEach(col=>{
+        col.addEventListener("dragover",event=>{
+          event.preventDefault();
+          col.classList.add("drag-over");
+        });
+
+        col.addEventListener("dragleave",()=>col.classList.remove("drag-over"));
+
+        col.addEventListener("drop",async event=>{
+          event.preventDefault();
+          col.classList.remove("drag-over");
+          await moveCampaign(event.dataTransfer.getData("text/plain"),col.dataset.status);
+        });
+      });
+
+      board.querySelectorAll(".card").forEach(card=>{
+        card.addEventListener("dragstart",event=>{
+          event.dataTransfer.setData("text/plain",card.dataset.id);
+        });
+
+        card.addEventListener("click",()=>openCampaignModal(card.dataset.id));
+      });
+    }
+
+    function renderStackBoard(board,items){
+      board.className = "board stack-view";
+
+      const groups = {};
+
+      items.forEach(c=>{
+        const name = getArtistName(c.artist_id);
+        if(!groups[name]) groups[name] = [];
+        groups[name].push(c);
+      });
+
+      board.innerHTML = Object.keys(groups).length
+        ? Object.entries(groups).map(([artist,list])=>`
+          <section class="stack-group">
+            <div class="between">
+              <h3>${esc(artist)}</h3>
+              <span class="badge">${list.length}</span>
+            </div>
+            <div class="stack-list">
+              ${list.map(c=>`
+                <article class="stack-card" data-stack-id="${c.id}">
+                  <div>
+                    <h3>${esc(c.title || "Untitled")}</h3>
+                    <p>${esc(c.status || "New Brief")}</p>
+                  </div>
+                  <div class="budget-box">
+                    <div><strong>Budget</strong>: ${esc(formatCampaignBudget(c.budget) || "TBC")}</div>
+                    ${getCampaignAdSets(c.id).map(a=>`
+                      <div class="adset-line">
+                        <span class="adset-status-dot ${adSetStatusClass(a.status)}"></span>
+                        <strong>${esc(a.name || "Ad Set")}</strong>: ${esc(formatAdSetBudget(a))}
+                      </div>
+                    `).join("")}
+                  </div>
+                  <span class="chip">${getCampaignAdSets(c.id).length} ad sets</span>
+                </article>
+              `).join("")}
+            </div>
+          </section>
+        `).join("")
+        : `<div class="empty">No campaigns found.</div>`;
+
+      board.querySelectorAll("[data-stack-id]").forEach(card=>{
+        card.addEventListener("click",()=>openCampaignModal(card.dataset.stackId));
+      });
+    }
+
+    function renderCampaignCard(c){
+      const checks = getCampaignChecklist(c.id);
+      const ads = getCampaignAdSets(c.id);
+      const done = checks.filter(i=>i.done).length;
+      const total = checks.length;
+      const progress = total ? Math.round(done/total*100) : 0;
+
+      return `
+        <article class="card" draggable="true" data-id="${c.id}">
+          <h3>${esc(getArtistName(c.artist_id))} — ${esc(c.title || "Untitled")}</h3>
+
+          <div class="budget-box">
+            <div><strong>Budget</strong>: ${esc(formatCampaignBudget(c.budget) || "TBC")}</div>
+            ${ads.map(a=>`
+              <div class="adset-line">
+                <span class="adset-status-dot ${adSetStatusClass(a.status)}"></span>
+                <strong>${esc(a.name || "Ad Set")}</strong>: ${esc(formatAdSetBudget(a))}
+              </div>
+            `).join("")}
+          </div>
+
+          <div class="chips">
+            <span class="chip">${esc(c.priority || "Normal")}</span>
+            ${c.deadline ? `<span class="chip">Due ${formatDate(c.deadline)}</span>` : ""}
+          </div>
+
+          <div class="progress"><div class="progress-fill" style="width:${progress}%"></div></div>
+          <p class="small" style="margin-top:7px;">Checklist ${done}/${total}</p>
+        </article>
       `;
     }
 
@@ -1581,192 +1293,23 @@
       renderBoard();
     }
 
-    function renderBoard(){
-      const board = document.getElementById("board");
-      const items = filteredCampaigns();
-
-      if(!board) return;
-
-      const toggle = document.getElementById("viewToggleBtn");
-
-      if(toggle){
-        toggle.textContent = boardView==="columns" ? "Stack View" : "Column View";
-      }
-
-      if(boardView==="stack"){
-        renderStackBoard(board,items);
-        return;
-      }
-
-      board.className = "board";
-
-      board.innerHTML = STATUSES.map(status=>{
-        const statusCampaigns = items.filter(campaign=>campaign.status===status.key);
-
-        return `
-          <div class="column" data-status="${status.key}">
-            <div class="column-head">
-              <div class="column-title"><span class="status-dot ${status.className}"></span>${status.key}</div>
-              <span class="badge">${statusCampaigns.length}</span>
-            </div>
-
-            <div class="cards">
-              ${
-                statusCampaigns.length
-                  ? statusCampaigns.map(renderCampaignCard).join("")
-                  : `<div class="empty">Drop campaigns here.</div>`
-              }
-            </div>
-          </div>
-        `;
-      }).join("");
-
-      board.querySelectorAll(".column").forEach(column=>{
-        column.addEventListener("dragover",event=>{
-          event.preventDefault();
-          column.classList.add("drag-over");
-        });
-
-        column.addEventListener("dragleave",()=>{
-          column.classList.remove("drag-over");
-        });
-
-        column.addEventListener("drop",async event=>{
-          event.preventDefault();
-          column.classList.remove("drag-over");
-          await moveCampaign(event.dataTransfer.getData("text/plain"),column.dataset.status);
-        });
-      });
-
-      board.querySelectorAll(".card").forEach(card=>{
-        card.addEventListener("dragstart",event=>{
-          event.dataTransfer.setData("text/plain",card.dataset.id);
-        });
-
-        card.addEventListener("click",()=>{
-          openCampaignModal(card.dataset.id);
-        });
-      });
-    }
-
-    function renderStackBoard(board,items){
-      board.className = "board stack-board";
-
-      const grouped = {};
-
-      items.forEach(campaign=>{
-        const artist = getArtistName(campaign.artist_id);
-
-        if(!grouped[artist]){
-          grouped[artist] = [];
-        }
-
-        grouped[artist].push(campaign);
-      });
-
-      board.innerHTML = Object.keys(grouped).length
-        ? Object.entries(grouped).map(([artist,list])=>`
-          <section class="stack-group">
-            <div class="between stack-group-head">
-              <h3>${escapeHtml(artist)}</h3>
-              <span class="badge">${list.length}</span>
-            </div>
-
-            <div class="stack-list">
-              ${list.map(renderStackCampaignCard).join("")}
-            </div>
-          </section>
-        `).join("")
-        : `<div class="empty">No campaigns found.</div>`;
-
-      board.querySelectorAll("[data-stack-id]").forEach(card=>{
-        card.addEventListener("click",()=>{
-          openCampaignModal(card.dataset.stackId);
-        });
-      });
-    }
-
-    function renderStackCampaignCard(campaign){
-      const adsets = getCampaignAdSets(campaign.id);
-      const logs = getCampaignLogs(campaign.id);
-      const last = logs[logs.length-1]?.text || campaign.structured_brief || "No work logs yet.";
-
-      return `
-        <article class="stack-campaign" data-stack-id="${campaign.id}">
-          <div>
-            <h3>${escapeHtml(campaign.title || "Untitled")}</h3>
-            <p>${escapeHtml(truncate(last,120))}</p>
-          </div>
-
-          <div class="stack-budget">
-            <strong>Budget: ${escapeHtml(formatCampaignBudget(campaign.budget) || "TBC")}</strong>
-            ${adsets.map(adset=>`
-              <span>
-                ${escapeHtml(adset.name || "Ad Set")}: ${escapeHtml(formatAdSetBudget(adset))}
-              </span>
-            `).join("")}
-          </div>
-
-          <div class="meta-grid">
-            <span class="chip">${escapeHtml(campaign.status || "New Brief")}</span>
-            <span class="chip">${adsets.length} ad sets</span>
-          </div>
-        </article>
-      `;
-    }
-
-    function renderCampaignCard(campaign){
-      const checklist = getCampaignChecklist(campaign.id);
-      const adsets = getCampaignAdSets(campaign.id);
-      const done = checklist.filter(item=>item.done).length;
-      const total = checklist.length;
-      const progress = total ? Math.round(done/total*100) : 0;
-
-      return `
-        <article class="card" draggable="true" data-id="${campaign.id}">
-          <h3>${escapeHtml(getArtistName(campaign.artist_id))} — ${escapeHtml(campaign.title || "Untitled")}</h3>
-
-          <div class="budget-summary main-budget">
-            <div><strong>Budget</strong>: ${escapeHtml(formatCampaignBudget(campaign.budget) || "TBC")}</div>
-            ${adsets.map(adset=>`
-              <div class="adset-line">
-                <span class="adset-status-dot ${adSetStatusClass(adset.status)}"></span>
-                <strong>${escapeHtml(adset.name || "Ad Set")}</strong>: ${escapeHtml(formatAdSetBudget(adset))}
-              </div>
-            `).join("")}
-          </div>
-
-          <div class="meta-grid">
-            <span class="chip">${escapeHtml(campaign.priority || "Normal")}</span>
-            ${campaign.deadline ? `<span class="chip">Due ${formatDate(campaign.deadline)}</span>` : ""}
-          </div>
-
-          <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
-          <p class="small" style="margin-top:7px;">Checklist ${done}/${total}</p>
-        </article>
-      `;
-    }
-
     async function moveCampaign(id,status){
-      if(!id) return;
+      const campaign = campaigns.find(c=>c.id===id);
+      if(!campaign) return;
 
-      const campaign = campaigns.find(item=>item.id===id);
-      const previousStatus = campaign?.status || "New Brief";
+      const oldStatus = campaign.status || "New Brief";
 
-      const {error} = await supabaseClient
-        .from("campaigns")
-        .update({
-          status,
-          updated_at:new Date().toISOString()
-        })
-        .eq("id",id);
+      const {error} = await sb.from("campaigns").update({
+        status,
+        updated_at:new Date().toISOString()
+      }).eq("id",id);
 
       if(error){
         toast(error.message,true);
         return;
       }
 
-      await supabaseClient.from("work_logs").insert({
+      await sb.from("work_logs").insert({
         campaign_id:id,
         logged_by:"System",
         log_type:"Status",
@@ -1775,14 +1318,7 @@
       });
 
       setUndo("Undo status move",async()=>{
-        await supabaseClient
-          .from("campaigns")
-          .update({
-            status:previousStatus,
-            updated_at:new Date().toISOString()
-          })
-          .eq("id",id);
-
+        await sb.from("campaigns").update({status:oldStatus,updated_at:new Date().toISOString()}).eq("id",id);
         await loadData();
       });
 
@@ -1792,7 +1328,7 @@
 
     function blankDraft(){
       return {
-        artistName:activeArtistId!=="all" ? getArtistName(activeArtistId) : "",
+        artistName:activeArtistId==="all" ? "" : getArtistName(activeArtistId),
         title:"",
         status:"New Brief",
         priority:"Normal",
@@ -1805,53 +1341,50 @@
         structured_brief:"",
         missing_info:"",
         report:"",
-        checklist:DEFAULT_CHECKLIST,
-        ad_sets:[]
+        ad_sets:[],
+        checklist:DEFAULT_CHECKLIST
       };
     }
 
-    function campaignToDraft(campaign){
+    function campaignToDraft(c){
       return {
-        id:campaign.id,
-        artistName:getArtistName(campaign.artist_id),
-        title:campaign.title || "",
-        status:campaign.status || "New Brief",
-        priority:campaign.priority || "Normal",
-        deadline:campaign.deadline || "",
-        budget:campaign.budget || "",
-        objective:campaign.objective || "",
-        campaign_link:campaign.campaign_link || "",
-        territories:campaign.territories || "",
-        raw_brief:campaign.raw_brief || "",
-        structured_brief:campaign.structured_brief || "",
-        missing_info:campaign.missing_info || "",
-        report:campaign.report || "",
-        checklist_items:getCampaignChecklist(campaign.id),
-        work_logs:getCampaignLogs(campaign.id),
-        ad_sets:getCampaignAdSets(campaign.id)
+        id:c.id,
+        artistName:getArtistName(c.artist_id),
+        title:c.title || "",
+        status:c.status || "New Brief",
+        priority:c.priority || "Normal",
+        deadline:c.deadline || "",
+        budget:c.budget || "",
+        objective:c.objective || "",
+        campaign_link:c.campaign_link || "",
+        territories:c.territories || "",
+        raw_brief:c.raw_brief || "",
+        structured_brief:c.structured_brief || "",
+        missing_info:c.missing_info || "",
+        report:c.report || "",
+        ad_sets:getCampaignAdSets(c.id)
       };
     }
 
     function openCampaignModal(id,prefill=null){
       activeCampaignId = id;
       activeTab = "overview";
-      tempDraft = prefill || (id ? campaignToDraft(campaigns.find(campaign=>campaign.id===id)) : blankDraft());
+      draft = prefill || (id ? campaignToDraft(campaigns.find(c=>c.id===id)) : blankDraft());
       renderModal();
     }
 
     function renderModal(){
       const isNew = !activeCampaignId;
-      const d = tempDraft;
+      const title = isNew ? "New Campaign" : `${draft.artistName} — ${draft.title}`;
 
       document.getElementById("modalRoot").innerHTML = `
         <div class="modal-backdrop" id="modalBackdrop">
           <div class="modal">
             <div class="modal-head between">
               <div>
-                <h2>${isNew ? "New Campaign" : `${escapeHtml(d.artistName)} — ${escapeHtml(d.title)}`}</h2>
-                <p class="small">${isNew ? "Create a campaign under an artist folder." : `Status: ${escapeHtml(d.status)} · Artist folder: ${escapeHtml(d.artistName)}`}</p>
+                <h2>${esc(title)}</h2>
+                <p class="small">${isNew ? "Create a campaign under an artist folder." : `Status: ${esc(draft.status)} · Artist folder: ${esc(draft.artistName)}`}</p>
               </div>
-
               <div class="row">
                 ${!isNew ? `<button class="btn danger" id="deleteCampaignBtn">Delete</button>` : ""}
                 <button class="btn secondary" id="closeModalBtn">Close</button>
@@ -1859,10 +1392,8 @@
             </div>
 
             <div class="tabs">
-              ${["overview","brief","setup","build","logs"].map(tab=>`
-                <button class="tab ${activeTab===tab ? "active" : ""}" data-tab="${tab}">
-                  ${tabLabel(tab)}
-                </button>
+              ${["overview","brief","setup","build","logs"].map(t=>`
+                <button class="tab ${activeTab===t?"active":""}" data-tab="${t}">${tabName(t)}</button>
               `).join("")}
             </div>
 
@@ -1872,22 +1403,19 @@
       `;
 
       document.getElementById("closeModalBtn").addEventListener("click",closeModal);
+      document.getElementById("deleteCampaignBtn")?.addEventListener("click",deleteActiveCampaign);
 
       document.getElementById("modalBackdrop").addEventListener("click",event=>{
-        if(event.target.id==="modalBackdrop"){
-          closeModal();
-        }
+        if(event.target.id==="modalBackdrop") closeModal();
       });
 
-      document.querySelectorAll(".tab").forEach(button=>{
-        button.addEventListener("click",()=>{
+      document.querySelectorAll("[data-tab]").forEach(btn=>{
+        btn.addEventListener("click",()=>{
           collectDraft();
-          activeTab = button.dataset.tab;
+          activeTab = btn.dataset.tab;
           renderModal();
         });
       });
-
-      document.getElementById("deleteCampaignBtn")?.addEventListener("click",deleteActiveCampaign);
 
       renderModalBody();
     }
@@ -1903,50 +1431,18 @@
     function renderOverviewTab(){
       collectDraft();
 
-      const d = tempDraft;
-      const checklist = activeCampaignId
-        ? getCampaignChecklist(activeCampaignId)
-        : (d.checklist || DEFAULT_CHECKLIST).map(text=>({text,done:false}));
+      const ads = activeCampaignId ? getCampaignAdSets(activeCampaignId) : draft.ad_sets || [];
+      const checks = activeCampaignId ? getCampaignChecklist(activeCampaignId) : DEFAULT_CHECKLIST.map(t=>({text:t,done:false}));
+      const activity = activeCampaignId ? getCampaignLogs(activeCampaignId) : [];
+      const done = checks.filter(i=>i.done).length;
 
-      const logs = activeCampaignId ? getCampaignLogs(activeCampaignId) : [];
-      const adsets = activeCampaignId ? getCampaignAdSets(activeCampaignId) : (d.ad_sets || []);
-      const done = checklist.filter(item=>item.done).length;
-      const total = checklist.length;
       const missing = [];
-
-      if(!d.campaign_link) missing.push("Campaign link");
-      if(!d.budget) missing.push("Budget");
-      if(!d.objective) missing.push("Objective / pixel / event");
-      if(!d.territories) missing.push("Territories");
-      if(!adsets.length) missing.push("Ad sets");
-      if(!/acid|compliance/i.test((d.raw_brief||"")+" "+(d.structured_brief||""))) missing.push("ACID compliance note");
-
-      const next = missing.length
-        ? `Confirm ${missing[0]}`
-        : d.status==="Awaiting Approval"
-          ? "Send preview / campaign link to James"
-          : "Update status or add next work log";
-
-      const missingHtml = missing.length
-        ? `
-          <div class="panel" style="border-color:rgba(255,95,109,.35);background:rgba(255,95,109,.06);">
-            <h3 style="color:var(--red);">Missing Information</h3>
-            <div class="quality-list">
-              ${missing.map(item=>`
-                <div class="quality-item">
-                  <span>${escapeHtml(item)}</span>
-                  <strong class="quality-missing">Missing</strong>
-                </div>
-              `).join("")}
-            </div>
-          </div>
-        `
-        : `
-          <div class="panel" style="border-color:rgba(114,255,153,.25);background:rgba(114,255,153,.05);">
-            <h3 style="color:var(--green);">Missing Information</h3>
-            <p class="small">Nothing major missing.</p>
-          </div>
-        `;
+      if(!draft.campaign_link) missing.push("Campaign link");
+      if(!draft.budget) missing.push("Budget");
+      if(!draft.objective) missing.push("Objective / pixel / event");
+      if(!draft.territories) missing.push("Territories");
+      if(!ads.length) missing.push("Ad sets");
+      if(!/acid|compliance/i.test((draft.raw_brief||"")+" "+(draft.structured_brief||""))) missing.push("ACID compliance note");
 
       document.getElementById("modalBody").innerHTML = `
         <div class="grid-2">
@@ -1954,32 +1450,31 @@
             <h3>Campaign Overview</h3>
 
             <div class="quality-list">
-              <div class="quality-item"><span>Status</span><strong>${escapeHtml(d.status)}</strong></div>
-              <div class="quality-item"><span>Ad Sets</span><strong>${adsets.length}</strong></div>
-              <div class="quality-item"><span>Checklist</span><strong>${done}/${total}</strong></div>
-              <div class="quality-item"><span>Missing Info</span><strong class="${missing.length ? "quality-missing" : "quality-ok"}">${missing.length ? missing.length : "None"}</strong></div>
+              <div class="quality-item"><span>Status</span><strong>${esc(draft.status)}</strong></div>
+              <div class="quality-item"><span>Ad Sets</span><strong>${ads.length}</strong></div>
+              <div class="quality-item"><span>Checklist</span><strong>${done}/${checks.length}</strong></div>
+              <div class="quality-item"><span>Missing Info</span><strong class="${missing.length?"bad":"ok"}">${missing.length ? missing.length : "None"}</strong></div>
             </div>
 
-            ${missingHtml}
-
-            <div class="field">
-              <label>Next Action</label>
-              <textarea id="overviewNextAction" style="min-height:90px;">${escapeHtml(next)}</textarea>
+            <div class="panel" style="${missing.length ? "border-color:rgba(255,95,109,.35);background:rgba(255,95,109,.06);" : "border-color:rgba(114,255,153,.25);background:rgba(114,255,153,.05);"}">
+              <h3 style="color:${missing.length ? "var(--red)" : "var(--green)"}">Missing Information</h3>
+              ${
+                missing.length
+                  ? `<div class="quality-list">${missing.map(i=>`<div class="quality-item"><span>${esc(i)}</span><strong class="bad">Missing</strong></div>`).join("")}</div>`
+                  : `<p class="small">Nothing major missing.</p>`
+              }
             </div>
-
-            <button class="btn" id="copyNextActionBtn">Copy Next Action</button>
           </div>
 
           <div class="panel stack">
             <h3>Recent Activity</h3>
-
             <div class="log-list">
               ${
-                logs.length
-                  ? logs.slice(-6).reverse().map(log=>`
+                activity.length
+                  ? activity.slice(-7).reverse().map(l=>`
                     <div class="log-item">
-                      <p>${escapeHtml(log.text)}</p>
-                      <p class="small" style="margin-top:6px;">${escapeHtml(log.log_type)} · ${escapeHtml(log.logged_by)} · ${formatDateTime(log.created_at)}</p>
+                      <p>${esc(l.text)}</p>
+                      <p class="small" style="margin-top:6px;">${esc(l.log_type)} · ${esc(l.logged_by)} · ${formatDateTime(l.created_at)}</p>
                     </div>
                   `).join("")
                   : `<div class="empty">No activity yet.</div>`
@@ -1988,91 +1483,79 @@
           </div>
         </div>
       `;
-
-      document.getElementById("copyNextActionBtn").addEventListener("click",()=>{
-        navigator.clipboard.writeText(val("overviewNextAction")).then(()=>toast("Next action copied"));
-      });
     }
 
     function renderBriefTab(){
-      const d = tempDraft;
-
       document.getElementById("modalBody").innerHTML = `
         <div class="stack">
           <div class="grid-3">
-            <div class="field">
+            <div>
               <label>Artist Folder</label>
-              <input id="m_artistName" list="artistOptions" value="${escapeAttr(d.artistName)}">
+              <input id="m_artistName" list="artistOptions" value="${attr(draft.artistName)}" />
             </div>
-
-            <div class="field">
+            <div>
               <label>Status</label>
               <select id="m_status">
-                ${STATUSES.map(status=>`<option ${d.status===status.key ? "selected" : ""}>${status.key}</option>`).join("")}
+                ${STATUSES.map(s=>`<option ${draft.status===s.key?"selected":""}>${s.key}</option>`).join("")}
               </select>
             </div>
-
-            <div class="field">
+            <div>
               <label>Priority</label>
               <select id="m_priority">
-                ${["Urgent","Normal","Low"].map(priority=>`<option ${d.priority===priority ? "selected" : ""}>${priority}</option>`).join("")}
+                ${["Urgent","Normal","Low"].map(p=>`<option ${draft.priority===p?"selected":""}>${p}</option>`).join("")}
               </select>
             </div>
           </div>
 
           <datalist id="artistOptions">
-            ${artists.map(artist=>`<option value="${escapeAttr(artist.name)}"></option>`).join("")}
+            ${artists.map(a=>`<option value="${attr(a.name)}"></option>`).join("")}
           </datalist>
 
           <div class="grid-2">
-            <div class="field">
+            <div>
               <label>Campaign / Track</label>
-              <input id="m_title" value="${escapeAttr(d.title)}">
+              <input id="m_title" value="${attr(draft.title)}" />
             </div>
-
-            <div class="field">
+            <div>
               <label>Deadline</label>
-              <input id="m_deadline" type="date" value="${escapeAttr(d.deadline)}">
+              <input id="m_deadline" type="date" value="${attr(draft.deadline)}" />
             </div>
           </div>
 
           <div class="grid-3">
-            <div class="field">
+            <div>
               <label>Budget</label>
-              <input id="m_budget" value="${escapeAttr(d.budget)}">
+              <input id="m_budget" value="${attr(draft.budget)}" />
             </div>
-
-            <div class="field">
+            <div>
               <label>Territories</label>
-              <input id="m_territories" value="${escapeAttr(d.territories)}">
+              <input id="m_territories" value="${attr(draft.territories)}" />
             </div>
-
-            <div class="field">
+            <div>
               <label>Campaign Link</label>
-              <input id="m_campaignLink" value="${escapeAttr(d.campaign_link)}">
+              <input id="m_campaignLink" value="${attr(draft.campaign_link)}" />
             </div>
           </div>
 
-          <div class="field">
+          <div>
             <label>Objective / Pixel / Event Setup</label>
-            <input id="m_objective" value="${escapeAttr(d.objective)}">
+            <input id="m_objective" value="${attr(draft.objective)}" />
           </div>
 
           <div class="grid-2">
-            <div class="field">
+            <div>
               <label>Raw Messy Brief</label>
-              <textarea id="m_rawBrief">${escapeHtml(d.raw_brief)}</textarea>
+              <textarea id="m_rawBrief">${esc(draft.raw_brief)}</textarea>
             </div>
-
-            <div class="field">
+            <div>
               <label>Structured Campaign Brief</label>
-              <textarea id="m_structuredBrief">${escapeHtml(d.structured_brief)}</textarea>
+              <textarea id="m_structuredBrief">${esc(draft.structured_brief)}</textarea>
             </div>
           </div>
 
-          <div class="field">
+          <div>
             <label>Missing Info / Questions for James</label>
-            <textarea id="m_missingInfo" style="min-height:90px;">${escapeHtml(d.missing_info)}</textarea>
+            <textarea id="m_missingInfo" style="min-height:90px;">${esc(draft.missing_info)}</textarea>
           </div>
 
           <div class="row">
@@ -2086,51 +1569,42 @@
       document.getElementById("saveCampaignBtn")?.addEventListener("click",saveCampaign);
       document.getElementById("organiseBtn").addEventListener("click",organiseCurrentBrief);
       document.getElementById("namesBtn").addEventListener("click",generateNames);
-
-      wireAutosaveFields();
+      wireAutosave();
     }
 
     function renderSetupTab(){
-      const items = activeCampaignId ? getCampaignAdSets(activeCampaignId) : (tempDraft.ad_sets || []);
+      const ads = activeCampaignId ? getCampaignAdSets(activeCampaignId) : draft.ad_sets || [];
 
       document.getElementById("modalBody").innerHTML = `
         <div class="stack">
           <div class="panel">
             <h3>Ad Sets</h3>
-
             <div class="log-list">
               ${
-                items.length
-                  ? items.map(adset=>`
+                ads.length
+                  ? ads.map(a=>`
                     <div class="log-item">
                       <div class="between">
                         <div>
-                          <p><strong>${escapeHtml(adset.name || "Untitled Ad Set")}</strong></p>
-                          <p class="small">Objective: ${escapeHtml(adset.objective || "TBC")} · ${escapeHtml(adset.budget_type || "Daily Budget")}: ${escapeHtml(adset.budget || "TBC")} · Status: ${escapeHtml(adset.status || "Running")}</p>
+                          <p><strong>${esc(a.name || "Untitled Ad Set")}</strong></p>
+                          <p class="small">Objective: ${esc(a.objective || "TBC")} · ${esc(a.budget_type || "Daily Budget")}: ${esc(a.budget || "TBC")} · Status: ${esc(a.status || "Running")}</p>
                         </div>
-                        ${activeCampaignId ? `<button class="btn danger" data-delete-adset="${adset.id}" style="padding:8px 10px;">Delete</button>` : ""}
+                        ${activeCampaignId ? `<button class="btn danger" data-delete-adset="${a.id}" style="padding:8px 10px;">Delete</button>` : ""}
                       </div>
 
-                      ${adset.audience ? `<p class="small">Audience: ${escapeHtml(adset.audience)}</p>` : ""}
+                      ${a.audience ? `<p class="small">Audience: ${esc(a.audience)}</p>` : ""}
 
                       <div class="grid-3" style="margin-top:12px;">
-                        <select data-adset-status="${adset.id}">
-                          <option ${String(adset.status || "Running")==="Running" ? "selected" : ""}>Running</option>
-                          <option ${String(adset.status || "")==="Paused" ? "selected" : ""}>Paused</option>
-                          <option ${String(adset.status || "")==="Ended" ? "selected" : ""}>Ended</option>
-                          <option ${String(adset.status || "")==="Needs Review" ? "selected" : ""}>Needs Review</option>
+                        <select data-adset-status="${a.id}">
+                          ${["Running","Paused","Ended","Needs Review"].map(s=>`<option ${String(a.status||"Running")===s?"selected":""}>${s}</option>`).join("")}
                         </select>
-
-                        <select data-adset-budget-type="${adset.id}">
-                          <option ${String(adset.budget_type || "Daily Budget")==="Daily Budget" ? "selected" : ""}>Daily Budget</option>
-                          <option ${String(adset.budget_type || "")==="Lifetime Budget" ? "selected" : ""}>Lifetime Budget</option>
+                        <select data-adset-budget-type="${a.id}">
+                          ${["Daily Budget","Lifetime Budget"].map(t=>`<option ${String(a.budget_type||"Daily Budget")===t?"selected":""}>${t}</option>`).join("")}
                         </select>
-
-                        <input data-adset-budget="${adset.id}" value="${escapeAttr(adset.budget || "")}" placeholder="Budget amount">
+                        <input data-adset-budget="${a.id}" value="${attr(a.budget || "")}" placeholder="Budget amount" />
                       </div>
 
-                      <textarea data-adset-note="${adset.id}" placeholder="Add/update notes for this ad set..." style="margin-top:10px;min-height:80px;">${escapeHtml(adset.notes || "")}</textarea>
-
+                      <textarea data-adset-note="${a.id}" placeholder="Add/update notes for this ad set..." style="margin-top:10px;min-height:80px;">${esc(a.notes || "")}</textarea>
                       <div class="autosave-note" style="margin-top:10px;">Autosaves ad set updates</div>
                     </div>
                   `).join("")
@@ -2139,9 +1613,9 @@
             </div>
 
             <div class="grid-3" style="margin-top:16px;">
-              <input id="adset_name" placeholder="Ad set name">
-              <input id="adset_objective" placeholder="Objective">
-              <input id="adset_budget" placeholder="Budget">
+              <input id="adset_name" placeholder="Ad set name" />
+              <input id="adset_objective" placeholder="Objective" />
+              <input id="adset_budget" placeholder="Budget" />
             </div>
 
             <div class="grid-2" style="margin-top:12px;">
@@ -2151,7 +1625,6 @@
                 <option>Ended</option>
                 <option>Needs Review</option>
               </select>
-
               <select id="adset_budget_type">
                 <option>Daily Budget</option>
                 <option>Lifetime Budget</option>
@@ -2163,155 +1636,128 @@
 
             <button class="btn" id="addAdSetBtn" style="margin-top:12px;">${activeCampaignId ? "Add Ad Set" : "Add Ad Set To Draft"}</button>
           </div>
-
-          <div class="panel stack">
-            <h3>Naming</h3>
-            <button class="btn secondary" id="namesInlineBtn">Generate Names Into Brief</button>
-          </div>
         </div>
       `;
 
-      document.getElementById("addAdSetBtn")?.addEventListener("click",()=>activeCampaignId ? addAdSet() : addTempAdSet());
+      document.getElementById("addAdSetBtn").addEventListener("click",()=>activeCampaignId ? addAdSet() : addTempAdSet());
 
-      document.querySelectorAll("[data-delete-adset]").forEach(button=>{
-        button.addEventListener("click",()=>deleteAdSet(button.dataset.deleteAdset));
+      document.querySelectorAll("[data-delete-adset]").forEach(btn=>{
+        btn.addEventListener("click",()=>deleteAdSet(btn.dataset.deleteAdset));
       });
 
-      document.querySelectorAll("[data-adset-status],[data-adset-budget-type],[data-adset-budget],[data-adset-note]").forEach(element=>{
-        const id = element.dataset.adsetStatus || element.dataset.adsetBudgetType || element.dataset.adsetBudget || element.dataset.adsetNote;
-
-        element.addEventListener("input",()=>scheduleAdSetAutosave(id));
-        element.addEventListener("change",()=>scheduleAdSetAutosave(id));
-      });
-
-      document.getElementById("namesInlineBtn").addEventListener("click",()=>{
-        activeTab = "brief";
-        renderModal();
-        setTimeout(generateNames,0);
+      document.querySelectorAll("[data-adset-status],[data-adset-budget-type],[data-adset-budget],[data-adset-note]").forEach(el=>{
+        const id = el.dataset.adsetStatus || el.dataset.adsetBudgetType || el.dataset.adsetBudget || el.dataset.adsetNote;
+        el.addEventListener("input",()=>scheduleAdSetAutosave(id));
+        el.addEventListener("change",()=>scheduleAdSetAutosave(id));
       });
     }
 
     function renderBuildTab(){
-      const isNew = !activeCampaignId;
-      const steps = isNew
-        ? (tempDraft.checklist || DEFAULT_CHECKLIST).map((text,index)=>({id:"temp"+index,text,done:false}))
-        : getCampaignChecklist(activeCampaignId);
+      const checks = activeCampaignId ? getCampaignChecklist(activeCampaignId) : DEFAULT_CHECKLIST.map((text,index)=>({id:"temp"+index,text,done:false}));
 
       document.getElementById("modalBody").innerHTML = `
         <div class="grid-2">
           <div class="panel">
-            <h3>Build Mode</h3>
-            <p class="small">Tick each step as you build. Completed steps create work logs.</p>
-
+            <h3>Build Checklist</h3>
             ${
-              steps.map(step=>`
-                <div class="build-step ${step.done ? "done" : ""}">
-                  <input type="checkbox" ${step.done ? "checked" : ""} ${isNew ? "disabled" : ""} data-build-step="${step.id}">
-                  <span>${escapeHtml(step.text)}</span>
+              checks.map(i=>`
+                <div class="check-item ${i.done?"done":""}">
+                  <input type="checkbox" ${i.done?"checked":""} ${activeCampaignId?"":"disabled"} data-check="${i.id}" />
+                  <span>${esc(i.text)}</span>
                 </div>
               `).join("")
             }
           </div>
 
           <div class="panel stack">
-            <h3>Build Notes</h3>
+            <h3>Build Note</h3>
             <textarea id="buildNote"></textarea>
-            ${isNew ? `<p class="small">Save the campaign first.</p>` : `<button class="btn" id="addBuildNoteBtn">Add Build Note</button>`}
+            ${activeCampaignId ? `<button class="btn" id="addBuildNoteBtn">Add Build Note</button>` : `<p class="small">Save campaign first.</p>`}
           </div>
         </div>
       `;
 
-      if(!isNew){
-        document.querySelectorAll("[data-build-step]").forEach(checkbox=>{
-          checkbox.addEventListener("change",async()=>{
-            const text = checkbox.closest(".build-step").querySelector("span").textContent;
+      document.querySelectorAll("[data-check]").forEach(input=>{
+        input.addEventListener("change",async()=>{
+          const text = input.closest(".check-item").querySelector("span").textContent;
 
-            await supabaseClient
-              .from("checklist_items")
-              .update({done:checkbox.checked})
-              .eq("id",checkbox.dataset.buildStep);
+          await sb.from("checklist_items").update({done:input.checked}).eq("id",input.dataset.check);
 
-            if(checkbox.checked){
-              await supabaseClient.from("work_logs").insert({
-                campaign_id:activeCampaignId,
-                logged_by:defaultLoggedBy(),
-                log_type:"Build",
-                text:`Completed build step: ${text}`,
-                visible_to_james:true
-              });
-            }
-
-            await loadData();
-            tempDraft = campaignToDraft(campaigns.find(campaign=>campaign.id===activeCampaignId));
-            renderModal();
-          });
-        });
-
-        document.getElementById("addBuildNoteBtn").addEventListener("click",async()=>{
-          const note = val("buildNote");
-
-          if(!note){
-            toast("Write a note first",true);
-            return;
+          if(input.checked){
+            await sb.from("work_logs").insert({
+              campaign_id:activeCampaignId,
+              logged_by:defaultLoggedBy(),
+              log_type:"Build",
+              text:`Completed build step: ${text}`,
+              visible_to_james:true
+            });
           }
 
-          await supabaseClient.from("work_logs").insert({
-            campaign_id:activeCampaignId,
-            logged_by:defaultLoggedBy(),
-            log_type:"Build",
-            text:note,
-            visible_to_james:true
-          });
-
           await loadData();
-          tempDraft = campaignToDraft(campaigns.find(campaign=>campaign.id===activeCampaignId));
+          draft = campaignToDraft(campaigns.find(c=>c.id===activeCampaignId));
           renderModal();
         });
-      }
+      });
+
+      document.getElementById("addBuildNoteBtn")?.addEventListener("click",async()=>{
+        const text = val("buildNote");
+
+        if(!text){
+          toast("Write a note first",true);
+          return;
+        }
+
+        await sb.from("work_logs").insert({
+          campaign_id:activeCampaignId,
+          logged_by:defaultLoggedBy(),
+          log_type:"Build",
+          text,
+          visible_to_james:true
+        });
+
+        await loadData();
+        draft = campaignToDraft(campaigns.find(c=>c.id===activeCampaignId));
+        renderModal();
+      });
     }
 
     function renderLogsTab(){
-      const isNew = !activeCampaignId;
-      const logs = isNew ? [] : getCampaignLogs(activeCampaignId);
+      const activity = activeCampaignId ? getCampaignLogs(activeCampaignId) : [];
 
       document.getElementById("modalBody").innerHTML = `
         <div class="stack">
           <div class="grid-2">
             <div class="panel stack">
               <h3>Add Work Log</h3>
-
               ${
-                isNew
-                  ? `<p class="small">Save campaign first.</p>`
-                  : `
+                activeCampaignId
+                  ? `
                     <div class="grid-2">
-                      <div class="field">
+                      <div>
                         <label>Logged By</label>
-                        <input id="log_by" value="${escapeAttr(defaultLoggedBy())}">
+                        <input id="log_by" value="${attr(defaultLoggedBy())}" />
                       </div>
-
-                      <div class="field">
+                      <div>
                         <label>Type</label>
                         <select id="log_type">
                           <option>Brief</option>
                           <option>Setup</option>
-                          <option>QA</option>
+                          <option>Build</option>
                           <option>Approval</option>
                           <option>Launch</option>
                           <option>Reporting</option>
                           <option>Issue</option>
-                          <option>Status</option>
+                          <option>Ad Set</option>
                         </select>
                       </div>
                     </div>
-
-                    <div class="field">
+                    <div>
                       <label>What was done?</label>
                       <textarea id="log_text"></textarea>
                     </div>
-
                     <button class="btn" id="addLogBtn">Add Log</button>
                   `
+                  : `<p class="small">Save campaign first.</p>`
               }
             </div>
 
@@ -2320,19 +1766,17 @@
                 <h3>Timeline</h3>
                 <button class="btn secondary" id="summariseLogsBtn">Summarise Logs</button>
               </div>
-
               <div class="log-list">
                 ${
-                  logs.length
-                    ? logs.slice().reverse().map(log=>`
+                  activity.length
+                    ? activity.slice().reverse().map(l=>`
                       <div class="log-item">
                         <div class="between">
                           <div>
-                            <p>${escapeHtml(log.text)}</p>
-                            <p class="small" style="margin-top:6px;">${escapeHtml(log.log_type)} · ${escapeHtml(log.logged_by)} · ${formatDateTime(log.created_at)}</p>
+                            <p>${esc(l.text)}</p>
+                            <p class="small" style="margin-top:6px;">${esc(l.log_type)} · ${esc(l.logged_by)} · ${formatDateTime(l.created_at)}</p>
                           </div>
-
-                          <button class="btn danger" style="padding:8px 10px;" data-delete-log="${log.id}">Delete</button>
+                          <button class="btn danger" style="padding:8px 10px;" data-delete-log="${l.id}">Delete</button>
                         </div>
                       </div>
                     `).join("")
@@ -2351,7 +1795,7 @@
               </div>
             </div>
 
-            <textarea id="m_report" style="min-height:260px;">${escapeHtml(tempDraft.report || "")}</textarea>
+            <textarea id="m_report" style="min-height:260px;">${esc(draft.report || "")}</textarea>
 
             <div class="row">
               <button class="btn secondary" id="copyReportBtn">Copy Report</button>
@@ -2361,139 +1805,97 @@
         </div>
       `;
 
-      if(!isNew){
-        document.getElementById("addLogBtn").addEventListener("click",addLog);
-
-        document.querySelectorAll("[data-delete-log]").forEach(button=>{
-          button.addEventListener("click",()=>deleteLog(button.dataset.deleteLog));
-        });
-      }
-
+      document.getElementById("addLogBtn")?.addEventListener("click",addLog);
+      document.querySelectorAll("[data-delete-log]").forEach(btn=>btn.addEventListener("click",()=>deleteLog(btn.dataset.deleteLog)));
       document.getElementById("summariseLogsBtn").addEventListener("click",summariseLogs);
       document.getElementById("jamesUpdateBtn").addEventListener("click",generateJamesUpdate);
       document.getElementById("clientReportBtn").addEventListener("click",generateClientReport);
-
-      document.getElementById("copyReportBtn").addEventListener("click",()=>{
-        navigator.clipboard.writeText(val("m_report")).then(()=>toast("Report copied"));
-      });
-
+      document.getElementById("copyReportBtn").addEventListener("click",()=>navigator.clipboard.writeText(val("m_report")).then(()=>toast("Report copied")));
       document.getElementById("m_report").addEventListener("input",scheduleAutosave);
     }
 
     function collectDraft(){
       if(document.getElementById("m_artistName")){
-        tempDraft.artistName = val("m_artistName");
-        tempDraft.title = val("m_title");
-        tempDraft.status = val("m_status");
-        tempDraft.priority = val("m_priority");
-        tempDraft.deadline = val("m_deadline");
-        tempDraft.budget = val("m_budget");
-        tempDraft.objective = val("m_objective");
-        tempDraft.campaign_link = val("m_campaignLink");
-        tempDraft.territories = val("m_territories");
-        tempDraft.raw_brief = val("m_rawBrief");
-        tempDraft.structured_brief = val("m_structuredBrief");
-        tempDraft.missing_info = val("m_missingInfo");
+        draft.artistName = val("m_artistName");
+        draft.title = val("m_title");
+        draft.status = val("m_status");
+        draft.priority = val("m_priority");
+        draft.deadline = val("m_deadline");
+        draft.budget = val("m_budget");
+        draft.objective = val("m_objective");
+        draft.campaign_link = val("m_campaignLink");
+        draft.territories = val("m_territories");
+        draft.raw_brief = val("m_rawBrief");
+        draft.structured_brief = val("m_structuredBrief");
+        draft.missing_info = val("m_missingInfo");
       }
 
       if(document.getElementById("m_report")){
-        tempDraft.report = val("m_report");
+        draft.report = val("m_report");
       }
 
-      return tempDraft;
+      return draft;
     }
 
-    function wireAutosaveFields(){
+    function wireAutosave(){
       if(!activeCampaignId) return;
 
-      document.querySelectorAll("#modalBody input,#modalBody textarea,#modalBody select").forEach(element=>{
-        if(element.id && element.id.startsWith("adset_")) return;
-
-        element.addEventListener("input",scheduleAutosave);
-        element.addEventListener("change",scheduleAutosave);
+      document.querySelectorAll("#modalBody input,#modalBody textarea,#modalBody select").forEach(el=>{
+        el.addEventListener("input",scheduleAutosave);
+        el.addEventListener("change",scheduleAutosave);
       });
     }
 
     function scheduleAutosave(){
       if(!activeCampaignId) return;
-
       clearTimeout(autosaveTimer);
-      autosaveTimer = setTimeout(saveCampaignSilent,900);
+      autosaveTimer = setTimeout(saveCampaignSilent,800);
     }
 
     async function saveCampaignSilent(){
       try{
-        const draft = collectDraft();
+        const d = collectDraft();
+        if(!d.artistName || !d.title) return;
 
-        if(!draft.artistName || !draft.title || !activeCampaignId) return;
-
-        const artist = await getOrCreateArtist(draft.artistName);
+        const artist = await getOrCreateArtist(d.artistName);
 
         const payload = {
           artist_id:artist.id,
-          title:draft.title,
-          status:draft.status,
-          priority:draft.priority,
-          deadline:draft.deadline || null,
-          budget:draft.budget,
-          objective:draft.objective,
-          campaign_link:draft.campaign_link,
-          territories:draft.territories,
-          raw_brief:draft.raw_brief,
-          structured_brief:draft.structured_brief,
-          missing_info:draft.missing_info,
-          report:draft.report || "",
+          title:d.title,
+          status:d.status,
+          priority:d.priority,
+          deadline:d.deadline || null,
+          budget:d.budget,
+          objective:d.objective,
+          campaign_link:d.campaign_link,
+          territories:d.territories,
+          raw_brief:d.raw_brief,
+          structured_brief:d.structured_brief,
+          missing_info:d.missing_info,
+          report:d.report || "",
           updated_at:new Date().toISOString()
         };
 
-        const {error} = await supabaseClient
-          .from("campaigns")
-          .update(payload)
-          .eq("id",activeCampaignId);
-
+        const {error} = await sb.from("campaigns").update(payload).eq("id",activeCampaignId);
         if(error) throw error;
 
-        const index = campaigns.findIndex(campaign=>campaign.id===activeCampaignId);
-
-        if(index>=0){
-          campaigns[index] = {...campaigns[index],...payload};
-        }
+        const index = campaigns.findIndex(c=>c.id===activeCampaignId);
+        if(index>=0) campaigns[index] = {...campaigns[index],...payload};
 
         renderBoard();
         renderStats();
       }catch(error){
-        toast("Autosave failed: " + error.message,true);
+        toast("Autosave failed: "+error.message,true);
       }
     }
 
     async function getOrCreateArtist(name){
       const cleanName = name.trim();
 
-      if(!cleanName) throw new Error("Artist name is required.");
-
-      const local = artists.find(artist=>artist.name.toLowerCase()===cleanName.toLowerCase());
-
+      const local = artists.find(a=>a.name.toLowerCase()===cleanName.toLowerCase());
       if(local) return local;
 
-      const {data:rows,error:selectError} = await supabaseClient
-        .from("artists")
-        .select("*")
-        .ilike("name",cleanName)
-        .limit(1);
-
-      if(selectError) throw selectError;
-
-      if(rows && rows.length){
-        artists.push(rows[0]);
-        return rows[0];
-      }
-
-      const {data,error} = await supabaseClient
-        .from("artists")
-        .upsert({name:cleanName},{onConflict:"name"})
-        .select()
-        .single();
-
+      const {data,error} = await sb.from("artists").upsert({name:cleanName},{onConflict:"name"}).select().single();
       if(error) throw error;
 
       artists.push(data);
@@ -2502,104 +1904,75 @@
 
     async function saveCampaign(){
       try{
-        const draft = collectDraft();
+        const d = collectDraft();
 
-        if(!draft.artistName || !draft.title){
-          toast("Add artist and campaign/track name",true);
+        if(!d.artistName || !d.title){
+          toast("Add artist and campaign / track name.",true);
           return;
         }
 
-        const artist = await getOrCreateArtist(draft.artistName);
+        const artist = await getOrCreateArtist(d.artistName);
 
         const payload = {
           artist_id:artist.id,
-          title:draft.title,
-          status:draft.status,
-          priority:draft.priority,
-          deadline:draft.deadline || null,
-          budget:draft.budget,
-          objective:draft.objective,
-          campaign_link:draft.campaign_link,
-          territories:draft.territories,
-          raw_brief:draft.raw_brief,
-          structured_brief:draft.structured_brief,
-          missing_info:draft.missing_info,
-          report:draft.report || "",
+          title:d.title,
+          status:d.status,
+          priority:d.priority,
+          deadline:d.deadline || null,
+          budget:d.budget,
+          objective:d.objective,
+          campaign_link:d.campaign_link,
+          territories:d.territories,
+          raw_brief:d.raw_brief,
+          structured_brief:d.structured_brief,
+          missing_info:d.missing_info,
+          report:d.report || "",
           updated_at:new Date().toISOString()
         };
 
-        if(activeCampaignId){
-          const oldCampaign = campaigns.find(campaign=>campaign.id===activeCampaignId);
+        const {data,error} = await sb.from("campaigns").insert(payload).select().single();
+        if(error) throw error;
 
-          const {error} = await supabaseClient
-            .from("campaigns")
-            .update(payload)
-            .eq("id",activeCampaignId);
+        activeCampaignId = data.id;
 
-          if(error) throw error;
+        await sb.from("checklist_items").insert(DEFAULT_CHECKLIST.map((text,index)=>({
+          campaign_id:data.id,
+          text,
+          position:index,
+          done:false
+        })));
 
-          setUndo("Undo campaign edit",async()=>{
-            if(oldCampaign){
-              await supabaseClient.from("campaigns").update(oldCampaign).eq("id",oldCampaign.id);
-              await loadData();
-            }
-          });
-
-          toast("Campaign saved");
-        }else{
-          const {data,error} = await supabaseClient
-            .from("campaigns")
-            .insert(payload)
-            .select()
-            .single();
-
-          if(error) throw error;
-
-          activeCampaignId = data.id;
-
-          await supabaseClient.from("checklist_items").insert(
-            (draft.checklist || DEFAULT_CHECKLIST).map((text,index)=>({
-              campaign_id:data.id,
-              text,
-              position:index
-            }))
-          );
-
-          if(draft.ad_sets?.length){
-            await supabaseClient.from("ad_sets").insert(
-              draft.ad_sets.map((adset,index)=>({
-                campaign_id:data.id,
-                name:adset.name || `Ad Set ${index+1}`,
-                objective:adset.objective || "",
-                budget:adset.budget || "",
-                budget_type:adset.budget_type || "Daily Budget",
-                audience:adset.audience || "",
-                notes:adset.notes || "",
-                status:adset.status || "Running",
-                position:index
-              }))
-            );
-          }
-
-          await supabaseClient.from("work_logs").insert({
+        if(d.ad_sets?.length){
+          await sb.from("ad_sets").insert(d.ad_sets.map((a,index)=>({
             campaign_id:data.id,
-            logged_by:"System",
-            log_type:"Brief",
-            text:"Campaign brief created.",
-            visible_to_james:true
-          });
-
-          setUndo("Undo campaign create",async()=>{
-            await supabaseClient.from("campaigns").delete().eq("id",data.id);
-            await loadData();
-          });
-
-          toast("Campaign created");
+            name:a.name || `Ad Set ${index+1}`,
+            objective:a.objective || "",
+            budget:a.budget || "",
+            budget_type:a.budget_type || "Daily Budget",
+            audience:a.audience || "",
+            notes:a.notes || "",
+            status:a.status || "Running",
+            position:index
+          })));
         }
 
+        await sb.from("work_logs").insert({
+          campaign_id:data.id,
+          logged_by:"System",
+          log_type:"Brief",
+          text:"Campaign brief created.",
+          visible_to_james:true
+        });
+
+        setUndo("Undo campaign create",async()=>{
+          await sb.from("campaigns").delete().eq("id",data.id);
+          await loadData();
+        });
+
         await loadData();
-        tempDraft = campaignToDraft(campaigns.find(campaign=>campaign.id===activeCampaignId));
+        draft = campaignToDraft(campaigns.find(c=>c.id===activeCampaignId));
         renderModal();
+        toast("Campaign created.");
       }catch(error){
         toast(error.message,true);
       }
@@ -2609,286 +1982,227 @@
       if(!activeCampaignId || !confirm("Delete this campaign?")) return;
 
       const id = activeCampaignId;
-
       const backup = {
-        campaign:campaigns.find(campaign=>campaign.id===id),
-        checklist:checklistItems.filter(item=>item.campaign_id===id),
-        logs:workLogs.filter(log=>log.campaign_id===id),
-        adsets:adSets.filter(adset=>adset.campaign_id===id)
+        campaign:campaigns.find(c=>c.id===id),
+        checklist:checklist.filter(i=>i.campaign_id===id),
+        logs:logs.filter(l=>l.campaign_id===id),
+        adsets:adsets.filter(a=>a.campaign_id===id)
       };
 
-      const {error} = await supabaseClient
-        .from("campaigns")
-        .delete()
-        .eq("id",id);
-
+      const {error} = await sb.from("campaigns").delete().eq("id",id);
       if(error){
         toast(error.message,true);
         return;
       }
 
       setUndo("Undo campaign delete",async()=>{
-        if(backup.campaign) await supabaseClient.from("campaigns").insert(backup.campaign);
-        if(backup.checklist.length) await supabaseClient.from("checklist_items").insert(backup.checklist);
-        if(backup.logs.length) await supabaseClient.from("work_logs").insert(backup.logs);
-        if(backup.adsets.length) await supabaseClient.from("ad_sets").insert(backup.adsets);
-
+        if(backup.campaign) await sb.from("campaigns").insert(backup.campaign);
+        if(backup.checklist.length) await sb.from("checklist_items").insert(backup.checklist);
+        if(backup.logs.length) await sb.from("work_logs").insert(backup.logs);
+        if(backup.adsets.length) await sb.from("ad_sets").insert(backup.adsets);
         await loadData();
       });
 
       closeModal();
       await loadData();
-      toast("Campaign deleted");
+      toast("Campaign deleted.");
     }
 
     function addTempAdSet(){
-      const name = val("adset_name");
-
-      if(!name){
-        toast("Add ad set name",true);
+      if(!val("adset_name")){
+        toast("Add ad set name.",true);
         return;
       }
 
-      tempDraft.ad_sets = tempDraft.ad_sets || [];
-
-      tempDraft.ad_sets.push({
-        name,
+      draft.ad_sets = draft.ad_sets || [];
+      draft.ad_sets.push({
+        name:val("adset_name"),
         objective:val("adset_objective"),
         budget:val("adset_budget"),
         budget_type:val("adset_budget_type") || "Daily Budget",
+        status:val("adset_status") || "Running",
         audience:val("adset_audience"),
-        notes:val("adset_notes"),
-        status:val("adset_status") || "Running"
+        notes:val("adset_notes")
       });
 
-      toast("Ad set added to draft");
       renderModal();
+      toast("Ad set added to draft.");
     }
 
     async function addAdSet(){
-      const name = val("adset_name");
-
-      if(!name){
-        toast("Add ad set name",true);
+      if(!val("adset_name")){
+        toast("Add ad set name.",true);
         return;
       }
 
       const payload = {
         campaign_id:activeCampaignId,
-        name,
+        name:val("adset_name"),
         objective:val("adset_objective"),
         budget:val("adset_budget"),
         budget_type:val("adset_budget_type") || "Daily Budget",
+        status:val("adset_status") || "Running",
         audience:val("adset_audience"),
         notes:val("adset_notes"),
-        status:val("adset_status") || "Running",
         position:getCampaignAdSets(activeCampaignId).length
       };
 
-      const {data,error} = await supabaseClient
-        .from("ad_sets")
-        .insert(payload)
-        .select()
-        .single();
+      const {data,error} = await sb.from("ad_sets").insert(payload).select().single();
 
       if(error){
         toast(error.message,true);
         return;
       }
 
-      await supabaseClient.from("work_logs").insert({
+      await sb.from("work_logs").insert({
         campaign_id:activeCampaignId,
         logged_by:defaultLoggedBy(),
         log_type:"Ad Set",
-        text:`Ad set added: ${name}. Status: ${payload.status}. ${payload.budget_type}: ${payload.budget || "TBC"}. ${payload.notes ? "Notes: "+payload.notes : ""}`,
+        text:`Ad set added: ${payload.name}. Status: ${payload.status}. ${payload.budget_type}: ${payload.budget || "TBC"}.`,
         visible_to_james:true
       });
 
-      if(data?.id){
-        setUndo("Undo ad set add",async()=>{
-          await supabaseClient.from("ad_sets").delete().eq("id",data.id);
-          await loadData();
-        });
-      }
+      setUndo("Undo ad set add",async()=>{
+        await sb.from("ad_sets").delete().eq("id",data.id);
+        await loadData();
+      });
 
       await loadData();
-      tempDraft = campaignToDraft(campaigns.find(campaign=>campaign.id===activeCampaignId));
+      draft = campaignToDraft(campaigns.find(c=>c.id===activeCampaignId));
       renderModal();
     }
 
     function scheduleAdSetAutosave(id){
-      if(!id || !activeCampaignId) return;
-
-      clearTimeout(adSetAutosaveTimers[id]);
-      adSetAutosaveTimers[id] = setTimeout(()=>updateAdSet(id,true),900);
+      clearTimeout(adsetTimers[id]);
+      adsetTimers[id] = setTimeout(()=>updateAdSet(id,true),800);
     }
 
     async function updateAdSet(id,silent=false){
-      const existing = adSets.find(adset=>adset.id===id);
-
-      if(!existing){
-        toast("Ad set not found",true);
-        return;
-      }
+      const existing = adsets.find(a=>a.id===id);
+      if(!existing) return;
 
       const status = document.querySelector(`[data-adset-status="${id}"]`)?.value || "Running";
-      const notes = document.querySelector(`[data-adset-note="${id}"]`)?.value || "";
-      const budget = document.querySelector(`[data-adset-budget="${id}"]`)?.value || "";
       const budget_type = document.querySelector(`[data-adset-budget-type="${id}"]`)?.value || "Daily Budget";
-      const previous = {...existing};
+      const budget = document.querySelector(`[data-adset-budget="${id}"]`)?.value || "";
+      const notes = document.querySelector(`[data-adset-note="${id}"]`)?.value || "";
 
-      const {error} = await supabaseClient
-        .from("ad_sets")
-        .update({status,notes,budget,budget_type})
-        .eq("id",id);
+      const old = {...existing};
+
+      const {error} = await sb.from("ad_sets").update({status,budget_type,budget,notes}).eq("id",id);
 
       if(error){
         toast(error.message,true);
         return;
       }
 
-      const changed =
-        status !== existing.status ||
-        notes !== existing.notes ||
-        budget !== existing.budget ||
-        budget_type !== existing.budget_type;
+      let logRow = null;
 
-      let logRes = {data:null};
+      if(status!==existing.status || budget_type!==existing.budget_type || budget!==existing.budget || notes!==existing.notes){
+        const res = await sb.from("work_logs").insert({
+          campaign_id:activeCampaignId,
+          logged_by:defaultLoggedBy(),
+          log_type:"Ad Set",
+          text:`Ad set update — ${existing.name}: status set to ${status}. ${budget_type}: ${budget || "TBC"}.${notes ? " Notes: "+notes : ""}`,
+          visible_to_james:true
+        }).select().single();
 
-      if(changed){
-        const logText = `Ad set update — ${existing.name}: status set to ${status}. ${budget_type}: ${budget || "TBC"}.${notes ? " Notes: "+notes : ""}`;
-
-        logRes = await supabaseClient
-          .from("work_logs")
-          .insert({
-            campaign_id:activeCampaignId,
-            logged_by:defaultLoggedBy(),
-            log_type:"Ad Set",
-            text:logText,
-            visible_to_james:true
-          })
-          .select()
-          .single();
+        logRow = res.data;
       }
 
       setUndo("Undo ad set update",async()=>{
-        await supabaseClient
-          .from("ad_sets")
-          .update({
-            status:previous.status || "Running",
-            notes:previous.notes || "",
-            budget:previous.budget || "",
-            budget_type:previous.budget_type || "Daily Budget"
-          })
-          .eq("id",id);
+        await sb.from("ad_sets").update({
+          status:old.status,
+          budget_type:old.budget_type,
+          budget:old.budget,
+          notes:old.notes
+        }).eq("id",id);
 
-        if(logRes.data?.id){
-          await supabaseClient.from("work_logs").delete().eq("id",logRes.data.id);
-        }
+        if(logRow?.id) await sb.from("work_logs").delete().eq("id",logRow.id);
 
         await loadData();
       });
 
-      const index = adSets.findIndex(adset=>adset.id===id);
-
-      if(index>=0){
-        adSets[index] = {...adSets[index],status,notes,budget,budget_type};
-      }
+      const index = adsets.findIndex(a=>a.id===id);
+      if(index>=0) adsets[index] = {...adsets[index],status,budget_type,budget,notes};
 
       renderBoard();
-      renderStats();
 
-      if(!silent){
-        toast("Ad set update saved and logged");
-      }
+      if(!silent) toast("Ad set saved.");
     }
 
     async function deleteAdSet(id){
-      const backup = adSets.find(adset=>adset.id===id);
+      if(!confirm("Delete this ad set?")) return;
 
-      const {error} = await supabaseClient
-        .from("ad_sets")
-        .delete()
-        .eq("id",id);
+      const old = adsets.find(a=>a.id===id);
+
+      const {error} = await sb.from("ad_sets").delete().eq("id",id);
 
       if(error){
         toast(error.message,true);
         return;
       }
 
-      if(backup){
+      if(old){
         setUndo("Undo ad set delete",async()=>{
-          await supabaseClient.from("ad_sets").insert(backup);
+          await sb.from("ad_sets").insert(old);
           await loadData();
         });
       }
 
       await loadData();
-      tempDraft = campaignToDraft(campaigns.find(campaign=>campaign.id===activeCampaignId));
+      draft = campaignToDraft(campaigns.find(c=>c.id===activeCampaignId));
       renderModal();
     }
 
     async function addLog(){
-      const text = val("log_text");
-
-      if(!text){
-        toast("Write a log first",true);
+      if(!val("log_text")){
+        toast("Write a log first.",true);
         return;
       }
 
-      const {data,error} = await supabaseClient
-        .from("work_logs")
-        .insert({
-          campaign_id:activeCampaignId,
-          logged_by:val("log_by") || defaultLoggedBy(),
-          log_type:val("log_type") || "Setup",
-          text,
-          visible_to_james:true
-        })
-        .select()
-        .single();
+      const {data,error} = await sb.from("work_logs").insert({
+        campaign_id:activeCampaignId,
+        logged_by:val("log_by") || defaultLoggedBy(),
+        log_type:val("log_type") || "Setup",
+        text:val("log_text"),
+        visible_to_james:true
+      }).select().single();
 
       if(error){
         toast(error.message,true);
         return;
       }
 
-      if(data?.id){
-        setUndo("Undo log add",async()=>{
-          await supabaseClient.from("work_logs").delete().eq("id",data.id);
-          await loadData();
-        });
-      }
+      setUndo("Undo log add",async()=>{
+        await sb.from("work_logs").delete().eq("id",data.id);
+        await loadData();
+      });
 
       await loadData();
-      tempDraft = campaignToDraft(campaigns.find(campaign=>campaign.id===activeCampaignId));
+      draft = campaignToDraft(campaigns.find(c=>c.id===activeCampaignId));
       renderModal();
     }
 
     async function deleteLog(id){
       if(!confirm("Delete this work log?")) return;
 
-      const backup = workLogs.find(log=>log.id===id);
-
-      const {error} = await supabaseClient
-        .from("work_logs")
-        .delete()
-        .eq("id",id);
+      const old = logs.find(l=>l.id===id);
+      const {error} = await sb.from("work_logs").delete().eq("id",id);
 
       if(error){
         toast(error.message,true);
         return;
       }
 
-      if(backup){
+      if(old){
         setUndo("Undo log delete",async()=>{
-          await supabaseClient.from("work_logs").insert(backup);
+          await sb.from("work_logs").insert(old);
           await loadData();
         });
       }
 
       await loadData();
-      tempDraft = campaignToDraft(campaigns.find(campaign=>campaign.id===activeCampaignId));
+      draft = campaignToDraft(campaigns.find(c=>c.id===activeCampaignId));
       renderModal();
     }
 
@@ -2903,7 +2217,6 @@
               </div>
               <button class="btn secondary" onclick="closeModal()">Close</button>
             </div>
-
             <div class="modal-body stack">
               <textarea id="importRaw" style="min-height:330px;"></textarea>
               <button class="btn" id="organiseImportBtn">Organise Brief</button>
@@ -2913,15 +2226,12 @@
       `;
 
       document.getElementById("organiseImportBtn").addEventListener("click",()=>{
-        const raw = val("importRaw");
-
-        if(!raw){
-          toast("Paste a brief first",true);
+        if(!val("importRaw")){
+          toast("Paste a brief first.",true);
           return;
         }
 
-        const organised = localBriefOrganiser(raw);
-
+        const organised = localBriefOrganiser(val("importRaw"));
         closeModal();
         openCampaignModal(null,organised);
       });
@@ -2942,26 +2252,19 @@
               </div>
               <button class="btn secondary" onclick="closeModal()">Close</button>
             </div>
-
             <div class="modal-body stack">
               <div class="grid-2">
-                <div class="field">
+                <div>
                   <label>Theme Accent Colour</label>
-                  <input id="settingsAccent" type="color" value="${escapeAttr(accent)}">
+                  <input id="settingsAccent" type="color" value="${attr(accent)}" />
                 </div>
-
-                <div class="field">
+                <div>
                   <label>Default Logged By Name</label>
-                  <input id="settingsLoggedBy" value="${escapeAttr(loggedBy)}">
+                  <input id="settingsLoggedBy" value="${attr(loggedBy)}" />
                 </div>
               </div>
 
               <div class="panel">
-                <h3>Mac Reminders / To Do Sync</h3>
-                <p class="small">A static website cannot directly write to Apple Reminders. Best route later: export next actions to an Apple Shortcut.</p>
-              </div>
-
-              <div class="panel stack">
                 <h3>Account</h3>
                 <div class="row">
                   <button class="btn secondary" id="settingsRefreshBtn">Refresh Data</button>
@@ -2975,9 +2278,9 @@
         </div>
       `;
 
-      document.getElementById("settingsAccent").addEventListener("input",event=>{
-        applyTheme(event.target.value);
-      });
+      document.getElementById("settingsAccent").addEventListener("input",e=>applyTheme(e.target.value));
+      document.getElementById("settingsRefreshBtn").addEventListener("click",loadData);
+      document.getElementById("settingsSignOutBtn").addEventListener("click",signOut);
 
       document.getElementById("saveSettingsBtn").addEventListener("click",()=>{
         localStorage.setItem("jdw_settings",JSON.stringify({
@@ -2986,24 +2289,16 @@
         }));
 
         applySavedSettings();
-        toast("Settings saved");
         closeModal();
+        toast("Settings saved.");
       });
-
-      document.getElementById("settingsRefreshBtn").addEventListener("click",loadData);
-      document.getElementById("settingsSignOutBtn").addEventListener("click",signOut);
     }
 
     function localBriefOrganiser(raw){
       const lower = raw.toLowerCase();
 
       const title = getQuotedText(raw)[0] || inferTitleFromBrief(raw) || "Untitled Campaign";
-
-      const artist =
-        getArtistBeforeTitle(raw,title) ||
-        inferArtistFromBrief(raw,title) ||
-        getWordsBefore(raw,"pixel",2).replace(/^the /i,"") ||
-        "Untitled Artist";
+      const artist = getArtistBeforeTitle(raw,title) || inferArtistFromBrief(raw,title) || getWordsBefore(raw,"pixel",2).replace(/^the /i,"") || "Untitled Artist";
 
       const objective = lower.includes("engagement") ? "Engagement" : "Confirm objective";
       const conversionLocation = lower.includes("website") ? "Website" : "Confirm conversion location";
@@ -3020,7 +2315,7 @@
         `Campaign setup: Objective is ${objective}. Set conversion location to ${conversionLocation}. Optimise for ${event} using ${pixel}.`,
         `Conversion link: ${link || "TBC"}`,
         `Campaign budget: ${budget || "TBC"}.`,
-        `Ad set budget split: ${extractedAdSets.map(adset=>`${adset.name} ${adset.budget || "TBC"}`).join("; ")}.`,
+        `Ad set budget split: ${extractedAdSets.map(a=>`${a.name} ${a.budget || "TBC"}`).join("; ")}.`,
         `Targeting: ${territories || "TBC"}.`
       ].join("\\n\\n");
 
@@ -3030,7 +2325,7 @@
         status:"New Brief",
         priority:"Normal",
         deadline:"",
-        budget:budget,
+        budget,
         objective:`${objective}. Conversion location: ${conversionLocation}. Optimisation event: ${event}. Pixel: ${pixel}.`,
         campaign_link:link,
         territories,
@@ -3039,13 +2334,14 @@
         missing_info:"No major missing information detected.",
         report:"",
         checklist:DEFAULT_CHECKLIST,
-        ad_sets:extractedAdSets.map(adset=>({
-          name:adset.name,
+        ad_sets:extractedAdSets.map(a=>({
+          name:a.name,
           objective:`${conversionLocation} / ${event}`,
-          budget:adset.budget || "TBC",
+          budget:a.budget || "TBC",
           budget_type:"Daily Budget",
           status:"Running",
-          audience:adset.audience || ""
+          audience:a.audience || "",
+          notes:""
         }))
       };
     }
@@ -3053,118 +2349,222 @@
     function organiseCurrentBrief(){
       collectDraft();
 
-      if(!tempDraft.raw_brief){
-        toast("Paste a raw brief first",true);
+      if(!draft.raw_brief){
+        toast("Paste a raw brief first.",true);
         return;
       }
 
-      tempDraft = {...tempDraft,...localBriefOrganiser(tempDraft.raw_brief)};
+      draft = {...draft,...localBriefOrganiser(draft.raw_brief)};
       renderModal();
     }
 
     function generateNames(){
       collectDraft();
 
-      const artist = slug(tempDraft.artistName || "artist");
-      const title = slug(tempDraft.title || "campaign");
-      const territories = slug((tempDraft.territories || "core").replaceAll(",","-"));
+      const artist = slug(draft.artistName || "artist");
+      const title = slug(draft.title || "campaign");
+      const territories = slug((draft.territories || "core").replaceAll(",","-"));
 
-      const text = `Suggested naming convention:\\n\\nCampaign:\\n${artist}_eng-${title}_vc_${territories}\\n\\nAd Set 1:\\nca_warm-lal_${artist}_18-50_${territories}_ig-fb\\n\\nAd Set 2:\\nint_ra-related-artists_${artist}_18-50_${territories}_ig-fb`;
+      const text = `Suggested naming convention:\\n\\nCampaign:\\n${artist}_eng-${title}_vc_${territories}\\n\\nAd Sets:\\n${(draft.ad_sets || []).map((a,index)=>`${index+1}. ${slug(a.name)}_${artist}_18-50_${territories}_ig-fb`).join("\\n")}`;
 
       const box = document.getElementById("m_structuredBrief");
 
       if(box){
-        box.value = (tempDraft.structured_brief ? tempDraft.structured_brief + "\\n\\n" : "") + text;
+        box.value = (draft.structured_brief ? draft.structured_brief + "\\n\\n" : "") + text;
         collectDraft();
         scheduleAutosave();
       }
 
-      toast("Names added");
+      toast("Names added.");
     }
 
     function summariseLogs(){
-      const logs = activeCampaignId ? getCampaignLogs(activeCampaignId) : [];
+      const activity = activeCampaignId ? getCampaignLogs(activeCampaignId) : [];
 
-      tempDraft.report = logs.length
-        ? logs.map(log=>`- ${formatDateTime(log.created_at)}: ${log.text}`).join("\\n")
+      draft.report = activity.length
+        ? activity.map(l=>`- ${formatDateTime(l.created_at)}: ${l.text}`).join("\\n")
         : "No logs yet.";
 
       const box = document.getElementById("m_report");
-
-      if(box){
-        box.value = tempDraft.report;
-        scheduleAutosave();
-      }else{
-        renderModal();
-      }
+      if(box) box.value = draft.report;
+      scheduleAutosave();
     }
 
     function generateJamesUpdate(){
       collectDraft();
 
-      const logs = activeCampaignId ? getCampaignLogs(activeCampaignId) : [];
+      const activity = activeCampaignId ? getCampaignLogs(activeCampaignId) : [];
+      const ads = activeCampaignId ? getCampaignAdSets(activeCampaignId) : draft.ad_sets || [];
 
-      tempDraft.report = `Hey mate, quick update on ${tempDraft.artistName} — ${tempDraft.title}.\\n\\nStatus: ${tempDraft.status}.\\n\\nWhat has been done:\\n${logs.slice(-6).map(log=>`- ${log.text}`).join("\\n") || "- No work logs added yet."}\\n\\n${tempDraft.missing_info || "No major missing info flagged."}`;
+      draft.report = `Hey mate, quick update on ${draft.artistName} — ${draft.title}.\\n\\nStatus: ${draft.status}.\\n\\nBudget: ${draft.budget || "TBC"}\\n${ads.map(a=>`- ${a.name}: ${a.status || "Running"} / ${a.budget || "TBC"} ${String(a.budget_type || "Daily Budget").toLowerCase().includes("life") ? "lifetime" : "daily"}`).join("\\n")}\\n\\nWhat has been done:\\n${activity.slice(-7).map(l=>`- ${l.text}`).join("\\n") || "- No work logs added yet."}\\n\\n${draft.missing_info || "No major missing info flagged."}`;
 
       const box = document.getElementById("m_report");
-
-      if(box){
-        box.value = tempDraft.report;
-        scheduleAutosave();
-      }else{
-        renderModal();
-      }
+      if(box) box.value = draft.report;
+      scheduleAutosave();
     }
 
     function generateClientReport(){
       collectDraft();
 
-      const logs = activeCampaignId ? getCampaignLogs(activeCampaignId) : [];
+      const activity = activeCampaignId ? getCampaignLogs(activeCampaignId) : [];
+      const ads = activeCampaignId ? getCampaignAdSets(activeCampaignId) : draft.ad_sets || [];
 
-      tempDraft.report = `Campaign Report — ${tempDraft.artistName} / ${tempDraft.title}\\n\\nStatus: ${tempDraft.status}\\nObjective / Setup: ${tempDraft.objective || "TBC"}\\nBudget: ${tempDraft.budget || "TBC"}\\nTerritories: ${tempDraft.territories || "TBC"}\\nDestination: ${tempDraft.campaign_link || "TBC"}\\n\\nBrief Summary:\\n${tempDraft.structured_brief || tempDraft.raw_brief || "No brief added yet."}\\n\\nWork Completed:\\n${logs.map(log=>`- ${log.text}`).join("\\n") || "No work logs added yet."}`;
+      draft.report = `Campaign Report — ${draft.artistName} / ${draft.title}\\n\\nStatus: ${draft.status}\\nObjective / Setup: ${draft.objective || "TBC"}\\nBudget: ${draft.budget || "TBC"}\\nTerritories: ${draft.territories || "TBC"}\\nDestination: ${draft.campaign_link || "TBC"}\\n\\nAd Sets:\\n${ads.map(a=>`- ${a.name}: ${a.status || "Running"} / ${a.budget || "TBC"} ${String(a.budget_type || "Daily Budget").toLowerCase().includes("life") ? "lifetime" : "daily"}`).join("\\n") || "No ad sets added yet."}\\n\\nBrief Summary:\\n${draft.structured_brief || draft.raw_brief || "No brief added yet."}\\n\\nWork Completed:\\n${activity.map(l=>`- ${l.text}`).join("\\n") || "No work logs added yet."}`;
 
       const box = document.getElementById("m_report");
+      if(box) box.value = draft.report;
+      scheduleAutosave();
+    }
 
-      if(box){
-        box.value = tempDraft.report;
-        scheduleAutosave();
-      }else{
-        renderModal();
+    async function createArtistFolder(){
+      const name = prompt("New artist folder name:");
+      if(!name || !name.trim()) return;
+
+      try{
+        const artist = await getOrCreateArtist(name.trim());
+        activeArtistId = artist.id;
+        expandedArtists.add(artist.id);
+        document.getElementById("pageTitle").textContent = artist.name;
+
+        setUndo("Undo artist create",async()=>{
+          await sb.from("artists").delete().eq("id",artist.id);
+          activeArtistId = "all";
+          await loadData();
+        });
+
+        await loadData();
+        toast("Artist folder created.");
+      }catch(error){
+        toast(error.message,true);
+      }
+    }
+
+    function openDeleteArtistConfirm(artistId){
+      const artist = artists.find(a=>a.id===artistId);
+      if(!artist) return;
+
+      const artistCampaigns = campaigns.filter(c=>c.artist_id===artistId);
+
+      document.getElementById("modalRoot").innerHTML = `
+        <div class="modal-backdrop">
+          <div class="modal" style="width:min(620px,100%);">
+            <div class="modal-head between">
+              <div>
+                <h2>Delete artist folder?</h2>
+                <p class="small">Type the exact artist name to confirm.</p>
+              </div>
+              <button class="btn secondary" onclick="closeModal()">Close</button>
+            </div>
+            <div class="modal-body stack">
+              <div class="panel" style="border-color:rgba(255,95,109,.35);background:rgba(255,95,109,.06);">
+                <h3 style="color:var(--red);">Delete ${esc(artist.name)}</h3>
+                <p class="small">This will delete ${artistCampaigns.length} campaigns inside the folder.</p>
+              </div>
+              <div>
+                <label>Type artist name to confirm</label>
+                <input id="deleteArtistConfirmInput" placeholder="${attr(artist.name)}" />
+              </div>
+              <div class="row">
+                <button class="btn secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn danger" id="confirmDeleteArtistBtn" disabled>Delete Folder</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const input = document.getElementById("deleteArtistConfirmInput");
+      const btn = document.getElementById("confirmDeleteArtistBtn");
+
+      input.addEventListener("input",()=>btn.disabled = input.value.trim() !== artist.name);
+      btn.addEventListener("click",()=>deleteArtistById(artistId));
+    }
+
+    async function deleteArtistById(artistId){
+      const oldArtist = artists.find(a=>a.id===artistId);
+      const oldCampaigns = campaigns.filter(c=>c.artist_id===artistId);
+
+      const {error} = await sb.from("artists").delete().eq("id",artistId);
+
+      if(error){
+        toast(error.message,true);
+        return;
+      }
+
+      setUndo("Undo artist delete",async()=>{
+        if(oldArtist) await sb.from("artists").insert(oldArtist);
+        if(oldCampaigns.length) await sb.from("campaigns").insert(oldCampaigns);
+        await loadData();
+      });
+
+      closeModal();
+      activeArtistId = "all";
+      document.getElementById("pageTitle").textContent = "All Artists";
+      await loadData();
+      toast("Artist folder deleted.");
+    }
+
+    function setActiveArtist(id){
+      activeArtistId = id;
+
+      if(id!=="all") expandedArtists.add(id);
+
+      document.getElementById("pageTitle").textContent = id==="all" ? "All Artists" : getArtistName(id);
+      renderAll();
+    }
+
+    function setUndo(label,fn){
+      undoAction = {label,fn};
+      const btn = document.getElementById("undoBtn");
+      btn.disabled = false;
+      btn.textContent = label;
+    }
+
+    function clearUndo(){
+      undoAction = null;
+      const btn = document.getElementById("undoBtn");
+      btn.disabled = true;
+      btn.textContent = "Undo Last Action";
+    }
+
+    async function undoLastAction(){
+      if(!undoAction) return;
+      const action = undoAction;
+      clearUndo();
+
+      try{
+        await action.fn();
+        toast("Undo complete.");
+      }catch(error){
+        toast("Undo failed: "+error.message,true);
       }
     }
 
     function closeModal(){
       document.getElementById("modalRoot").innerHTML = "";
       activeCampaignId = null;
-      tempDraft = null;
+      draft = null;
     }
 
-    function setAuthStatus(message,isError=false){
-      const element = document.getElementById("authStatus");
-
-      if(!element) return;
-
-      element.textContent = message;
-      element.className = "status-box" + (isError ? " error" : "");
+    function setAuthStatus(message,error=false){
+      const el = document.getElementById("authStatus");
+      el.textContent = message;
+      el.className = "status-box" + (error ? " error" : "");
     }
 
-    function toast(message,isError=false){
-      const element = document.getElementById("toast");
-
-      element.textContent = message;
-      element.className = "toast" + (isError ? " error" : "");
-      element.classList.remove("hidden");
-
-      setTimeout(()=>{
-        element.classList.add("hidden");
-      },3500);
+    function toast(message,error=false){
+      const el = document.getElementById("toast");
+      el.textContent = message;
+      el.className = "toast" + (error ? " error" : "");
+      el.classList.remove("hidden");
+      setTimeout(()=>el.classList.add("hidden"),3500);
     }
 
     function val(id){
       return document.getElementById(id)?.value?.trim() || "";
     }
 
-    function tabLabel(tab){
+    function tabName(tab){
       return {
         overview:"Overview",
         brief:"Brief",
@@ -3174,94 +2574,82 @@
       }[tab];
     }
 
-    function truncate(text,length){
-      return String(text || "").length > length
-        ? String(text).slice(0,length-1)+"…"
-        : String(text || "");
+    function defaultLoggedBy(){
+      try{
+        return JSON.parse(localStorage.getItem("jdw_settings") || "{}").loggedBy || "Aidan";
+      }catch(e){
+        return "Aidan";
+      }
     }
 
-    function adSetStatusClass(status){
-      const s = String(status || "Running").toLowerCase();
+    function applySavedSettings(){
+      try{
+        const saved = JSON.parse(localStorage.getItem("jdw_settings") || "{}");
+        applyTheme(saved.accent || "#d7ff38");
+      }catch(e){
+        applyTheme("#d7ff38");
+      }
+    }
 
-      if(s.includes("pause")) return "adset-paused";
-      if(s.includes("end")) return "adset-ended";
-      if(s.includes("review") || s.includes("need")) return "adset-review";
-
-      return "adset-running";
+    function applyTheme(hex){
+      const colour = hex || "#d7ff38";
+      const number = parseInt(colour.replace("#",""),16);
+      document.documentElement.style.setProperty("--accent",colour);
+      document.documentElement.style.setProperty("--accent-rgb",`${(number>>16)&255},${(number>>8)&255},${number&255}`);
     }
 
     function formatCampaignBudget(value){
       const text = String(value || "");
-      const compact = text.replace("Budget:","").replace("Campaign spend cap:","").trim();
-      const found = compact.match(/[€£$]\s*[0-9][0-9,.]*|[0-9][0-9,.]*\s*(euro|eur|gbp|usd|pounds?)/i);
-
-      return found ? found[0].trim() : compact;
+      const found = text.match(/[€£$]\s*[0-9][0-9,.]*|[0-9][0-9,.]*\s*(euro|eur|gbp|usd|pounds?)/i);
+      return found ? found[0].replace(/\s+/g,"").trim() : text.trim();
     }
 
     function formatAdSetBudget(adset){
-      let amount = String(adset.budget || "").trim();
-
-      amount = amount
-        .replace("Budget:","")
-        .replace("Ad set budget:","")
-        .replace("if confirmed","")
-        .trim();
-
-      const found = amount.match(/[€£$]\s*[0-9][0-9,.]*|[0-9][0-9,.]*\s*(per day|\/day|daily|euro|eur|gbp|usd|pounds?)/i);
-
-      amount = found ? found[0].trim() : amount || "TBC";
-
-      const type = String(adset.budget_type || "Daily Budget").toLowerCase().includes("life")
-        ? "lifetime"
-        : "daily";
-
-      return (amount+" "+type).replace(/ +/g," ").trim();
+      const amount = formatCampaignBudget(adset.budget) || "TBC";
+      const type = String(adset.budget_type || "Daily Budget").toLowerCase().includes("life") ? "lifetime" : "daily";
+      return `${amount} ${type}`;
     }
 
-    function slug(text){
-      return String(text || "")
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g,"-")
-        .replace(/^-|-$/g,"");
-    }
-
-    function clean(text){
-      return String(text || "")
-        .replaceAll("-"," ")
-        .replace(/\s+/g," ")
-        .trim()
-        .replace(/^the /i,"");
+    function adSetStatusClass(status){
+      const s = String(status || "Running").toLowerCase();
+      if(s.includes("pause")) return "adset-paused";
+      if(s.includes("end")) return "adset-ended";
+      if(s.includes("review") || s.includes("need")) return "adset-review";
+      return "adset-running";
     }
 
     function formatDate(date){
-      return date
-        ? new Date(date+"T00:00:00").toLocaleDateString(undefined,{day:"2-digit",month:"short"})
-        : "";
+      return date ? new Date(date+"T00:00:00").toLocaleDateString(undefined,{day:"2-digit",month:"short"}) : "";
     }
 
     function formatDateTime(date){
-      return date
-        ? new Date(date).toLocaleString(undefined,{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"})
-        : "";
+      return date ? new Date(date).toLocaleString(undefined,{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}) : "";
     }
 
-    function escapeHtml(value){
-      return String(value ?? "").replace(/[&<>'"]/g,char=>({
+    function esc(value){
+      return String(value ?? "").replace(/[&<>'"]/g,c=>({
         "&":"&amp;",
         "<":"&lt;",
         ">":"&gt;",
         "'":"&#39;",
         '"':"&quot;"
-      }[char]));
+      }[c]));
     }
 
-    function escapeAttr(value){
-      return escapeHtml(value).replace(/`/g,"&#96;");
+    function attr(value){
+      return esc(value).replace(/`/g,"&#96;");
+    }
+
+    function slug(text){
+      return String(text || "").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+    }
+
+    function clean(text){
+      return String(text || "").replaceAll("-"," ").replace(/\s+/g," ").trim().replace(/^the /i,"");
     }
 
     function getQuotedText(text){
       const match = String(text).match(/["“](.*?)["”]/);
-
       return match ? [match[1].trim()] : [];
     }
 
@@ -3270,16 +2658,9 @@
       const match = text.match(/write up the\s+(.+?)\s+campaign/i);
 
       if(match){
-        const value = match[1]
-          .replace(/["“”]/g,"")
-          .trim();
-
+        const value = match[1].replace(/["“”]/g,"").trim();
         const parts = value.split(/\s+/);
-
-        if(parts.length>1){
-          return parts.slice(1).join(" ");
-        }
-
+        if(parts.length>1) return parts.slice(1).join(" ");
         return value;
       }
 
@@ -3291,22 +2672,13 @@
       const match = text.match(/write up the\s+(.+?)\s+campaign/i);
 
       if(match){
-        const value = match[1]
-          .replace(/["“”]/g,"")
-          .trim();
-
+        const value = match[1].replace(/["“”]/g,"").trim();
         const parts = value.split(/\s+/);
-
-        if(parts.length>1){
-          return parts[0];
-        }
+        if(parts.length>1) return parts[0];
       }
 
-      const pixelMatch = text.match(/using the\s+(.+?)\s+pixel/i);
-
-      if(pixelMatch){
-        return pixelMatch[1].trim();
-      }
+      const pixel = text.match(/using the\s+(.+?)\s+pixel/i);
+      if(pixel) return pixel[1].trim();
 
       return "";
     }
@@ -3319,102 +2691,27 @@
 
       if(start===-1 || index===-1 || index<=start) return "";
 
-      return clean(
-        raw
-          .slice(start+marker.length,index)
-          .replaceAll('"',"")
-          .replaceAll("“","")
-          .replaceAll("”","")
-      );
+      return clean(raw.slice(start+marker.length,index).replaceAll('"',"").replaceAll("“","").replaceAll("”",""));
     }
 
     function getWordsBefore(raw,word,count){
-      const words = String(raw)
-        .replace(/[.,()]/g," ")
-        .split(/\s+/)
-        .filter(Boolean);
-
-      const index = words.findIndex(item=>item.toLowerCase()===word.toLowerCase());
-
-      return index===-1
-        ? ""
-        : words.slice(Math.max(0,index-count),index).join(" ");
+      const words = String(raw).replace(/[.,()]/g," ").split(/\s+/).filter(Boolean);
+      const index = words.findIndex(w=>w.toLowerCase()===word.toLowerCase());
+      return index===-1 ? "" : words.slice(Math.max(0,index-count),index).join(" ");
     }
 
     function findUrl(text,domain){
-      const tokens = String(text)
-        .split(/\s+/)
-        .map(token=>token.trim().replace(/[),.]+$/g,""));
-
-      const found = tokens.find(token=>token.toLowerCase().includes(domain.toLowerCase()) && token.includes("."));
-
-      return found
-        ? (found.startsWith("http") ? found : "https://"+found)
-        : "";
-    }
-
-    function findMoneyLine(text,keyword){
-      const lines = String(text || "").split(String.fromCharCode(10));
-
-      const found = lines.find(line=>
-        hasNumber(line) && (!keyword || line.toLowerCase().includes(keyword.toLowerCase()))
-      );
-
-      return found ? found.trim().replace(/^[- ]+/,"") : "";
-    }
-
-    function hasNumber(text){
-      return getNumbers(text).length > 0;
-    }
-
-    function getNumbers(text){
-      const output = [];
-      let current = "";
-
-      for(const character of String(text || "")){
-        if((character>="0" && character<="9") || character==="," || character==="."){
-          current += character;
-        }else{
-          if(current && current!=="." && current!==","){
-            output.push(current);
-          }
-
-          current = "";
-        }
-      }
-
-      if(current && current!=="." && current!==","){
-        output.push(current);
-      }
-
-      return output;
-    }
-
-    function moneySymbolFromText(text){
-      const value = String(text || "");
-
-      if(value.includes("£")) return "£";
-      if(value.includes("$")) return "$";
-
-      return "€";
-    }
-
-    function cleanNumberToken(number){
-      return String(number || "").replaceAll(",","").trim();
-    }
-
-    function amountWithSymbol(number,raw){
-      return number ? moneySymbolFromText(raw)+String(number).trim() : "";
+      const tokens = String(text).split(/\s+/).map(t=>t.trim().replace(/[),.]+$/g,""));
+      const found = tokens.find(t=>t.toLowerCase().includes(domain.toLowerCase()) && t.includes("."));
+      return found ? (found.startsWith("http") ? found : "https://"+found) : "";
     }
 
     function findOverallBudget(raw){
-      const text = String(raw || "");
-      const lines = text.split(String.fromCharCode(10));
+      const lines = String(raw || "").split(/\n/);
 
-      const line = lines.find(item=>{
-        const lower = item.toLowerCase();
-
-        return hasNumber(item) && (
+      const priority = lines.find(line=>{
+        const lower = line.toLowerCase();
+        return extractBudgetFromText(line) && (
           lower.includes("campaign-level") ||
           lower.includes("campaign level") ||
           lower.includes("spend cap") ||
@@ -3423,54 +2720,23 @@
         );
       });
 
-      if(line){
-        const budget = extractBudgetFromText(line);
+      if(priority) return extractBudgetFromText(priority);
 
-        if(budget){
-          return budget;
-        }
-      }
-
-      const fallback = lines.find(item=>{
-        const lower = item.toLowerCase();
-
-        return lower.includes("budget") && extractBudgetFromText(item);
-      });
-
+      const fallback = lines.find(line=>line.toLowerCase().includes("budget") && extractBudgetFromText(line));
       return fallback ? extractBudgetFromText(fallback) : "";
-    }
-
-    function cleanBudgetAmount(value,raw){
-      const budget = extractBudgetFromText(value);
-
-      if(budget){
-        return budget;
-      }
-
-      const numbers = getNumbers(value).filter(number=>Number(cleanNumberToken(number))>0);
-
-      return numbers.length ? amountWithSymbol(numbers[0],raw || value) : "";
     }
 
     function extractBudgetFromText(text){
       const value = String(text || "");
 
-      const currencyMatch = value.match(/[€£$]\s*([0-9][0-9,.]*)/);
+      const symbol = value.match(/[€£$]\s*([0-9][0-9,.]*)/);
+      if(symbol) return symbol[0].replace(/\s+/g,"").trim();
 
-      if(currencyMatch){
-        return currencyMatch[0].replace(/\s+/g,"").trim();
-      }
+      const word = value.match(/([0-9][0-9,.]*)\s*(euro|eur|gbp|usd|pounds?)/i);
 
-      const wordCurrencyMatch = value.match(/([0-9][0-9,.]*)\s*(euro|eur|gbp|usd|pounds?)/i);
-
-      if(wordCurrencyMatch){
-        const symbol = /gbp|pound/i.test(wordCurrencyMatch[2])
-          ? "£"
-          : /usd/i.test(wordCurrencyMatch[2])
-            ? "$"
-            : "€";
-
-        return symbol + wordCurrencyMatch[1];
+      if(word){
+        const mark = /gbp|pound/i.test(word[2]) ? "£" : /usd/i.test(word[2]) ? "$" : "€";
+        return mark + word[1];
       }
 
       return "";
@@ -3478,204 +2744,100 @@
 
     function extractAdSetsFromBrief(raw){
       const text = String(raw || "");
-      const lines = text.split(String.fromCharCode(10));
+      const lines = text.split(/\n/);
       const sharedBudget = extractSharedAdSetBudget(text);
 
-      const adSetBlocks = [];
+      const blocks = [];
       let current = null;
 
       for(const line of lines){
         const trimmed = line.trim();
-        const headingMatch = trimmed.match(/^(\d+)[.)]\s+(.+)/);
+        const heading = trimmed.match(/^(\d+)[.)]\s+(.+)/);
 
-        if(headingMatch){
-          if(current){
-            adSetBlocks.push(current);
-          }
+        if(heading){
+          if(current) blocks.push(current);
 
           current = {
-            number:Number(headingMatch[1]),
-            name:cleanAdSetHeading(headingMatch[2]),
+            number:Number(heading[1]),
+            name:cleanAdSetHeading(heading[2]),
             lines:[]
           };
 
           continue;
         }
 
-        if(current){
-          current.lines.push(trimmed);
-        }
+        if(current) current.lines.push(trimmed);
       }
 
-      if(current){
-        adSetBlocks.push(current);
-      }
+      if(current) blocks.push(current);
 
-      if(!adSetBlocks.length){
-        const split = extractAdSetBudgetSplit(raw,sharedBudget);
-
+      if(!blocks.length){
         return [
           {
             name:"Warm / Retargeting",
-            budget:split[0] || sharedBudget || "TBC",
+            budget:sharedBudget || "TBC",
             audience:"Warm custom audiences, lookalike, engagers and followers."
           },
           {
             name:"Prospecting",
-            budget:split[1] || sharedBudget || "TBC",
+            budget:sharedBudget || "TBC",
             audience:"Related artist / interest prospecting."
           }
         ];
       }
 
-      return adSetBlocks.map(block=>{
+      return blocks.map(block=>{
         const blockText = block.lines.join(" ");
         const budget = extractBudgetFromText(blockText) || sharedBudget || "TBC";
-        const audience = extractAudienceSummary(block.name,blockText);
 
         return {
           name:block.name,
           budget,
-          audience
+          audience:extractAudienceSummary(block.name,blockText)
         };
       });
     }
 
     function extractSharedAdSetBudget(raw){
-      const text = String(raw || "");
-      const lines = text.split(String.fromCharCode(10));
+      const lines = String(raw || "").split(/\n/);
 
       const line = lines.find(item=>{
         const lower = item.toLowerCase();
 
         return (
           (lower.includes("ad set") || lower.includes("ad sets")) &&
-          (
-            lower.includes("each") ||
-            lower.includes("/day") ||
-            lower.includes("per day") ||
-            lower.includes("daily")
-          ) &&
+          (lower.includes("each") || lower.includes("/day") || lower.includes("per day") || lower.includes("daily")) &&
           extractBudgetFromText(item)
         );
       });
 
-      if(line){
-        return extractBudgetFromText(line);
-      }
+      if(line) return extractBudgetFromText(line);
 
       const fallback = lines.find(item=>{
         const lower = item.toLowerCase();
-
-        return (
-          (lower.includes("/day") || lower.includes("per day") || lower.includes("daily")) &&
-          extractBudgetFromText(item)
-        );
+        return (lower.includes("/day") || lower.includes("per day") || lower.includes("daily")) && extractBudgetFromText(item);
       });
 
       return fallback ? extractBudgetFromText(fallback) : "";
     }
 
-    function extractAdSetBudgetSplit(raw,fallback){
-      const text = String(raw || "");
-      const lines = text.split(String.fromCharCode(10));
-      let first = "";
-      let second = "";
-
-      const firstLine = lines.find(line=>{
-        const lower = line.toLowerCase();
-
-        return extractBudgetFromText(line) && (
-          lower.includes("warm") ||
-          lower.includes("retarget") ||
-          lower.includes("first") ||
-          lower.includes("1st") ||
-          lower.includes("ad set 1") ||
-          lower.includes("adset 1")
-        );
-      });
-
-      const secondLine = lines.find(line=>{
-        const lower = line.toLowerCase();
-
-        return extractBudgetFromText(line) && (
-          lower.includes("prospecting") ||
-          lower.includes("cold") ||
-          lower.includes("interest") ||
-          lower.includes("second") ||
-          lower.includes("2nd") ||
-          lower.includes("ad set 2") ||
-          lower.includes("adset 2")
-        );
-      });
-
-      if(firstLine){
-        first = extractBudgetFromText(firstLine);
-      }
-
-      if(secondLine){
-        second = extractBudgetFromText(secondLine);
-      }
-
-      if(!first && fallback){
-        first = cleanBudgetAmount(fallback,text) || fallback;
-      }
-
-      if(!second && fallback){
-        second = cleanBudgetAmount(fallback,text) || fallback;
-      }
-
-      return [first,second];
-    }
-
-    function extractAdSetNames(raw){
-      const sets = extractAdSetsFromBrief(raw);
-
-      if(sets.length){
-        return sets.map(item=>item.name);
-      }
-
-      return ["Warm / Retargeting","Prospecting"];
-    }
-
     function cleanAdSetHeading(text){
-      return String(text || "")
-        .replace(/^\s*[-*]+/,"")
-        .replace(/\s+/g," ")
-        .trim();
-    }
-
-    function cleanAdSetName(line,fallback){
-      let value = String(line || "")
-        .replace(/^\s*[-*0-9.)]+/,"")
-        .replace(/ad\s*set\s*\d+/i,"")
-        .replace(/first|1st|second|2nd/i,"")
-        .replace(/budget|daily|lifetime|spend|€|£|\$/ig,"")
-        .replace(/[0-9,.]+/g,"")
-        .replace(/[:;,-]+$/g,"")
-        .replace(/\s+/g," ")
-        .trim();
-
-      if(value.length>48){
-        value = value.slice(0,48).trim();
-      }
-
-      return value || fallback;
+      return String(text || "").replace(/^\s*[-*]+/,"").replace(/\s+/g," ").trim();
     }
 
     function extractAudienceSummary(name,blockText){
-      const lowerName = String(name || "").toLowerCase();
-      const lowerBlock = String(blockText || "").toLowerCase();
+      const n = String(name || "").toLowerCase();
+      const b = String(blockText || "").toLowerCase();
 
-      if(lowerName.includes("warm") || lowerName.includes("retarget")){
+      if(n.includes("warm") || n.includes("retarget")){
         return "Warm audiences, engagers, followers, video viewers, custom audiences and lookalikes.";
       }
 
-      if(lowerName.includes("related") || lowerBlock.includes("hozier") || lowerBlock.includes("lana")){
+      if(n.includes("related") || b.includes("hozier") || b.includes("lana")){
         return "Related artist / acoustic singer-songwriter prospecting.";
       }
 
-      if(lowerName.includes("indie") || lowerName.includes("female") || lowerBlock.includes("billie") || lowerBlock.includes("clairo")){
+      if(n.includes("indie") || n.includes("female") || b.includes("billie") || b.includes("clairo")){
         return "Broader indie pop / female-led alternative prospecting.";
       }
 
@@ -3684,16 +2846,16 @@
 
     function extractTerritories(raw){
       const lower = String(raw).toLowerCase();
-      const output = [];
+      const out = [];
 
-      if(lower.includes("germany")) output.push("Germany");
-      if(lower.includes("austria")) output.push("Austria");
-      if(lower.includes("switzerland")) output.push("Switzerland");
-      if(lower.includes("sweden")) output.push("Sweden");
-      if(lower.includes("united kingdom") || lower.includes(" uk ")) output.push("United Kingdom");
-      if(lower.includes("united states") || lower.includes(" usa ")) output.push("United States");
+      if(lower.includes("germany")) out.push("Germany");
+      if(lower.includes("austria")) out.push("Austria");
+      if(lower.includes("switzerland")) out.push("Switzerland");
+      if(lower.includes("sweden")) out.push("Sweden");
+      if(lower.includes("united kingdom") || lower.includes(" uk ")) out.push("United Kingdom");
+      if(lower.includes("united states") || lower.includes(" usa ")) out.push("United States");
 
-      return [...new Set(output)];
+      return [...new Set(out)];
     }
   </script>
 </body>
