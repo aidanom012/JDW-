@@ -536,6 +536,10 @@
     const SUPABASE_URL = "https://zpkfxdyvesftnhkknggz.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_5FQgVI3C0Lx9gNCu1kpPhw_g6CzwyyF";
 
+    // Expose these for the emergency fallback login script at the bottom of the page.
+    window.JDW_SUPABASE_URL = SUPABASE_URL;
+    window.JDW_SUPABASE_KEY = SUPABASE_ANON_KEY;
+
     // Optional AI Edge Function name. Create this later in Supabase.
     const AI_FUNCTION_NAME = "organise-brief";
 
