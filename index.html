@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>JDW Campaign Hub</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --bg: #07070a;
@@ -22,7 +23,6 @@
       --green: #72ff99;
       --purple: #c084fc;
       --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
-      --radius: 22px;
     }
 
     * { box-sizing: border-box; }
@@ -41,8 +41,18 @@
 
     button, input, textarea, select { font: inherit; }
     button { cursor: pointer; }
-
     .hidden { display: none !important; }
+
+    .setup-warning {
+      margin: 18px 0 0;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,180,84,0.35);
+      background: rgba(255,180,84,0.08);
+      color: var(--orange);
+      font-size: 13px;
+      line-height: 1.5;
+    }
 
     .login-screen {
       min-height: 100vh;
@@ -52,7 +62,7 @@
     }
 
     .login-card {
-      width: min(460px, 100%);
+      width: min(500px, 100%);
       padding: 34px;
       border: 1px solid var(--line);
       border-radius: 30px;
@@ -167,14 +177,7 @@
     }
 
     .side-top { margin-bottom: 20px; }
-
-    .side-top h2 {
-      font-size: 14px;
-      margin: 0;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
+    .side-top h2 { font-size: 14px; margin: 0; letter-spacing: 0.08em; text-transform: uppercase; }
     .side-top p { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
 
     .side-section-title {
@@ -233,11 +236,7 @@
       backdrop-filter: blur(16px);
     }
 
-    .topbar h1 {
-      margin: 0;
-      font-size: 25px;
-      letter-spacing: -0.055em;
-    }
+    .topbar h1 { margin: 0; font-size: 25px; letter-spacing: -0.055em; }
 
     .toolbar {
       padding: 14px 22px;
@@ -249,13 +248,13 @@
       background: rgba(7,7,10,0.38);
     }
 
-    .search { max-width: 360px; }
+    .search { max-width: 390px; }
 
     .board {
       padding: 22px;
       overflow: auto;
       display: grid;
-      grid-template-columns: repeat(5, minmax(260px, 1fr));
+      grid-template-columns: repeat(7, minmax(250px, 1fr));
       gap: 16px;
       align-items: start;
     }
@@ -267,6 +266,8 @@
       min-height: calc(100vh - 185px);
       padding: 12px;
     }
+
+    .column.drag-over { border-color: rgba(215,255,56,0.55); background: rgba(215,255,56,0.045); }
 
     .column-head {
       display: flex;
@@ -288,9 +289,11 @@
 
     .status-dot { width: 9px; height: 9px; border-radius: 999px; background: var(--muted); }
     .status-dot.new { background: var(--blue); }
+    .status-dot.ready { background: var(--accent); }
     .status-dot.progress { background: var(--orange); }
     .status-dot.approval { background: var(--purple); }
     .status-dot.live { background: var(--green); }
+    .status-dot.reporting { background: #67e8f9; }
     .status-dot.complete { background: var(--muted); }
 
     .cards { display: grid; gap: 10px; }
@@ -301,21 +304,18 @@
       border-radius: 17px;
       padding: 13px;
       box-shadow: 0 12px 28px rgba(0,0,0,0.16);
-      transition: transform 0.16s, border 0.16s, background 0.16s;
-      cursor: pointer;
+      transition: transform 0.16s, border 0.16s, background 0.16s, opacity 0.16s;
+      cursor: grab;
     }
 
     .card:hover { transform: translateY(-2px); border-color: rgba(215,255,56,0.30); background: rgba(255,255,255,0.07); }
+    .card:active { cursor: grabbing; }
+    .card.dragging { opacity: 0.45; }
 
     .card h3 { margin: 0 0 8px; font-size: 15px; letter-spacing: -0.025em; }
     .card p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
 
-    .meta-grid {
-      margin-top: 11px;
-      display: flex;
-      gap: 7px;
-      flex-wrap: wrap;
-    }
+    .meta-grid { margin-top: 11px; display: flex; gap: 7px; flex-wrap: wrap; }
 
     .chip {
       display: inline-flex;
@@ -334,14 +334,7 @@
     .priority-normal { color: var(--blue); border-color: rgba(122,167,255,0.25); background: rgba(122,167,255,0.06); }
     .priority-low { color: var(--muted); }
 
-    .progress-bar {
-      height: 7px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.07);
-      overflow: hidden;
-      margin-top: 12px;
-    }
-
+    .progress-bar { height: 7px; border-radius: 999px; background: rgba(255,255,255,0.07); overflow: hidden; margin-top: 12px; }
     .progress-fill { height: 100%; background: var(--accent); border-radius: inherit; }
 
     .modal-backdrop {
@@ -355,8 +348,8 @@
     }
 
     .modal {
-      width: min(1100px, 100%);
-      max-height: min(860px, calc(100vh - 44px));
+      width: min(1120px, 100%);
+      max-height: min(880px, calc(100vh - 44px));
       display: grid;
       grid-template-rows: auto auto 1fr;
       overflow: hidden;
@@ -379,87 +372,46 @@
       overflow-x: auto;
     }
 
-    .tab {
-      border: 1px solid var(--line);
-      background: transparent;
-      color: var(--muted);
-      border-radius: 999px;
-      padding: 8px 12px;
-      font-weight: 800;
-      font-size: 12px;
-    }
-
+    .tab { border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 999px; padding: 8px 12px; font-weight: 800; font-size: 12px; }
     .tab.active { background: rgba(215,255,56,0.1); color: var(--accent); border-color: rgba(215,255,56,0.25); }
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
     .field { display: grid; gap: 8px; }
 
-    .panel {
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.035);
-      border-radius: 18px;
-      padding: 15px;
-    }
-
+    .panel { border: 1px solid var(--line); background: rgba(255,255,255,0.035); border-radius: 18px; padding: 15px; }
     .panel h3 { margin: 0 0 12px; font-size: 14px; letter-spacing: -0.02em; }
 
-    .check-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 10px;
-      background: rgba(0,0,0,0.16);
-      margin-bottom: 8px;
-    }
-
+    .check-item { display: flex; align-items: flex-start; gap: 10px; border: 1px solid var(--line); border-radius: 14px; padding: 10px; background: rgba(0,0,0,0.16); margin-bottom: 8px; }
     .check-item input { width: auto; margin-top: 3px; accent-color: var(--accent); }
     .check-item.done span { color: var(--muted-2); text-decoration: line-through; }
 
     .log-list { display: grid; gap: 10px; }
-
-    .log-item {
-      border-left: 3px solid rgba(215,255,56,0.45);
-      background: rgba(255,255,255,0.035);
-      border-radius: 0 14px 14px 0;
-      padding: 11px 12px;
-    }
-
+    .log-item { border-left: 3px solid rgba(215,255,56,0.45); background: rgba(255,255,255,0.035); border-radius: 0 14px 14px 0; padding: 11px 12px; }
     .log-item p { margin: 0; color: var(--text); line-height: 1.45; }
     .log-item .small { margin-top: 5px; }
 
-    .empty {
-      border: 1px dashed var(--line);
-      color: var(--muted-2);
-      border-radius: 16px;
-      padding: 18px;
-      text-align: center;
-      font-size: 13px;
-    }
+    .empty { border: 1px dashed var(--line); color: var(--muted-2); border-radius: 16px; padding: 18px; text-align: center; font-size: 13px; }
 
-    .status-message {
+    .toast {
       position: fixed;
       right: 18px;
       bottom: 18px;
       z-index: 80;
-      max-width: 420px;
+      max-width: 440px;
       padding: 13px 14px;
       border-radius: 16px;
       border: 1px solid rgba(114,255,153,0.28);
-      background: rgba(20,35,25,0.9);
+      background: rgba(20,35,25,0.94);
       color: var(--green);
       box-shadow: var(--shadow);
       font-size: 13px;
     }
 
-    .file-input { display: none; }
-
-    @media (max-width: 1100px) {
+    @media (max-width: 1200px) {
       .app { grid-template-columns: 1fr; }
       .sidebar { display: none; }
-      .board { grid-template-columns: repeat(5, 280px); }
+      .board { grid-template-columns: repeat(7, 280px); }
     }
 
     @media (max-width: 760px) {
@@ -481,19 +433,25 @@
         <div class="logo">JW</div>
         <div>
           <h2 style="margin:0;font-size:14px;letter-spacing:0.08em;text-transform:uppercase;">JDW Campaign Hub</h2>
-          <p class="small" style="margin:2px 0 0;">Private campaign operations portal</p>
+          <p class="small" style="margin:2px 0 0;">Supabase-powered campaign operations portal</p>
         </div>
       </div>
       <div>
         <h1>Briefs, builds, logs and reports in one place.</h1>
-        <p class="muted">A ClickUp-style portal built specifically for James-to-Aidan campaign handovers.</p>
+        <p class="muted">Sign in to access shared artist folders and campaign boards.</p>
       </div>
-      <div>
-        <label for="passwordInput">Password</label>
-        <input id="passwordInput" type="password" placeholder="Enter portal password" />
+      <div id="setupWarning" class="setup-warning hidden">
+        Add your Supabase Project URL and anon key inside the script section before deploying.
       </div>
-      <button class="btn" id="unlockButton">Unlock Portal</button>
-      <p class="small">This is basic privacy for a prototype. For proper security, connect Supabase Auth later.</p>
+      <div class="grid-2">
+        <div class="field"><label>Email</label><input id="emailInput" type="email" placeholder="you@example.com" /></div>
+        <div class="field"><label>Password</label><input id="passwordInput" type="password" placeholder="Password" /></div>
+      </div>
+      <div class="row">
+        <button class="btn" onclick="signIn()">Sign In</button>
+        <button class="btn secondary" onclick="signUp()">Create Account</button>
+      </div>
+      <p class="small">Create accounts only for you and James. For production, keep Row Level Security enabled in Supabase.</p>
     </div>
   </section>
 
@@ -503,43 +461,40 @@
         <div class="logo">JW</div>
         <div>
           <h2>Campaign Hub</h2>
-          <p>BriefOps dashboard</p>
+          <p id="userLabel">Shared dashboard</p>
         </div>
       </div>
 
-      <button class="btn" style="width:100%;" onclick="openNewCampaignModal()">+ New Brief</button>
+      <button class="btn" style="width:100%;" onclick="openNewCampaignModal()">+ New Campaign</button>
+      <button class="btn secondary" style="width:100%;margin-top:10px;" onclick="openAiImportModal()">Import Messy Brief</button>
 
-      <div class="side-section-title">Folders</div>
-      <div id="folderList" class="folder-list"></div>
+      <div class="side-section-title">Artist Folders</div>
+      <div id="artistList" class="folder-list"></div>
 
-      <div class="side-section-title">Data</div>
-      <div class="stack">
-        <button class="btn secondary" onclick="exportData()">Export Backup</button>
-        <button class="btn secondary" onclick="document.getElementById('importFile').click()">Import Backup</button>
-        <input id="importFile" class="file-input" type="file" accept="application/json" onchange="importData(event)" />
-        <button class="btn danger" onclick="resetDemoData()">Reset Demo</button>
-      </div>
-
-      <p class="small" style="margin-top:18px;">Prototype stores data in this browser using localStorage. Connect Supabase/Google Sheets later for shared live access.</p>
+      <div class="side-section-title">Account</div>
+      <button class="btn secondary" style="width:100%;" onclick="loadData()">Refresh</button>
+      <button class="btn danger" style="width:100%;margin-top:10px;" onclick="signOut()">Sign Out</button>
+      <p class="small" style="margin-top:18px;">Artist folders are generated from campaign artists. Create a campaign with a new artist to add a new folder.</p>
     </aside>
 
     <main class="main">
       <header class="topbar between">
         <div>
-          <h1 id="pageTitle">All Campaigns</h1>
-          <p id="pageSubtitle" class="small" style="margin:4px 0 0;">Click a campaign to open the brief, checklist, work log and report.</p>
+          <h1 id="pageTitle">All Artists</h1>
+          <p id="pageSubtitle" class="small" style="margin:4px 0 0;">Drag campaign cards between columns to update status.</p>
         </div>
         <div class="row">
-          <button class="btn secondary" onclick="generateStatusSummary()">Generate Status Summary</button>
-          <button class="btn" onclick="openNewCampaignModal()">+ New Brief</button>
+          <button class="btn secondary" onclick="copyStatusSummary()">Copy Status Summary</button>
+          <button class="btn secondary" onclick="openAiImportModal()">Import Brief</button>
+          <button class="btn" onclick="openNewCampaignModal()">+ New Campaign</button>
         </div>
       </header>
 
       <section class="toolbar">
-        <input id="searchInput" class="search" placeholder="Search campaigns, artists, briefs or logs..." oninput="render()" />
+        <input id="searchInput" class="search" placeholder="Search campaigns, artists, briefs or logs..." oninput="renderBoard()" />
         <div class="row">
-          <select id="folderFilterMobile" onchange="setFolder(this.value)"></select>
-          <select id="sortSelect" onchange="render()">
+          <select id="artistFilterMobile" onchange="setActiveArtist(this.value)"></select>
+          <select id="sortSelect" onchange="renderBoard()">
             <option value="updated">Sort: recently updated</option>
             <option value="deadline">Sort: deadline</option>
             <option value="priority">Sort: priority</option>
@@ -553,26 +508,41 @@
   </section>
 
   <div id="modalRoot"></div>
-  <div id="toast" class="status-message hidden"></div>
+  <div id="toast" class="toast hidden"></div>
 
   <script>
-    const PORTAL_PASSWORD = "change-this-password";
-    const STORAGE_KEY = "jdw_campaign_hub_v1";
+    // ================================
+    // 1) SUPABASE CONFIG
+    // ================================
+    // Replace these two values with your Supabase project details:
+    const SUPABASE_URL = "PASTE_YOUR_SUPABASE_PROJECT_URL";
+    const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_KEY";
 
+    // Optional AI Edge Function name. Create this later in Supabase.
+    const AI_FUNCTION_NAME = "organise-brief";
+
+    const hasSupabaseConfig = !SUPABASE_URL.includes("PASTE_YOUR") && !SUPABASE_ANON_KEY.includes("PASTE_YOUR");
+    const supabaseClient = hasSupabaseConfig ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+    // ================================
+    // 2) APP CONSTANTS / STATE
+    // ================================
     const STATUSES = [
       { key: "New Brief", className: "new" },
+      { key: "Ready to Build", className: "ready" },
       { key: "In Progress", className: "progress" },
       { key: "Awaiting Approval", className: "approval" },
       { key: "Live", className: "live" },
+      { key: "Reporting", className: "reporting" },
       { key: "Complete", className: "complete" }
     ];
 
     const DEFAULT_CHECKLIST = [
       "Confirm correct ad account / portfolio",
-      "Confirm artist pixel and event",
+      "Confirm artist pixel and conversion event",
       "Confirm destination URL",
       "Create campaign with correct objective",
-      "Set campaign spend cap / budget",
+      "Set campaign budget / spend cap",
       "Create warm or retargeting ad set",
       "Create related artist / interest ad set",
       "Check age, territories and placements",
@@ -582,144 +552,173 @@
       "Launch or mark awaiting approval"
     ];
 
-    const demoData = {
-      activeFolder: "All Campaigns",
-      folders: ["All Campaigns", "Lilli", "Kingfishr", "Atlantic", "Good Luck Kid", "Completed", "Archived"],
-      campaigns: [
-        {
-          id: id(),
-          folder: "Lilli",
-          artist: "Lilli",
-          campaign: "Kein Schlaf",
-          status: "In Progress",
-          priority: "Urgent",
-          deadline: "2026-06-04",
-          budget: "€1,000 campaign cap / €100 per ad set daily",
-          objective: "Engagement → Website conversion location → View Content",
-          link: "https://song.so/kein-schlaf",
-          territories: "Germany, Austria, Sweden",
-          rawNotes: "Lilli Kein Schlaf campaign. Use engagement objective, website conversion location, optimise for View Content on Lilli pixel. Link is song.so/kein-schlaf. €1,000 campaign spend cap. Two ad sets, warm/LAL and related artists like Hozier/Lana. Germany, Austria, Sweden. €100/day each. Use Atlantic naming style.",
-          structuredBrief: "Build a Meta campaign for Lilli - Kein Schlaf using Engagement objective with Website as conversion location, optimising for View Content on the Lilli pixel. Use two ad sets: warm/LAL and related artist targeting. Set €1,000 campaign cap and €100/day per ad set.",
-          missingInfo: "Creative asset names and exact age range need confirming.",
-          report: "",
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          checklist: DEFAULT_CHECKLIST.map((text, index) => ({ id: id(), text, done: index < 4 })),
-          logs: [
-            { id: id(), at: new Date().toISOString(), by: "Aidan", type: "Brief", text: "Brief received and structured into campaign setup." },
-            { id: id(), at: new Date().toISOString(), by: "Aidan", type: "Setup", text: "Pixel/event, link, budget cap and two-ad-set structure identified." }
-          ]
-        }
-      ]
-    };
-
-    let state = loadState();
+    let currentUser = null;
+    let artists = [];
+    let campaigns = [];
+    let activeArtistId = "all";
     let activeCampaignId = null;
     let activeTab = "brief";
+    let temporaryCampaignDraft = null;
 
-    function id() {
-      return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+    // ================================
+    // 3) AUTH
+    // ================================
+    async function init() {
+      if (!hasSupabaseConfig) {
+        document.getElementById("setupWarning").classList.remove("hidden");
+        return;
+      }
+
+      const { data } = await supabaseClient.auth.getSession();
+      currentUser = data.session?.user || null;
+
+      supabaseClient.auth.onAuthStateChange((_event, session) => {
+        currentUser = session?.user || null;
+        showCorrectScreen();
+      });
+
+      showCorrectScreen();
     }
 
-    function loadState() {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (!saved) return demoData;
-      try { return JSON.parse(saved); } catch { return demoData; }
-    }
-
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
-
-    function toast(message) {
-      const el = document.getElementById("toast");
-      el.textContent = message;
-      el.classList.remove("hidden");
-      setTimeout(() => el.classList.add("hidden"), 2600);
-    }
-
-    function unlock() {
-      const pass = document.getElementById("passwordInput").value;
-      if (pass === PORTAL_PASSWORD) {
-        sessionStorage.setItem("jdw_hub_unlocked", "true");
+    async function showCorrectScreen() {
+      if (currentUser) {
         document.getElementById("loginScreen").classList.add("hidden");
         document.getElementById("app").classList.remove("hidden");
-        render();
+        document.getElementById("userLabel").textContent = currentUser.email;
+        await loadData();
       } else {
-        toast("Incorrect password. Change PORTAL_PASSWORD in index.html if needed.");
+        document.getElementById("loginScreen").classList.remove("hidden");
+        document.getElementById("app").classList.add("hidden");
       }
     }
 
-    document.getElementById("unlockButton").addEventListener("click", unlock);
-    document.getElementById("passwordInput").addEventListener("keydown", e => { if (e.key === "Enter") unlock(); });
+    async function signIn() {
+      if (!hasSupabaseConfig) return toast("Add Supabase URL and anon key first.", true);
+      const email = document.getElementById("emailInput").value.trim();
+      const password = document.getElementById("passwordInput").value;
+      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) return toast(error.message, true);
+      toast("Signed in.");
+    }
 
-    if (sessionStorage.getItem("jdw_hub_unlocked") === "true") {
-      document.getElementById("loginScreen").classList.add("hidden");
-      document.getElementById("app").classList.remove("hidden");
-      render();
+    async function signUp() {
+      if (!hasSupabaseConfig) return toast("Add Supabase URL and anon key first.", true);
+      const email = document.getElementById("emailInput").value.trim();
+      const password = document.getElementById("passwordInput").value;
+      const { error } = await supabaseClient.auth.signUp({ email, password });
+      if (error) return toast(error.message, true);
+      toast("Account created. Confirm email if Supabase asks you to.");
+    }
+
+    async function signOut() {
+      await supabaseClient.auth.signOut();
+      toast("Signed out.");
+    }
+
+    // ================================
+    // 4) LOAD / RENDER
+    // ================================
+    async function loadData() {
+      if (!supabaseClient) return;
+
+      const [artistResult, campaignResult] = await Promise.all([
+        supabaseClient.from("artists").select("*").order("name"),
+        supabaseClient
+          .from("campaigns")
+          .select("*, artists(id, name), checklist_items(*), work_logs(*)")
+          .order("updated_at", { ascending: false })
+      ]);
+
+      if (artistResult.error) return toast("Could not load artists: " + artistResult.error.message, true);
+      if (campaignResult.error) return toast("Could not load campaigns: " + campaignResult.error.message, true);
+
+      artists = artistResult.data || [];
+      campaigns = (campaignResult.data || []).map(normaliseCampaign);
+      renderArtists();
+      renderMobileArtistSelect();
+      renderBoard();
+    }
+
+    function normaliseCampaign(c) {
+      return {
+        ...c,
+        checklist_items: (c.checklist_items || []).sort((a,b) => (a.position || 0) - (b.position || 0)),
+        work_logs: (c.work_logs || []).sort((a,b) => new Date(a.created_at) - new Date(b.created_at))
+      };
+    }
+
+    function renderArtists() {
+      const list = document.getElementById("artistList");
+      const allCount = campaigns.length;
+      const rows = [
+        `<button class="folder-item ${activeArtistId === "all" ? "active" : ""}" onclick="setActiveArtist('all')"><span>▸ All Artists</span><span class="badge">${allCount}</span></button>`,
+        ...artists.map(artist => {
+          const count = campaigns.filter(c => c.artist_id === artist.id).length;
+          return `<button class="folder-item ${activeArtistId === artist.id ? "active" : ""}" onclick="setActiveArtist('${artist.id}')"><span>▸ ${escapeHtml(artist.name)}</span><span class="badge">${count}</span></button>`;
+        })
+      ];
+      list.innerHTML = rows.join("");
+    }
+
+    function renderMobileArtistSelect() {
+      const select = document.getElementById("artistFilterMobile");
+      select.innerHTML = [
+        `<option value="all" ${activeArtistId === "all" ? "selected" : ""}>Artist: All</option>`,
+        ...artists.map(a => `<option value="${a.id}" ${activeArtistId === a.id ? "selected" : ""}>Artist: ${escapeHtml(a.name)}</option>`)
+      ].join("");
+    }
+
+    function setActiveArtist(artistId) {
+      activeArtistId = artistId;
+      const artist = artists.find(a => a.id === artistId);
+      document.getElementById("pageTitle").textContent = artistId === "all" ? "All Artists" : artist?.name || "Artist";
+      renderArtists();
+      renderMobileArtistSelect();
+      renderBoard();
     }
 
     function filteredCampaigns() {
-      const folder = state.activeFolder || "All Campaigns";
       const search = document.getElementById("searchInput")?.value?.toLowerCase() || "";
       const sort = document.getElementById("sortSelect")?.value || "updated";
 
-      let items = state.campaigns.filter(c => {
-        const folderMatch = folder === "All Campaigns" || c.folder === folder || (folder === "Completed" && c.status === "Complete");
-        const blob = [c.artist, c.campaign, c.folder, c.status, c.rawNotes, c.structuredBrief, c.logs?.map(l => l.text).join(" ")].join(" ").toLowerCase();
-        return folderMatch && blob.includes(search);
+      let items = campaigns.filter(c => {
+        const artistMatch = activeArtistId === "all" || c.artist_id === activeArtistId;
+        const blob = [
+          c.title,
+          c.artists?.name,
+          c.status,
+          c.priority,
+          c.raw_brief,
+          c.structured_brief,
+          c.missing_info,
+          c.work_logs?.map(l => l.text).join(" ")
+        ].join(" ").toLowerCase();
+        return artistMatch && blob.includes(search);
       });
 
       items.sort((a,b) => {
         if (sort === "deadline") return (a.deadline || "9999").localeCompare(b.deadline || "9999");
-        if (sort === "artist") return (a.artist || "").localeCompare(b.artist || "");
+        if (sort === "artist") return (a.artists?.name || "").localeCompare(b.artists?.name || "");
         if (sort === "priority") return priorityRank(a.priority) - priorityRank(b.priority);
-        return new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt);
+        return new Date(b.updated_at || b.created_at) - new Date(a.updated_at || a.created_at);
       });
+
       return items;
-    }
-
-    function priorityRank(p) {
-      return { Urgent: 0, Normal: 1, Low: 2 }[p] ?? 1;
-    }
-
-    function render() {
-      renderFolders();
-      renderBoard();
-      renderMobileFolderSelect();
-      document.getElementById("pageTitle").textContent = state.activeFolder || "All Campaigns";
-    }
-
-    function renderFolders() {
-      const list = document.getElementById("folderList");
-      if (!list) return;
-      list.innerHTML = state.folders.map(folder => {
-        const count = folder === "All Campaigns" ? state.campaigns.length :
-          folder === "Completed" ? state.campaigns.filter(c => c.status === "Complete").length :
-          state.campaigns.filter(c => c.folder === folder).length;
-        return `<button class="folder-item ${state.activeFolder === folder ? "active" : ""}" onclick="setFolder('${escapeAttr(folder)}')"><span>▸ ${escapeHtml(folder)}</span><span class="badge">${count}</span></button>`;
-      }).join("");
-    }
-
-    function renderMobileFolderSelect() {
-      const select = document.getElementById("folderFilterMobile");
-      if (!select) return;
-      select.innerHTML = state.folders.map(f => `<option value="${escapeAttr(f)}" ${state.activeFolder === f ? "selected" : ""}>Folder: ${escapeHtml(f)}</option>`).join("");
     }
 
     function renderBoard() {
       const board = document.getElementById("board");
-      const campaigns = filteredCampaigns();
+      const items = filteredCampaigns();
       board.innerHTML = STATUSES.map(status => {
-        const items = campaigns.filter(c => c.status === status.key);
+        const statusItems = items.filter(c => c.status === status.key);
         return `
-          <div class="column">
+          <div class="column" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropOnStatus(event, '${status.key}')">
             <div class="column-head">
               <div class="column-title"><span class="status-dot ${status.className}"></span>${status.key}</div>
-              <span class="badge">${items.length}</span>
+              <span class="badge">${statusItems.length}</span>
             </div>
             <div class="cards">
-              ${items.length ? items.map(renderCampaignCard).join("") : `<div class="empty">No campaigns here.</div>`}
+              ${statusItems.length ? statusItems.map(renderCampaignCard).join("") : `<div class="empty">Drop campaigns here.</div>`}
             </div>
           </div>
         `;
@@ -727,20 +726,18 @@
     }
 
     function renderCampaignCard(c) {
-      const done = c.checklist?.filter(i => i.done).length || 0;
-      const total = c.checklist?.length || 0;
+      const total = c.checklist_items?.length || 0;
+      const done = c.checklist_items?.filter(i => i.done).length || 0;
       const progress = total ? Math.round((done / total) * 100) : 0;
-      const lastLog = c.logs?.[c.logs.length - 1]?.text || "No work logs yet.";
+      const lastLog = c.work_logs?.[c.work_logs.length - 1]?.text || c.structured_brief || "No work logs yet.";
       return `
-        <article class="card" onclick="openCampaign('${c.id}')">
-          <div class="between">
-            <h3>${escapeHtml(c.artist || "Untitled Artist")} — ${escapeHtml(c.campaign || "Untitled Campaign")}</h3>
-          </div>
-          <p>${escapeHtml(lastLog)}</p>
+        <article class="card" draggable="true" ondragstart="dragStart(event, '${c.id}')" ondragend="dragEnd(event)" onclick="openCampaign('${c.id}')">
+          <h3>${escapeHtml(c.artists?.name || "Unknown Artist")} — ${escapeHtml(c.title || "Untitled Campaign")}</h3>
+          <p>${escapeHtml(truncate(lastLog, 110))}</p>
           <div class="meta-grid">
             <span class="chip priority-${(c.priority || "Normal").toLowerCase()}">${escapeHtml(c.priority || "Normal")}</span>
-            <span class="chip">${escapeHtml(c.folder || "No Folder")}</span>
             ${c.deadline ? `<span class="chip">Due ${formatDate(c.deadline)}</span>` : ""}
+            ${c.budget ? `<span class="chip">${escapeHtml(truncate(c.budget, 18))}</span>` : ""}
           </div>
           <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
           <p class="small" style="margin-top:7px;">Checklist ${done}/${total}</p>
@@ -748,40 +745,194 @@
       `;
     }
 
-    function setFolder(folder) {
-      state.activeFolder = folder;
-      saveState();
-      render();
+    // ================================
+    // 5) DRAG AND DROP
+    // ================================
+    function dragStart(event, campaignId) {
+      event.dataTransfer.setData("text/plain", campaignId);
+      event.currentTarget.classList.add("dragging");
     }
 
-    function openNewCampaignModal() {
+    function dragEnd(event) {
+      event.currentTarget.classList.remove("dragging");
+    }
+
+    function dragOver(event) {
+      event.preventDefault();
+      event.currentTarget.classList.add("drag-over");
+    }
+
+    function dragLeave(event) {
+      event.currentTarget.classList.remove("drag-over");
+    }
+
+    async function dropOnStatus(event, newStatus) {
+      event.preventDefault();
+      event.currentTarget.classList.remove("drag-over");
+      const campaignId = event.dataTransfer.getData("text/plain");
+      if (!campaignId) return;
+      await updateCampaignStatus(campaignId, newStatus);
+    }
+
+    async function updateCampaignStatus(campaignId, newStatus) {
+      const { error } = await supabaseClient
+        .from("campaigns")
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq("id", campaignId);
+      if (error) return toast("Could not move campaign: " + error.message, true);
+      await addWorkLog(campaignId, "Status", `Status changed to ${newStatus}.`, "System", false);
+      await loadData();
+      toast("Campaign moved to " + newStatus + ".");
+    }
+
+    // ================================
+    // 6) CAMPAIGN CRUD
+    // ================================
+    async function getOrCreateArtist(name) {
+      const cleanName = (name || "Untitled Artist").trim();
+      const { data, error } = await supabaseClient
+        .from("artists")
+        .upsert({ name: cleanName }, { onConflict: "name" })
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    }
+
+    async function createCampaign(payload) {
+      const artist = await getOrCreateArtist(payload.artistName);
+
+      const { data: campaign, error } = await supabaseClient
+        .from("campaigns")
+        .insert({
+          artist_id: artist.id,
+          title: payload.title || "Untitled Campaign",
+          status: payload.status || "New Brief",
+          priority: payload.priority || "Normal",
+          deadline: payload.deadline || null,
+          budget: payload.budget || "",
+          objective: payload.objective || "",
+          campaign_link: payload.campaign_link || "",
+          territories: payload.territories || "",
+          raw_brief: payload.raw_brief || "",
+          structured_brief: payload.structured_brief || "",
+          missing_info: payload.missing_info || "",
+          report: payload.report || ""
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const checklist = payload.checklist?.length ? payload.checklist : DEFAULT_CHECKLIST;
+      await supabaseClient.from("checklist_items").insert(
+        checklist.map((text, index) => ({ campaign_id: campaign.id, text, position: index }))
+      );
+
+      await addWorkLog(campaign.id, "Brief", "Campaign brief created.", "System", false);
+      return campaign;
+    }
+
+    async function updateCampaign(campaignId, payload) {
+      const artist = await getOrCreateArtist(payload.artistName);
+      const { error } = await supabaseClient
+        .from("campaigns")
+        .update({
+          artist_id: artist.id,
+          title: payload.title || "Untitled Campaign",
+          status: payload.status || "New Brief",
+          priority: payload.priority || "Normal",
+          deadline: payload.deadline || null,
+          budget: payload.budget || "",
+          objective: payload.objective || "",
+          campaign_link: payload.campaign_link || "",
+          territories: payload.territories || "",
+          raw_brief: payload.raw_brief || "",
+          structured_brief: payload.structured_brief || "",
+          missing_info: payload.missing_info || "",
+          report: payload.report || "",
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", campaignId);
+      if (error) throw error;
+    }
+
+    async function deleteCampaign(campaignId) {
+      if (!confirm("Delete this campaign and all attached checklist items/work logs?")) return;
+      const { error } = await supabaseClient.from("campaigns").delete().eq("id", campaignId);
+      if (error) return toast("Could not delete campaign: " + error.message, true);
+      closeModal();
+      await loadData();
+      toast("Campaign deleted.");
+    }
+
+    async function addWorkLog(campaignId, logType, text, loggedBy = "Aidan", reload = true) {
+      const { error } = await supabaseClient.from("work_logs").insert({
+        campaign_id: campaignId,
+        logged_by: loggedBy,
+        log_type: logType,
+        text,
+        visible_to_james: true
+      });
+      if (error) return toast("Could not add log: " + error.message, true);
+      await supabaseClient.from("campaigns").update({ updated_at: new Date().toISOString() }).eq("id", campaignId);
+      if (reload) await loadData();
+    }
+
+    // ================================
+    // 7) MODALS
+    // ================================
+    function openNewCampaignModal(prefill = null) {
       activeCampaignId = null;
       activeTab = "brief";
-      renderCampaignModal(newBlankCampaign(), true);
-    }
-
-    function newBlankCampaign() {
-      const folder = state.activeFolder && !["All Campaigns", "Completed", "Archived"].includes(state.activeFolder) ? state.activeFolder : "Atlantic";
-      return {
-        id: id(), folder, artist: "", campaign: "", status: "New Brief", priority: "Normal", deadline: "", budget: "", objective: "", link: "", territories: "",
-        rawNotes: "", structuredBrief: "", missingInfo: "", report: "", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
-        checklist: DEFAULT_CHECKLIST.map(text => ({ id: id(), text, done: false })),
-        logs: []
+      temporaryCampaignDraft = prefill || {
+        artistName: activeArtistId !== "all" ? artists.find(a => a.id === activeArtistId)?.name || "" : "",
+        title: "",
+        status: "New Brief",
+        priority: "Normal",
+        deadline: "",
+        budget: "",
+        objective: "",
+        campaign_link: "",
+        territories: "",
+        raw_brief: "",
+        structured_brief: "",
+        missing_info: "",
+        report: "",
+        checklist: DEFAULT_CHECKLIST
       };
+      renderCampaignModal(temporaryCampaignDraft, true);
     }
 
     function openCampaign(campaignId) {
       activeCampaignId = campaignId;
       activeTab = "brief";
-      const campaign = state.campaigns.find(c => c.id === campaignId);
-      renderCampaignModal(campaign, false);
+      const c = campaigns.find(item => item.id === campaignId);
+      renderCampaignModal(dbCampaignToDraft(c), false);
     }
 
-    function getActiveCampaign() {
-      return state.campaigns.find(c => c.id === activeCampaignId);
+    function dbCampaignToDraft(c) {
+      return {
+        id: c.id,
+        artistName: c.artists?.name || "",
+        title: c.title || "",
+        status: c.status || "New Brief",
+        priority: c.priority || "Normal",
+        deadline: c.deadline || "",
+        budget: c.budget || "",
+        objective: c.objective || "",
+        campaign_link: c.campaign_link || "",
+        territories: c.territories || "",
+        raw_brief: c.raw_brief || "",
+        structured_brief: c.structured_brief || "",
+        missing_info: c.missing_info || "",
+        report: c.report || "",
+        checklist_items: c.checklist_items || [],
+        work_logs: c.work_logs || []
+      };
     }
 
-    function renderCampaignModal(campaign, isNew = false) {
+    function renderCampaignModal(draft, isNew) {
       const root = document.getElementById("modalRoot");
       root.innerHTML = `
         <div class="modal-backdrop" onclick="backdropClose(event)">
@@ -789,12 +940,11 @@
             <div class="modal-head">
               <div class="between">
                 <div>
-                  <h2>${isNew ? "New Campaign Brief" : `${escapeHtml(campaign.artist || "Untitled")} — ${escapeHtml(campaign.campaign || "Campaign")}`}</h2>
-                  <p class="small">${isNew ? "Create a new brief, then save it to the board." : `Folder: ${escapeHtml(campaign.folder)} · Status: ${escapeHtml(campaign.status)} · Updated ${formatDateTime(campaign.updatedAt)}`}</p>
+                  <h2>${isNew ? "New Campaign" : `${escapeHtml(draft.artistName || "Artist")} — ${escapeHtml(draft.title || "Campaign")}`}</h2>
+                  <p class="small">${isNew ? "Create a campaign under an artist folder." : `Status: ${escapeHtml(draft.status)} · Artist folder: ${escapeHtml(draft.artistName)}`}</p>
                 </div>
                 <div class="row">
-                  ${!isNew ? `<button class="btn secondary" onclick="duplicateCampaign('${campaign.id}')">Duplicate</button>` : ""}
-                  ${!isNew ? `<button class="btn danger" onclick="deleteCampaign('${campaign.id}')">Delete</button>` : ""}
+                  ${!isNew ? `<button class="btn danger" onclick="deleteCampaign('${draft.id}')">Delete</button>` : ""}
                   <button class="btn secondary" onclick="closeModal()">Close</button>
                 </div>
               </div>
@@ -806,105 +956,93 @@
           </div>
         </div>
       `;
-      renderModalBody(campaign, isNew);
+      renderModalBody(draft, isNew);
     }
 
-    function tabLabel(tab) {
-      return { brief: "Brief", checklist: "Checklist", logs: "Work Log", report: "Report" }[tab];
-    }
-
-    function switchTab(tab, isNew = false) {
-      activeTab = tab;
-      const campaign = activeCampaignId ? getActiveCampaign() : collectModalFormData(newBlankCampaign());
-      renderCampaignModal(campaign, isNew || !activeCampaignId);
-    }
-
-    function renderModalBody(c, isNew) {
+    function renderModalBody(draft, isNew) {
       const body = document.getElementById("modalBody");
-      if (activeTab === "brief") body.innerHTML = renderBriefTab(c, isNew);
-      if (activeTab === "checklist") body.innerHTML = renderChecklistTab(c, isNew);
-      if (activeTab === "logs") body.innerHTML = renderLogsTab(c, isNew);
-      if (activeTab === "report") body.innerHTML = renderReportTab(c, isNew);
+      if (activeTab === "brief") body.innerHTML = renderBriefTab(draft, isNew);
+      if (activeTab === "checklist") body.innerHTML = renderChecklistTab(draft, isNew);
+      if (activeTab === "logs") body.innerHTML = renderLogsTab(draft, isNew);
+      if (activeTab === "report") body.innerHTML = renderReportTab(draft, isNew);
     }
 
-    function renderBriefTab(c, isNew) {
+    function renderBriefTab(draft, isNew) {
       return `
         <div class="stack">
           <div class="grid-3">
-            <div class="field"><label>Folder</label><input id="m_folder" value="${escapeAttr(c.folder)}" list="folderOptions" /></div>
-            <div class="field"><label>Status</label><select id="m_status">${STATUSES.map(s => `<option ${c.status === s.key ? "selected" : ""}>${s.key}</option>`).join("")}</select></div>
-            <div class="field"><label>Priority</label><select id="m_priority">${["Urgent","Normal","Low"].map(p => `<option ${c.priority === p ? "selected" : ""}>${p}</option>`).join("")}</select></div>
+            <div class="field"><label>Artist Folder</label><input id="m_artistName" list="artistOptions" value="${escapeAttr(draft.artistName)}" placeholder="e.g. Lilli" /></div>
+            <div class="field"><label>Status</label><select id="m_status">${STATUSES.map(s => `<option ${draft.status === s.key ? "selected" : ""}>${s.key}</option>`).join("")}</select></div>
+            <div class="field"><label>Priority</label><select id="m_priority">${["Urgent","Normal","Low"].map(p => `<option ${draft.priority === p ? "selected" : ""}>${p}</option>`).join("")}</select></div>
           </div>
-          <datalist id="folderOptions">${state.folders.filter(f => !["All Campaigns","Completed"].includes(f)).map(f => `<option value="${escapeAttr(f)}"></option>`).join("")}</datalist>
+          <datalist id="artistOptions">${artists.map(a => `<option value="${escapeAttr(a.name)}"></option>`).join("")}</datalist>
           <div class="grid-2">
-            <div class="field"><label>Artist</label><input id="m_artist" value="${escapeAttr(c.artist)}" placeholder="e.g. Lilli" /></div>
-            <div class="field"><label>Campaign / Track</label><input id="m_campaign" value="${escapeAttr(c.campaign)}" placeholder="e.g. Kein Schlaf" /></div>
+            <div class="field"><label>Campaign / Track</label><input id="m_title" value="${escapeAttr(draft.title)}" placeholder="e.g. Kein Schlaf" /></div>
+            <div class="field"><label>Deadline</label><input id="m_deadline" type="date" value="${escapeAttr(draft.deadline)}" /></div>
           </div>
           <div class="grid-3">
-            <div class="field"><label>Deadline</label><input id="m_deadline" type="date" value="${escapeAttr(c.deadline)}" /></div>
-            <div class="field"><label>Budget</label><input id="m_budget" value="${escapeAttr(c.budget)}" placeholder="e.g. €1,000 cap" /></div>
-            <div class="field"><label>Territories</label><input id="m_territories" value="${escapeAttr(c.territories)}" placeholder="e.g. DE, AT, SE" /></div>
+            <div class="field"><label>Budget</label><input id="m_budget" value="${escapeAttr(draft.budget)}" placeholder="e.g. €1,000 campaign cap" /></div>
+            <div class="field"><label>Territories</label><input id="m_territories" value="${escapeAttr(draft.territories)}" placeholder="e.g. Germany, Austria, Sweden" /></div>
+            <div class="field"><label>Campaign Link</label><input id="m_campaignLink" value="${escapeAttr(draft.campaign_link)}" placeholder="https://..." /></div>
           </div>
-          <div class="field"><label>Objective / setup</label><input id="m_objective" value="${escapeAttr(c.objective)}" placeholder="Objective, pixel, event, conversion location..." /></div>
-          <div class="field"><label>Campaign link</label><input id="m_link" value="${escapeAttr(c.link)}" placeholder="https://..." /></div>
+          <div class="field"><label>Objective / pixel / event setup</label><input id="m_objective" value="${escapeAttr(draft.objective)}" placeholder="Objective, conversion location, pixel, event..." /></div>
           <div class="grid-2">
-            <div class="field"><label>Raw notes from James / Claude</label><textarea id="m_rawNotes" placeholder="Paste the messy brief here...">${escapeHtml(c.rawNotes)}</textarea></div>
-            <div class="field"><label>Structured brief</label><textarea id="m_structuredBrief" placeholder="Click Generate Structured Brief or write manually...">${escapeHtml(c.structuredBrief)}</textarea></div>
+            <div class="field"><label>Raw messy brief</label><textarea id="m_rawBrief" placeholder="Paste James/Claude messy brief here...">${escapeHtml(draft.raw_brief)}</textarea></div>
+            <div class="field"><label>Structured campaign brief</label><textarea id="m_structuredBrief" placeholder="AI or manual structured campaign brief...">${escapeHtml(draft.structured_brief)}</textarea></div>
           </div>
-          <div class="field"><label>Missing information</label><textarea id="m_missingInfo" style="min-height:90px;" placeholder="Anything James needs to clarify...">${escapeHtml(c.missingInfo)}</textarea></div>
+          <div class="field"><label>Missing info / questions for James</label><textarea id="m_missingInfo" style="min-height:90px;" placeholder="Anything unclear or missing...">${escapeHtml(draft.missing_info)}</textarea></div>
           <div class="row">
             <button class="btn" onclick="saveCampaignFromModal(${isNew})">${isNew ? "Create Campaign" : "Save Changes"}</button>
-            <button class="btn secondary" onclick="generateStructuredBrief(${isNew})">Generate Structured Brief</button>
-            <button class="btn secondary" onclick="generateNames(${isNew})">Generate Names</button>
+            <button class="btn secondary" onclick="organiseCurrentBrief(${isNew})">AI Organise Current Brief</button>
+            <button class="btn secondary" onclick="generateLocalNames()">Generate Names</button>
           </div>
         </div>
       `;
     }
 
-    function renderChecklistTab(c, isNew) {
+    function renderChecklistTab(draft, isNew) {
+      const items = draft.checklist_items || (draft.checklist || []).map((text, i) => ({ id: "temp_" + i, text, done: false }));
       return `
         <div class="stack">
           <div class="panel">
             <div class="between">
               <h3>Build Checklist</h3>
-              <button class="btn secondary" onclick="addChecklistItem(${isNew})">+ Add Item</button>
+              ${!isNew ? `<button class="btn secondary" onclick="addChecklistItem()">+ Add Item</button>` : `<span class="small">Save campaign first to edit checklist live.</span>`}
             </div>
-            <div id="checklistItems">
-              ${(c.checklist || []).map(item => `
-                <div class="check-item ${item.done ? "done" : ""}">
-                  <input type="checkbox" ${item.done ? "checked" : ""} onchange="toggleChecklist('${item.id}', this.checked, ${isNew})" />
-                  <span>${escapeHtml(item.text)}</span>
-                </div>
-              `).join("") || `<div class="empty">No checklist yet.</div>`}
-            </div>
+            ${items.length ? items.map(item => `
+              <div class="check-item ${item.done ? "done" : ""}">
+                <input type="checkbox" ${item.done ? "checked" : ""} ${isNew ? "disabled" : `onchange="toggleChecklist('${item.id}', this.checked)"`} />
+                <span>${escapeHtml(item.text)}</span>
+              </div>`).join("") : `<div class="empty">No checklist yet.</div>`}
           </div>
-          <button class="btn" onclick="saveCampaignFromModal(${isNew})">Save Checklist</button>
         </div>
       `;
     }
 
-    function renderLogsTab(c, isNew) {
+    function renderLogsTab(draft, isNew) {
       return `
         <div class="grid-2">
           <div class="panel stack">
             <h3>Add Work Log</h3>
-            <div class="grid-2">
-              <div class="field"><label>Logged by</label><input id="log_by" value="Aidan" /></div>
-              <div class="field"><label>Type</label><select id="log_type"><option>Brief</option><option>Setup</option><option>QA</option><option>Approval</option><option>Launch</option><option>Reporting</option><option>Issue</option></select></div>
-            </div>
-            <div class="field"><label>What was done?</label><textarea id="log_text" placeholder="e.g. Created warm/LAL ad set and checked View Content event."></textarea></div>
-            <button class="btn" onclick="addLog(${isNew})">Add Log</button>
+            ${isNew ? `<p class="small">Save the campaign first before adding work logs.</p>` : `
+              <div class="grid-2">
+                <div class="field"><label>Logged by</label><input id="log_by" value="Aidan" /></div>
+                <div class="field"><label>Type</label><select id="log_type"><option>Brief</option><option>Setup</option><option>QA</option><option>Approval</option><option>Launch</option><option>Reporting</option><option>Issue</option><option>Status</option></select></div>
+              </div>
+              <div class="field"><label>What was done?</label><textarea id="log_text" placeholder="e.g. Created warm/LAL ad set and checked View Content event."></textarea></div>
+              <button class="btn" onclick="submitLog()">Add Log</button>
+            `}
           </div>
           <div class="panel">
             <div class="between">
               <h3>Timeline</h3>
-              <button class="btn secondary" onclick="summariseLogs(${isNew})">Summarise Logs</button>
+              <button class="btn secondary" onclick="summariseLogsToReport(${isNew})">Summarise Logs</button>
             </div>
             <div class="log-list">
-              ${(c.logs || []).slice().reverse().map(log => `
+              ${(draft.work_logs || []).slice().reverse().map(log => `
                 <div class="log-item">
                   <p>${escapeHtml(log.text)}</p>
-                  <div class="small">${escapeHtml(log.type)} · ${escapeHtml(log.by)} · ${formatDateTime(log.at)}</div>
+                  <div class="small">${escapeHtml(log.log_type)} · ${escapeHtml(log.logged_by)} · ${formatDateTime(log.created_at)}</div>
                 </div>
               `).join("") || `<div class="empty">No work logs yet.</div>`}
             </div>
@@ -913,236 +1051,308 @@
       `;
     }
 
-    function renderReportTab(c, isNew) {
+    function renderReportTab(draft, isNew) {
       return `
-        <div class="stack">
-          <div class="panel">
-            <div class="between">
-              <h3>Report Generator</h3>
-              <div class="row">
-                <button class="btn secondary" onclick="generateJamesUpdate(${isNew})">Generate James Update</button>
-                <button class="btn secondary" onclick="generateClientReport(${isNew})">Generate Client Report</button>
-              </div>
+        <div class="panel stack">
+          <div class="between">
+            <h3>Report / Update</h3>
+            <div class="row">
+              <button class="btn secondary" onclick="generateJamesUpdate(${isNew})">Generate James Update</button>
+              <button class="btn secondary" onclick="generateClientReport(${isNew})">Generate Client Report</button>
             </div>
-            <div class="field" style="margin-top:12px;"><label>Report / update</label><textarea id="m_report" style="min-height:300px;" placeholder="Generate or write a campaign update here...">${escapeHtml(c.report || "")}</textarea></div>
-            <div class="row" style="margin-top:12px;">
-              <button class="btn" onclick="saveCampaignFromModal(${isNew})">Save Report</button>
-              <button class="btn secondary" onclick="copyReport()">Copy Report</button>
+          </div>
+          <div class="field"><label>Report</label><textarea id="m_report" style="min-height:330px;">${escapeHtml(draft.report || "")}</textarea></div>
+          <div class="row">
+            <button class="btn" onclick="saveCampaignFromModal(${isNew})">Save Report</button>
+            <button class="btn secondary" onclick="copyReport()">Copy Report</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function collectModalPayload() {
+      return {
+        artistName: val("m_artistName"),
+        title: val("m_title"),
+        status: val("m_status"),
+        priority: val("m_priority"),
+        deadline: val("m_deadline"),
+        budget: val("m_budget"),
+        objective: val("m_objective"),
+        campaign_link: val("m_campaignLink"),
+        territories: val("m_territories"),
+        raw_brief: val("m_rawBrief"),
+        structured_brief: val("m_structuredBrief"),
+        missing_info: val("m_missingInfo"),
+        report: val("m_report") || (activeCampaignId ? campaigns.find(c => c.id === activeCampaignId)?.report : "") || ""
+      };
+    }
+
+    async function saveCampaignFromModal(isNew) {
+      try {
+        const payload = collectModalPayload();
+        if (!payload.artistName || !payload.title) return toast("Add at least artist and campaign/track name.", true);
+        if (isNew || !activeCampaignId) {
+          const campaign = await createCampaign(payload);
+          activeCampaignId = campaign.id;
+          toast("Campaign created.");
+        } else {
+          await updateCampaign(activeCampaignId, payload);
+          await addWorkLog(activeCampaignId, "Update", "Campaign brief details updated.", "System", false);
+          toast("Campaign updated.");
+        }
+        await loadData();
+        const refreshed = campaigns.find(c => c.id === activeCampaignId);
+        renderCampaignModal(dbCampaignToDraft(refreshed), false);
+      } catch (error) {
+        toast(error.message, true);
+      }
+    }
+
+    function switchTab(tab, isNew) {
+      if (isNew) temporaryCampaignDraft = { ...temporaryCampaignDraft, ...collectModalPayload() };
+      activeTab = tab;
+      const draft = activeCampaignId ? dbCampaignToDraft(campaigns.find(c => c.id === activeCampaignId)) : temporaryCampaignDraft;
+      renderCampaignModal(draft, isNew || !activeCampaignId);
+    }
+
+    function tabLabel(tab) {
+      return { brief: "Brief", checklist: "Checklist", logs: "Work Log", report: "Report" }[tab];
+    }
+
+    function closeModal() { document.getElementById("modalRoot").innerHTML = ""; activeCampaignId = null; temporaryCampaignDraft = null; }
+    function backdropClose(e) { if (e.target.classList.contains("modal-backdrop")) closeModal(); }
+
+    // ================================
+    // 8) CHECKLIST / LOGS / REPORTS
+    // ================================
+    async function addChecklistItem() {
+      const text = prompt("Checklist item:");
+      if (!text || !activeCampaignId) return;
+      const campaign = campaigns.find(c => c.id === activeCampaignId);
+      const position = campaign?.checklist_items?.length || 0;
+      const { error } = await supabaseClient.from("checklist_items").insert({ campaign_id: activeCampaignId, text, position });
+      if (error) return toast(error.message, true);
+      await addWorkLog(activeCampaignId, "Checklist", `Checklist item added: ${text}`, "System", false);
+      await loadData();
+      renderCampaignModal(dbCampaignToDraft(campaigns.find(c => c.id === activeCampaignId)), false);
+    }
+
+    async function toggleChecklist(itemId, done) {
+      const { error } = await supabaseClient.from("checklist_items").update({ done }).eq("id", itemId);
+      if (error) return toast(error.message, true);
+      await loadData();
+      renderCampaignModal(dbCampaignToDraft(campaigns.find(c => c.id === activeCampaignId)), false);
+    }
+
+    async function submitLog() {
+      const by = val("log_by") || "Aidan";
+      const type = val("log_type") || "Setup";
+      const text = val("log_text");
+      if (!text) return toast("Write a log first.", true);
+      await addWorkLog(activeCampaignId, type, text, by, true);
+      renderCampaignModal(dbCampaignToDraft(campaigns.find(c => c.id === activeCampaignId)), false);
+    }
+
+    function generateJamesUpdate(isNew) {
+      const payload = collectModalPayload();
+      const c = activeCampaignId ? campaigns.find(item => item.id === activeCampaignId) : null;
+      const logs = c?.work_logs || [];
+      const checklist = c?.checklist_items || [];
+      const done = checklist.filter(i => i.done).length;
+      const total = checklist.length;
+      const logText = logs.slice(-5).map(l => `- ${l.text}`).join("\n") || "- No work logs added yet.";
+      const update = `Hey mate, quick update on ${payload.artistName} — ${payload.title}.\n\nStatus: ${payload.status}.\n${total ? `Checklist: ${done}/${total} setup items completed.\n` : ""}\nWhat has been done:\n${logText}\n\n${payload.missing_info && !payload.missing_info.toLowerCase().includes("no obvious") ? `Need to confirm:\n${payload.missing_info}` : "No major missing info flagged at the moment."}`;
+      activeTab = "report";
+      const draft = { ...(activeCampaignId ? dbCampaignToDraft(c) : temporaryCampaignDraft), ...payload, report: update };
+      temporaryCampaignDraft = draft;
+      renderCampaignModal(draft, isNew || !activeCampaignId);
+    }
+
+    function generateClientReport(isNew) {
+      const payload = collectModalPayload();
+      const c = activeCampaignId ? campaigns.find(item => item.id === activeCampaignId) : null;
+      const logs = c?.work_logs || [];
+      const report = `Campaign Report — ${payload.artistName} / ${payload.title}\n\nStatus: ${payload.status}\nObjective / Setup: ${payload.objective || "TBC"}\nBudget: ${payload.budget || "TBC"}\nTerritories: ${payload.territories || "TBC"}\nDestination: ${payload.campaign_link || "TBC"}\n\nBrief Summary:\n${payload.structured_brief || payload.raw_brief || "No brief added yet."}\n\nWork Completed:\n${logs.map(l => `- ${l.text}`).join("\n") || "No work logs added yet."}\n\nNext Steps:\n${payload.status === "Complete" ? "Campaign is marked complete. Continue reporting if required." : "Continue setup, approval, launch or reporting based on current status."}`;
+      activeTab = "report";
+      const draft = { ...(activeCampaignId ? dbCampaignToDraft(c) : temporaryCampaignDraft), ...payload, report };
+      temporaryCampaignDraft = draft;
+      renderCampaignModal(draft, isNew || !activeCampaignId);
+    }
+
+    function summariseLogsToReport(isNew) {
+      const c = activeCampaignId ? campaigns.find(item => item.id === activeCampaignId) : null;
+      const logs = c?.work_logs || [];
+      const summary = logs.map(l => `- ${formatDateTime(l.created_at)}: ${l.text}`).join("\n") || "No logs yet.";
+      activeTab = "report";
+      const draft = { ...(activeCampaignId ? dbCampaignToDraft(c) : temporaryCampaignDraft), report: `Work log summary:\n\n${summary}` };
+      temporaryCampaignDraft = draft;
+      renderCampaignModal(draft, isNew || !activeCampaignId);
+    }
+
+    function copyReport() {
+      const text = val("m_report");
+      navigator.clipboard.writeText(text).then(() => toast("Report copied."));
+    }
+
+    function copyStatusSummary() {
+      const lines = filteredCampaigns().map(c => `${c.artists?.name} — ${c.title}: ${c.status}. Last update: ${c.work_logs?.slice(-1)[0]?.text || "No log."}`);
+      navigator.clipboard.writeText(lines.join("\n"));
+      toast("Status summary copied.");
+    }
+
+    // ================================
+    // 9) AI IMPORT
+    // ================================
+    function openAiImportModal() {
+      document.getElementById("modalRoot").innerHTML = `
+        <div class="modal-backdrop" onclick="backdropClose(event)">
+          <div class="modal" style="width:min(900px,100%);">
+            <div class="modal-head between">
+              <div>
+                <h2>Import Messy Brief</h2>
+                <p class="small">Paste James's rough notes. The app will try your Supabase Edge Function first, then fall back to a basic local organiser.</p>
+              </div>
+              <button class="btn secondary" onclick="closeModal()">Close</button>
+            </div>
+            <div class="modal-body stack">
+              <div class="field"><label>Messy brief</label><textarea id="ai_raw" style="min-height:300px;" placeholder="Paste the brief here..."></textarea></div>
+              <div class="row">
+                <button class="btn" onclick="runAiImport()">Organise Brief</button>
+                <button class="btn secondary" onclick="closeModal()">Cancel</button>
+              </div>
             </div>
           </div>
         </div>
       `;
     }
 
-    function collectModalFormData(base) {
-      const get = id => document.getElementById(id)?.value ?? base[id.replace("m_","")] ?? "";
-      return {
-        ...base,
-        folder: get("m_folder"), status: get("m_status"), priority: get("m_priority"), artist: get("m_artist"), campaign: get("m_campaign"),
-        deadline: get("m_deadline"), budget: get("m_budget"), territories: get("m_territories"), objective: get("m_objective"), link: get("m_link"),
-        rawNotes: get("m_rawNotes"), structuredBrief: get("m_structuredBrief"), missingInfo: get("m_missingInfo"), report: document.getElementById("m_report")?.value ?? base.report ?? "",
-        updatedAt: new Date().toISOString()
-      };
-    }
+    async function runAiImport() {
+      const rawBrief = val("ai_raw");
+      if (!rawBrief) return toast("Paste a brief first.", true);
+      toast("Organising brief...");
 
-    function saveCampaignFromModal(isNew) {
-      let campaign = activeCampaignId ? getActiveCampaign() : newBlankCampaign();
-      campaign = collectModalFormData(campaign);
-      if (!campaign.artist && !campaign.campaign && !campaign.rawNotes) return toast("Add at least an artist, campaign name or raw notes.");
-      if (!state.folders.includes(campaign.folder)) state.folders.push(campaign.folder);
-      if (isNew || !activeCampaignId) {
-        campaign.id = campaign.id || id();
-        campaign.createdAt = new Date().toISOString();
-        campaign.logs = campaign.logs || [{ id: id(), at: new Date().toISOString(), by: "System", type: "Brief", text: "Campaign brief created." }];
-        state.campaigns.push(campaign);
-        activeCampaignId = campaign.id;
-      } else {
-        const index = state.campaigns.findIndex(c => c.id === activeCampaignId);
-        state.campaigns[index] = campaign;
+      let organised;
+      try {
+        const { data, error } = await supabaseClient.functions.invoke(AI_FUNCTION_NAME, { body: { rawBrief } });
+        if (error) throw error;
+        organised = data;
+      } catch (error) {
+        console.warn("AI function unavailable, using local organiser:", error);
+        organised = localBriefOrganiser(rawBrief);
+        toast("AI Edge Function not connected yet, so I used the built-in local organiser.");
       }
-      saveState();
-      render();
-      toast("Campaign saved.");
-      renderCampaignModal(campaign, false);
+
+      const draft = aiResultToDraft(rawBrief, organised);
+      closeModal();
+      openNewCampaignModal(draft);
     }
 
-    function generateStructuredBrief(isNew) {
-      const c = collectModalFormData(activeCampaignId ? getActiveCampaign() : newBlankCampaign());
-      const brief = `Build a Meta campaign for ${c.artist || "the artist"}${c.campaign ? ` — ${c.campaign}` : ""}.\n\nObjective/setup: ${c.objective || "Confirm objective, conversion location, pixel and event."}\nDestination link: ${c.link || "Confirm link."}\nBudget: ${c.budget || "Confirm campaign cap and daily budget."}\nTerritories: ${c.territories || "Confirm territories."}\n\nCampaign notes:\n${c.rawNotes || "No raw notes provided."}\n\nRecommended structure:\n1. Confirm pixel/event and destination link.\n2. Build campaign with agreed objective and budget.\n3. Create warm/lookalike ad set if warm sources exist.\n4. Create related artist/interest ad set if relevant.\n5. Check naming convention, placements and creative assets.\n6. Log setup work and send James a concise update.`;
-      document.getElementById("m_structuredBrief").value = brief;
-      document.getElementById("m_missingInfo").value = missingInfoFrom(c);
-      toast("Structured brief generated locally. Connect AI API later for smarter output.");
+    async function organiseCurrentBrief(isNew) {
+      const payload = collectModalPayload();
+      if (!payload.raw_brief) return toast("Paste a raw brief first.", true);
+      let organised;
+      try {
+        const { data, error } = await supabaseClient.functions.invoke(AI_FUNCTION_NAME, { body: { rawBrief: payload.raw_brief } });
+        if (error) throw error;
+        organised = data;
+      } catch (error) {
+        organised = localBriefOrganiser(payload.raw_brief);
+        toast("AI Edge Function not connected yet, so I used the built-in local organiser.");
+      }
+      const draft = { ...payload, ...aiResultToDraft(payload.raw_brief, organised) };
+      temporaryCampaignDraft = draft;
+      renderCampaignModal(draft, isNew || !activeCampaignId);
     }
 
-    function missingInfoFrom(c) {
-      const missing = [];
-      if (!c.objective) missing.push("Objective / conversion event / pixel not confirmed.");
-      if (!c.link) missing.push("Destination URL not confirmed.");
-      if (!c.budget) missing.push("Budget or spend cap not confirmed.");
-      if (!c.territories) missing.push("Territories not confirmed.");
-      if (!c.deadline) missing.push("Deadline not confirmed.");
-      return missing.length ? missing.join("\n") : "No obvious missing information from the fields provided.";
-    }
-
-    function generateNames(isNew) {
-      const c = collectModalFormData(activeCampaignId ? getActiveCampaign() : newBlankCampaign());
-      const artist = slug(c.artist || "artist");
-      const camp = slug(c.campaign || "campaign");
-      const territories = slug((c.territories || "core").replaceAll(",", "-"));
-      const names = `Suggested naming convention:\n\nCampaign:\n${artist}_eng-${camp}_vc_${territories}\n\nAd Set 1:\nca_warm-lal_${artist}_18-50_${territories}_ig-fb\n\nAd Set 2:\nint_ra-related-artists_${artist}_18-50_${territories}_ig-fb\n\nAd naming:\nvid_dark-${camp}_hook01_${artist}\nvid_native-${camp}_hook02_${artist}`;
-      const current = document.getElementById("m_structuredBrief").value;
-      document.getElementById("m_structuredBrief").value = current ? `${current}\n\n${names}` : names;
-      toast("Naming suggestions added to structured brief.");
-    }
-
-    function addChecklistItem(isNew) {
-      const text = prompt("Checklist item:");
-      if (!text) return;
-      const c = activeCampaignId ? getActiveCampaign() : collectModalFormData(newBlankCampaign());
-      c.checklist = c.checklist || [];
-      c.checklist.push({ id: id(), text, done: false });
-      if (activeCampaignId) { c.updatedAt = new Date().toISOString(); saveState(); render(); }
-      renderCampaignModal(c, isNew || !activeCampaignId);
-    }
-
-    function toggleChecklist(itemId, done, isNew) {
-      const c = activeCampaignId ? getActiveCampaign() : collectModalFormData(newBlankCampaign());
-      const item = c.checklist.find(i => i.id === itemId);
-      if (item) item.done = done;
-      if (activeCampaignId) { c.updatedAt = new Date().toISOString(); saveState(); render(); }
-      renderCampaignModal(c, isNew || !activeCampaignId);
-    }
-
-    function addLog(isNew) {
-      let c = activeCampaignId ? getActiveCampaign() : collectModalFormData(newBlankCampaign());
-      const by = document.getElementById("log_by").value || "Aidan";
-      const type = document.getElementById("log_type").value || "Setup";
-      const text = document.getElementById("log_text").value.trim();
-      if (!text) return toast("Write a work log before adding.");
-      c.logs = c.logs || [];
-      c.logs.push({ id: id(), at: new Date().toISOString(), by, type, text });
-      c.updatedAt = new Date().toISOString();
-      if (activeCampaignId) { saveState(); render(); }
-      toast("Work log added.");
-      renderCampaignModal(c, isNew || !activeCampaignId);
-    }
-
-    function summariseLogs(isNew) {
-      const c = activeCampaignId ? getActiveCampaign() : collectModalFormData(newBlankCampaign());
-      const summary = (c.logs || []).map(l => `- ${formatDateTime(l.at)}: ${l.text}`).join("\n") || "No logs yet.";
-      c.report = `Work log summary for ${c.artist} — ${c.campaign}:\n\n${summary}`;
-      activeTab = "report";
-      if (activeCampaignId) { c.updatedAt = new Date().toISOString(); saveState(); render(); }
-      renderCampaignModal(c, isNew || !activeCampaignId);
-    }
-
-    function generateJamesUpdate(isNew) {
-      const c = collectModalFormData(activeCampaignId ? getActiveCampaign() : newBlankCampaign());
-      const done = c.checklist?.filter(i => i.done).length || 0;
-      const total = c.checklist?.length || 0;
-      const lastLogs = (c.logs || []).slice(-4).map(l => `- ${l.text}`).join("\n");
-      const report = `Hey mate, quick update on ${c.artist || "the artist"}${c.campaign ? ` — ${c.campaign}` : ""}.\n\nStatus: ${c.status}.\nChecklist: ${done}/${total} setup items completed.\n\nWhat has been done:\n${lastLogs || "- No work logs added yet."}\n\nCurrent note:\n${c.missingInfo && !c.missingInfo.toLowerCase().includes("no obvious") ? `Need to confirm: ${c.missingInfo}` : "No major missing info flagged at the moment."}`;
-      setReportAndOpen(c, report, isNew);
-    }
-
-    function generateClientReport(isNew) {
-      const c = collectModalFormData(activeCampaignId ? getActiveCampaign() : newBlankCampaign());
-      const report = `Campaign Report — ${c.artist || "Artist"}${c.campaign ? ` / ${c.campaign}` : ""}\n\nStatus: ${c.status}\nObjective/Setup: ${c.objective || "TBC"}\nBudget: ${c.budget || "TBC"}\nTerritories: ${c.territories || "TBC"}\nDestination: ${c.link || "TBC"}\n\nBrief Summary:\n${c.structuredBrief || c.rawNotes || "No structured brief added yet."}\n\nWork Completed:\n${(c.logs || []).map(l => `- ${l.text}`).join("\n") || "No work logs added yet."}\n\nNext Steps:\n${c.status === "Complete" ? "Campaign marked complete. Continue reporting if required." : "Continue setup, approval or reporting based on current status."}`;
-      setReportAndOpen(c, report, isNew);
-    }
-
-    function setReportAndOpen(c, report, isNew) {
-      c.report = report;
-      activeTab = "report";
-      if (activeCampaignId) { c.updatedAt = new Date().toISOString(); saveState(); render(); }
-      renderCampaignModal(c, isNew || !activeCampaignId);
-      toast("Report generated.");
-    }
-
-    function copyReport() {
-      const text = document.getElementById("m_report")?.value || "";
-      navigator.clipboard.writeText(text).then(() => toast("Report copied."));
-    }
-
-    function generateStatusSummary() {
-      const campaigns = filteredCampaigns();
-      const lines = campaigns.map(c => `${c.artist} — ${c.campaign}: ${c.status}. Last update: ${(c.logs || []).slice(-1)[0]?.text || "No log."}`);
-      navigator.clipboard.writeText(lines.join("\n"));
-      toast("Status summary copied to clipboard.");
-    }
-
-    function duplicateCampaign(campaignId) {
-      const original = state.campaigns.find(c => c.id === campaignId);
-      const copy = JSON.parse(JSON.stringify(original));
-      copy.id = id();
-      copy.campaign = `${copy.campaign} Copy`;
-      copy.status = "New Brief";
-      copy.createdAt = new Date().toISOString();
-      copy.updatedAt = new Date().toISOString();
-      copy.logs = [{ id: id(), at: new Date().toISOString(), by: "System", type: "Brief", text: "Campaign duplicated from existing brief." }];
-      state.campaigns.push(copy);
-      saveState(); render(); closeModal(); toast("Campaign duplicated.");
-    }
-
-    function deleteCampaign(campaignId) {
-      if (!confirm("Delete this campaign?")) return;
-      state.campaigns = state.campaigns.filter(c => c.id !== campaignId);
-      saveState(); render(); closeModal(); toast("Campaign deleted.");
-    }
-
-    function closeModal() { document.getElementById("modalRoot").innerHTML = ""; activeCampaignId = null; }
-    function backdropClose(e) { if (e.target.classList.contains("modal-backdrop")) closeModal(); }
-
-    function exportData() {
-      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `jdw-campaign-hub-backup-${new Date().toISOString().slice(0,10)}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function importData(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          const imported = JSON.parse(reader.result);
-          if (!imported.campaigns || !imported.folders) throw new Error("Invalid backup file.");
-          state = imported;
-          saveState(); render(); toast("Backup imported.");
-        } catch (err) { toast("Import failed: " + err.message); }
+    function localBriefOrganiser(raw) {
+      const lower = raw.toLowerCase();
+      const urlMatch = raw.match(/https?:\/\/\S+|\b\w+\.so\/\S+/i);
+      const budgetMatch = raw.match(/[€£$]\s?\d[\d,.]*(?:\s?(?:cap|budget|spend))?|\d[\d,.]*\s?(?:euro|eur|gbp|pounds|pound|dollars|usd)/i);
+      const territories = [];
+      [["Germany","germany|deutschland|\bde\b"],["Austria","austria|\bat\b"],["Sweden","sweden|\bse\b"],["UK","\buk\b|united kingdom|britain"],["US","\bus\b|usa|united states"]].forEach(([name, pattern]) => { if (new RegExp(pattern, "i").test(raw)) territories.push(name); });
+      const artistGuess = raw.split(/\s+/).slice(0, 2).join(" ").replace(/campaign|brief|new/ig, "").trim() || "Untitled Artist";
+      const titleGuess = raw.match(/["“](.*?)["”]/)?.[1] || raw.split(/campaign|use|objective/i)[0].replace(artistGuess, "").trim() || "Untitled Campaign";
+      const objective = lower.includes("engagement") ? "Engagement" : lower.includes("traffic") ? "Traffic" : lower.includes("conversion") ? "Conversions" : "Confirm objective";
+      const event = lower.includes("view content") ? "View Content" : lower.includes("landing page") ? "Landing Page Views" : "Confirm event";
+      const checklist = [
+        "Confirm correct ad account / portfolio",
+        `Confirm campaign objective: ${objective}`,
+        `Confirm optimisation event: ${event}`,
+        "Confirm pixel / dataset",
+        "Confirm destination link",
+        "Confirm budget cap and daily budget",
+        "Build warm / retargeting ad set if applicable",
+        "Build related artist / interest ad set if applicable",
+        "Check naming convention",
+        "Upload creatives",
+        "Send setup preview to James"
+      ];
+      return {
+        artist: titleCase(artistGuess),
+        title: titleCase(titleGuess),
+        objective: `${objective}. Conversion/event note: ${event}.`,
+        link: urlMatch ? (urlMatch[0].startsWith("http") ? urlMatch[0] : "https://" + urlMatch[0]) : "",
+        budget: budgetMatch ? budgetMatch[0] : "",
+        territories: territories.join(", "),
+        structured_brief: `Build a Meta campaign from the supplied brief. Objective: ${objective}. Event: ${event}. Use the supplied campaign link, budget, territories, audience notes and creative notes. Keep setup consistent with JDW / Atlantic naming conventions.`,
+        missing_info: "Confirm exact artist name, campaign title, age range, creative assets, pixel/dataset and final naming convention before launch.",
+        checklist
       };
-      reader.readAsText(file);
     }
 
-    function resetDemoData() {
-      if (!confirm("Reset all local data to the demo version?")) return;
-      state = JSON.parse(JSON.stringify(demoData));
-      saveState(); render(); toast("Demo data reset.");
+    function aiResultToDraft(rawBrief, result) {
+      return {
+        artistName: result.artist || result.artistName || "Untitled Artist",
+        title: result.title || result.campaign || result.track || "Untitled Campaign",
+        status: "New Brief",
+        priority: result.priority || "Normal",
+        deadline: result.deadline || "",
+        budget: result.budget || "",
+        objective: result.objective || result.setup || "",
+        campaign_link: result.link || result.campaign_link || result.destination_url || "",
+        territories: Array.isArray(result.territories) ? result.territories.join(", ") : (result.territories || ""),
+        raw_brief: rawBrief,
+        structured_brief: result.structured_brief || result.structuredBrief || "",
+        missing_info: Array.isArray(result.missing_info) ? result.missing_info.join("\n") : (result.missing_info || result.missingInfo || ""),
+        report: "",
+        checklist: Array.isArray(result.checklist) ? result.checklist : DEFAULT_CHECKLIST
+      };
     }
 
-    function formatDate(date) {
-      if (!date) return "";
-      return new Date(date + "T00:00:00").toLocaleDateString(undefined, { day: "2-digit", month: "short" });
+    function generateLocalNames() {
+      const payload = collectModalPayload();
+      const artist = slug(payload.artistName || "artist");
+      const title = slug(payload.title || "campaign");
+      const territories = slug((payload.territories || "core").replaceAll(",", "-"));
+      const names = `Suggested naming convention:\n\nCampaign:\n${artist}_eng-${title}_vc_${territories}\n\nAd Set 1:\nca_warm-lal_${artist}_18-50_${territories}_ig-fb\n\nAd Set 2:\nint_ra-related-artists_${artist}_18-50_${territories}_ig-fb\n\nAd naming:\nvid_dark-${title}_hook01_${artist}\nvid_native-${title}_hook02_${artist}`;
+      document.getElementById("m_structuredBrief").value = payload.structured_brief ? `${payload.structured_brief}\n\n${names}` : names;
+      toast("Naming suggestions added.");
     }
 
-    function formatDateTime(date) {
-      if (!date) return "";
-      return new Date(date).toLocaleString(undefined, { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
-    }
-
-    function slug(text) {
-      return String(text || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-    }
-
-    function escapeHtml(str) {
-      return String(str ?? "").replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]));
-    }
-
+    // ================================
+    // 10) HELPERS
+    // ================================
+    function val(id) { return document.getElementById(id)?.value?.trim() || ""; }
+    function priorityRank(p) { return { Urgent: 0, Normal: 1, Low: 2 }[p] ?? 1; }
+    function truncate(text, max) { return String(text || "").length > max ? String(text).slice(0, max - 1) + "…" : String(text || ""); }
+    function slug(text) { return String(text || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
+    function titleCase(text) { return String(text || "").replace(/\w\S*/g, t => t[0].toUpperCase() + t.slice(1).toLowerCase()); }
+    function formatDate(date) { return date ? new Date(date + "T00:00:00").toLocaleDateString(undefined, { day: "2-digit", month: "short" }) : ""; }
+    function formatDateTime(date) { return date ? new Date(date).toLocaleString(undefined, { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : ""; }
+    function escapeHtml(str) { return String(str ?? "").replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c])); }
     function escapeAttr(str) { return escapeHtml(str).replace(/`/g, "&#96;"); }
+    function toast(message, isError = false) {
+      const el = document.getElementById("toast");
+      el.textContent = message;
+      el.style.color = isError ? "var(--red)" : "var(--green)";
+      el.style.borderColor = isError ? "rgba(255,95,109,0.35)" : "rgba(114,255,153,0.28)";
+      el.style.background = isError ? "rgba(40,20,24,0.94)" : "rgba(20,35,25,0.94)";
+      el.classList.remove("hidden");
+      setTimeout(() => el.classList.add("hidden"), 3500);
+    }
+
+    init();
   </script>
 </body>
 </html>
