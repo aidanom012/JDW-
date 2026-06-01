@@ -2,187 +2,3575 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>JDW Campaign Hub</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
-    :root{--bg:#07070a;--text:#f5f5f7;--muted:#a1a1aa;--muted2:#71717a;--line:#2b2b36;--accent:#d7ff38;--accent-rgb:215,255,56;--red:#ff5f6d;--orange:#ffb454;--blue:#7aa7ff;--green:#72ff99;--purple:#c084fc;--cyan:#67e8f9;--shadow:0 24px 80px rgba(0,0,0,.42)}
-    *{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 15% 0%,rgba(var(--accent-rgb),.13),transparent 28%),radial-gradient(circle at 80% 20%,rgba(122,167,255,.10),transparent 25%),var(--bg);color:var(--text);overflow:hidden}button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:none!important}h1,h2,h3,p{margin-top:0}.muted{color:var(--muted)}.small{font-size:12px;line-height:1.55;color:var(--muted2)}label{display:block;font-size:11px;letter-spacing:.075em;text-transform:uppercase;color:var(--muted);font-weight:850;line-height:1.35}input,textarea,select{width:100%;border:1px solid var(--line);border-radius:14px;background:rgba(0,0,0,.26);color:var(--text);padding:14px 15px;outline:none;min-width:0}textarea{resize:vertical;min-height:130px;line-height:1.48}input:focus,textarea:focus,select:focus{border-color:rgba(var(--accent-rgb),.65);box-shadow:0 0 0 4px rgba(var(--accent-rgb),.08);background:rgba(0,0,0,.38)}.field{display:grid;gap:10px;min-width:0}.stack{display:grid;gap:22px}.row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}.between{display:flex;align-items:center;justify-content:space-between;gap:18px}.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:22px}.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}.btn{border:0;border-radius:14px;padding:13px 18px;background:var(--accent);color:#050505;font-weight:950;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;transition:.16s}.btn:hover{transform:translateY(-1px)}.btn.secondary{background:rgba(255,255,255,.055);color:var(--text);border:1px solid var(--line)}.btn.danger{background:rgba(255,95,109,.12);color:var(--red);border:1px solid rgba(255,95,109,.32)}
-    .login-screen{min-height:100vh;display:grid;place-items:center;padding:24px}.login-card{width:min(540px,100%);padding:36px;border:1px solid var(--line);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.025));box-shadow:var(--shadow)}.logo-row{display:flex;gap:14px;align-items:center;margin-bottom:30px}.logo{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:var(--accent);color:#050505;font-weight:950;letter-spacing:-.08em;box-shadow:0 0 35px rgba(var(--accent-rgb),.25)}.login-card h1{font-size:34px;line-height:.98;letter-spacing:-.065em;margin-bottom:14px}.status-box{padding:13px 14px;border-radius:16px;border:1px solid rgba(114,255,153,.35);background:rgba(114,255,153,.08);color:var(--green);font-size:13px;line-height:1.45}.status-box.error{border-color:rgba(255,95,109,.35);background:rgba(255,95,109,.08);color:var(--red)}
-    .app{height:100vh;display:grid;grid-template-columns:280px 1fr}.sidebar{border-right:1px solid var(--line);background:rgba(10,10,14,.78);backdrop-filter:blur(16px);padding:18px;overflow-y:auto}.side-title h2{font-size:14px;margin:0;letter-spacing:.08em;text-transform:uppercase}.side-title p{margin:3px 0 0;font-size:12px;color:var(--muted)}.side-section-title{font-size:11px;letter-spacing:.11em;color:var(--muted2);text-transform:uppercase;font-weight:900;margin:24px 0 9px}.folder-list{display:grid;gap:7px}.folder-item{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 12px;border:1px solid transparent;border-radius:13px;background:transparent;color:var(--muted);text-align:left}.folder-item:hover{background:rgba(255,255,255,.05);color:var(--text)}.folder-item.active{background:rgba(var(--accent-rgb),.10);color:var(--accent);border-color:rgba(var(--accent-rgb),.20)}.campaign-sublist{display:grid;gap:6px;margin:6px 0 10px 18px}.campaign-subitem{width:100%;border:1px solid transparent;border-radius:12px;background:rgba(255,255,255,.028);color:var(--muted);padding:9px 10px;text-align:left;font-size:12px;line-height:1.25}.campaign-subitem:hover{background:rgba(255,255,255,.06);color:var(--text);border-color:var(--line)}.folder-name{display:flex;align-items:center;gap:7px;min-width:0}.folder-name span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.badge{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:999px;padding:0 7px;background:rgba(255,255,255,.07);color:var(--muted);font-size:11px;font-weight:850}
-    .main{min-width:0;display:grid;grid-template-rows:auto auto auto 1fr;overflow:hidden}.topbar{padding:18px 22px;border-bottom:1px solid var(--line);background:rgba(11,11,16,.62);backdrop-filter:blur(16px)}.topbar h1{margin:0;font-size:27px;letter-spacing:-.055em}.stats-grid{display:grid;grid-template-columns:repeat(5,minmax(150px,1fr));gap:12px;padding:16px 22px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.018)}.stat-card{border:1px solid var(--line);background:rgba(255,255,255,.035);border-radius:16px;padding:13px}.stat-card strong{display:block;font-size:24px;letter-spacing:-.04em}.stat-card span{color:var(--muted);font-size:12px;font-weight:800}.toolbar{padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);background:rgba(7,7,10,.38)}.search{max-width:430px}.board{padding:22px;overflow:auto;display:grid;grid-template-columns:repeat(8,minmax(260px,1fr));gap:16px;align-items:start}.stack-board{display:block;overflow:auto}.stack-group{border:1px solid var(--line);border-radius:20px;background:rgba(255,255,255,.028);padding:14px;margin-bottom:16px}.stack-group-head{margin-bottom:12px}.stack-group-head h3{margin:0;font-size:18px;letter-spacing:-.04em}.stack-list{display:grid;gap:10px}.stack-campaign{border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.03));padding:14px;display:grid;grid-template-columns:minmax(220px,1fr) minmax(240px,1fr) auto;gap:14px;align-items:center;cursor:pointer}.stack-campaign:hover{border-color:rgba(var(--accent-rgb),.35);background:rgba(255,255,255,.07)}.stack-campaign h3{margin:0 0 5px;font-size:15px}.stack-campaign p{margin:0;color:var(--muted);font-size:12px;line-height:1.4}.stack-budget{display:grid;gap:4px;font-size:12px;color:var(--muted)}.stack-budget strong,.stack-budget span{color:var(--text)}.column{background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:20px;min-height:calc(100vh - 250px);padding:12px}.column.drag-over{border-color:rgba(var(--accent-rgb),.55);background:rgba(var(--accent-rgb),.045)}.column-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;padding:3px 3px 7px}.column-title{display:flex;align-items:center;gap:8px;color:var(--text);font-weight:950;font-size:13px}.status-dot{width:9px;height:9px;border-radius:999px;background:var(--muted)}.status-dot.new{background:var(--blue)}.status-dot.needs{background:var(--red)}.status-dot.ready{background:var(--accent)}.status-dot.progress{background:var(--orange)}.status-dot.approval{background:var(--purple)}.status-dot.live{background:var(--green)}.status-dot.reporting{background:var(--cyan)}.status-dot.complete{background:var(--muted)}.cards{display:grid;gap:10px}.card{border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.03));border-radius:17px;padding:14px;box-shadow:0 12px 28px rgba(0,0,0,.16);transition:.16s;cursor:grab}.card:hover{transform:translateY(-2px);border-color:rgba(var(--accent-rgb),.30);background:rgba(255,255,255,.07)}.card h3{margin:0 0 8px;font-size:15px;letter-spacing:-.025em}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}.budget-summary{display:grid;gap:6px;margin-top:12px;border:1px solid var(--line);border-radius:13px;background:rgba(0,0,0,.18);padding:10px;font-size:12px;line-height:1.35;color:var(--muted)}.budget-summary strong{color:var(--text)}.main-budget{font-size:13px}.meta-grid{margin-top:12px;display:flex;gap:7px;flex-wrap:wrap}.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:rgba(0,0,0,.18);border-radius:999px;padding:5px 8px;color:var(--muted);font-size:11px;font-weight:800}.progress-bar{height:7px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden;margin-top:12px}.progress-fill{height:100%;background:var(--accent);border-radius:inherit}.empty{border:1px dashed var(--line);color:var(--muted2);border-radius:16px;padding:18px;text-align:center;font-size:13px}
-    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.62);display:grid;place-items:center;padding:22px;z-index:50}.modal{width:min(1180px,100%);max-height:min(900px,calc(100vh - 44px));display:grid;grid-template-rows:auto auto 1fr;overflow:hidden;border:1px solid var(--line);border-radius:28px;background:#0f0f15;box-shadow:var(--shadow)}.modal-head{padding:22px 24px;border-bottom:1px solid var(--line)}.modal-head h2{margin:0 0 7px;font-size:28px;letter-spacing:-.055em}.tabs{display:flex;gap:8px;padding:14px 24px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.025);overflow-x:auto}.tab{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:8px 12px;font-weight:850;font-size:12px}.tab.active{background:rgba(var(--accent-rgb),.1);color:var(--accent);border-color:rgba(var(--accent-rgb),.25)}.modal-body{overflow:auto;padding:28px 24px 32px}.panel{border:1px solid var(--line);background:rgba(255,255,255,.035);border-radius:18px;padding:16px}.panel h3{margin:0 0 13px;font-size:14px;letter-spacing:-.02em}.check-item,.build-step{display:flex;align-items:flex-start;gap:11px;border:1px solid var(--line);border-radius:14px;padding:11px;background:rgba(0,0,0,.16);margin-bottom:9px}.check-item input,.build-step input{width:auto;margin-top:3px;accent-color:var(--accent)}.check-item.done span,.build-step.done span{color:var(--muted2);text-decoration:line-through}.log-list{display:grid;gap:10px}.log-item{border-left:3px solid rgba(var(--accent-rgb),.45);background:rgba(255,255,255,.035);border-radius:0 14px 14px 0;padding:12px}.quality-list{display:grid;gap:8px}.quality-item{display:flex;justify-content:space-between;gap:12px;border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:rgba(0,0,0,.16)}.quality-ok{color:var(--green);font-weight:900}.quality-missing{color:var(--red);font-weight:900}.copy-field{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}.toast{position:fixed;right:18px;bottom:18px;z-index:80;max-width:460px;padding:13px 14px;border-radius:16px;border:1px solid rgba(114,255,153,.28);background:rgba(20,35,25,.94);color:var(--green);box-shadow:var(--shadow);font-size:13px}.toast.error{border-color:rgba(255,95,109,.35);background:rgba(40,20,24,.94);color:var(--red)}
+    :root{
+      --bg:#07070a;
+      --panel:#111119;
+      --panel2:#171720;
+      --text:#f5f5f7;
+      --muted:#a1a1aa;
+      --muted2:#71717a;
+      --line:#2b2b36;
+      --accent:#d7ff38;
+      --accent-rgb:215,255,56;
+      --red:#ff5f6d;
+      --orange:#ffb454;
+      --blue:#7aa7ff;
+      --green:#72ff99;
+      --purple:#c084fc;
+      --cyan:#67e8f9;
+      --shadow:0 24px 80px rgba(0,0,0,.42);
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:
+        radial-gradient(circle at 15% 0%,rgba(var(--accent-rgb),.13),transparent 28%),
+        radial-gradient(circle at 80% 20%,rgba(122,167,255,.10),transparent 25%),
+        var(--bg);
+      color:var(--text);
+      overflow:hidden;
+    }
+
+    button,input,textarea,select{font:inherit}
+    button{cursor:pointer}
+    .hidden{display:none!important}
+    h1,h2,h3,p{margin-top:0}
+    .muted{color:var(--muted)}
+    .small{font-size:12px;line-height:1.55;color:var(--muted2)}
+
+    label{
+      display:block;
+      font-size:11px;
+      letter-spacing:.075em;
+      text-transform:uppercase;
+      color:var(--muted);
+      font-weight:850;
+      line-height:1.35;
+    }
+
+    input,textarea,select{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:rgba(0,0,0,.26);
+      color:var(--text);
+      padding:14px 15px;
+      outline:none;
+      min-width:0;
+    }
+
+    textarea{
+      resize:vertical;
+      min-height:130px;
+      line-height:1.48;
+    }
+
+    input:focus,textarea:focus,select:focus{
+      border-color:rgba(var(--accent-rgb),.65);
+      box-shadow:0 0 0 4px rgba(var(--accent-rgb),.08);
+      background:rgba(0,0,0,.38);
+    }
+
+    .field{display:grid;gap:10px;min-width:0}
+    .stack{display:grid;gap:22px}
+    .row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+    .between{display:flex;align-items:center;justify-content:space-between;gap:18px}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+
+    .btn{
+      border:0;
+      border-radius:14px;
+      padding:13px 18px;
+      background:var(--accent);
+      color:#050505;
+      font-weight:950;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      white-space:nowrap;
+      transition:.16s;
+    }
+
+    .btn:hover{transform:translateY(-1px)}
+    .btn.secondary{
+      background:rgba(255,255,255,.055);
+      color:var(--text);
+      border:1px solid var(--line);
+    }
+    .btn.danger{
+      background:rgba(255,95,109,.12);
+      color:var(--red);
+      border:1px solid rgba(255,95,109,.32);
+    }
+    .btn:disabled{
+      opacity:.45;
+      cursor:not-allowed;
+      transform:none;
+    }
+
+    .login-screen{
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      padding:24px;
+    }
+
+    .login-card{
+      width:min(540px,100%);
+      padding:36px;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.025));
+      box-shadow:var(--shadow);
+    }
+
+    .logo-row{display:flex;gap:14px;align-items:center;margin-bottom:30px}
+
+    .logo{
+      width:48px;
+      height:48px;
+      border-radius:16px;
+      display:grid;
+      place-items:center;
+      background:var(--accent);
+      color:#050505;
+      font-weight:950;
+      letter-spacing:-.08em;
+      box-shadow:0 0 35px rgba(var(--accent-rgb),.25);
+    }
+
+    .login-card h1{
+      font-size:34px;
+      line-height:.98;
+      letter-spacing:-.065em;
+      margin-bottom:14px;
+    }
+
+    .status-box{
+      padding:13px 14px;
+      border-radius:16px;
+      border:1px solid rgba(114,255,153,.35);
+      background:rgba(114,255,153,.08);
+      color:var(--green);
+      font-size:13px;
+      line-height:1.45;
+    }
+
+    .status-box.error{
+      border-color:rgba(255,95,109,.35);
+      background:rgba(255,95,109,.08);
+      color:var(--red);
+    }
+
+    .app{
+      height:100vh;
+      display:grid;
+      grid-template-columns:280px 1fr;
+    }
+
+    .sidebar{
+      border-right:1px solid var(--line);
+      background:rgba(10,10,14,.78);
+      backdrop-filter:blur(16px);
+      padding:18px;
+      overflow-y:auto;
+    }
+
+    .side-title h2{
+      font-size:14px;
+      margin:0;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+
+    .side-title p{
+      margin:3px 0 0;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .side-section-title{
+      font-size:11px;
+      letter-spacing:.11em;
+      color:var(--muted2);
+      text-transform:uppercase;
+      font-weight:900;
+      margin:24px 0 9px;
+    }
+
+    .folder-toolbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin:24px 0 9px;
+      font-size:11px;
+      letter-spacing:.11em;
+      color:var(--muted2);
+      text-transform:uppercase;
+      font-weight:900;
+    }
+
+    .folder-add-btn{
+      width:24px;
+      height:24px;
+      border-radius:8px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.055);
+      color:var(--accent);
+      font-weight:950;
+      line-height:1;
+    }
+
+    .folder-add-btn:hover{
+      background:rgba(var(--accent-rgb),.12);
+      border-color:rgba(var(--accent-rgb),.35);
+    }
+
+    .folder-list{display:grid;gap:7px}
+
+    .folder-item{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:11px 12px;
+      border:1px solid transparent;
+      border-radius:13px;
+      background:transparent;
+      color:var(--muted);
+      text-align:left;
+    }
+
+    .folder-item:hover{
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+    }
+
+    .folder-item.active{
+      background:rgba(var(--accent-rgb),.10);
+      color:var(--accent);
+      border-color:rgba(var(--accent-rgb),.20);
+    }
+
+    .folder-item-inner{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      width:100%;
+      background:none;
+      border:0;
+      color:inherit;
+      text-align:left;
+      padding:0;
+    }
+
+    .folder-delete-x{
+      width:22px;
+      height:22px;
+      border-radius:999px;
+      border:1px solid transparent;
+      background:transparent;
+      color:var(--muted2);
+      font-size:14px;
+      font-weight:900;
+      display:grid;
+      place-items:center;
+      flex:0 0 auto;
+    }
+
+    .folder-delete-x:hover{
+      color:var(--red);
+      background:rgba(255,95,109,.10);
+      border-color:rgba(255,95,109,.25);
+    }
+
+    .campaign-sublist{
+      display:grid;
+      gap:6px;
+      margin:6px 0 10px 18px;
+    }
+
+    .campaign-subitem{
+      width:100%;
+      border:1px solid transparent;
+      border-radius:12px;
+      background:rgba(255,255,255,.028);
+      color:var(--muted);
+      padding:9px 10px;
+      text-align:left;
+      font-size:12px;
+      line-height:1.25;
+    }
+
+    .campaign-subitem:hover{
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      border-color:var(--line);
+    }
+
+    .folder-name{
+      display:flex;
+      align-items:center;
+      gap:7px;
+      min-width:0;
+    }
+
+    .folder-name span:last-child{
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:22px;
+      height:22px;
+      border-radius:999px;
+      padding:0 7px;
+      background:rgba(255,255,255,.07);
+      color:var(--muted);
+      font-size:11px;
+      font-weight:850;
+    }
+
+    .main{
+      min-width:0;
+      display:grid;
+      grid-template-rows:auto auto auto 1fr;
+      overflow:hidden;
+    }
+
+    .topbar{
+      padding:18px 22px;
+      border-bottom:1px solid var(--line);
+      background:rgba(11,11,16,.62);
+      backdrop-filter:blur(16px);
+    }
+
+    .topbar h1{
+      margin:0;
+      font-size:27px;
+      letter-spacing:-.055em;
+    }
+
+    .stats-grid{
+      display:grid;
+      grid-template-columns:repeat(5,minmax(150px,1fr));
+      gap:12px;
+      padding:16px 22px;
+      border-bottom:1px solid var(--line);
+      background:rgba(255,255,255,.018);
+    }
+
+    .stat-card{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.035);
+      border-radius:16px;
+      padding:13px;
+    }
+
+    .stat-card strong{
+      display:block;
+      font-size:24px;
+      letter-spacing:-.04em;
+    }
+
+    .stat-card span{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .toolbar{
+      padding:16px 22px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      border-bottom:1px solid var(--line);
+      background:rgba(7,7,10,.38);
+    }
+
+    .search{max-width:430px}
+
+    .board{
+      padding:22px;
+      overflow:auto;
+      display:grid;
+      grid-template-columns:repeat(8,minmax(260px,1fr));
+      gap:16px;
+      align-items:start;
+    }
+
+    .stack-board{
+      display:block;
+      overflow:auto;
+    }
+
+    .stack-group{
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:rgba(255,255,255,.028);
+      padding:14px;
+      margin-bottom:16px;
+    }
+
+    .stack-group-head{margin-bottom:12px}
+
+    .stack-group-head h3{
+      margin:0;
+      font-size:18px;
+      letter-spacing:-.04em;
+    }
+
+    .stack-list{
+      display:grid;
+      gap:10px;
+    }
+
+    .stack-campaign{
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.03));
+      padding:14px;
+      display:grid;
+      grid-template-columns:minmax(220px,1fr) minmax(240px,1fr) auto;
+      gap:14px;
+      align-items:center;
+      cursor:pointer;
+    }
+
+    .stack-campaign:hover{
+      border-color:rgba(var(--accent-rgb),.35);
+      background:rgba(255,255,255,.07);
+    }
+
+    .stack-campaign h3{
+      margin:0 0 5px;
+      font-size:15px;
+    }
+
+    .stack-campaign p{
+      margin:0;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.4;
+    }
+
+    .stack-budget{
+      display:grid;
+      gap:4px;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .stack-budget strong,
+    .stack-budget span{
+      color:var(--text);
+    }
+
+    .column{
+      background:rgba(255,255,255,.035);
+      border:1px solid var(--line);
+      border-radius:20px;
+      min-height:calc(100vh - 250px);
+      padding:12px;
+    }
+
+    .column.drag-over{
+      border-color:rgba(var(--accent-rgb),.55);
+      background:rgba(var(--accent-rgb),.045);
+    }
+
+    .column-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:12px;
+      padding:3px 3px 7px;
+    }
+
+    .column-title{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      color:var(--text);
+      font-weight:950;
+      font-size:13px;
+    }
+
+    .status-dot{
+      width:9px;
+      height:9px;
+      border-radius:999px;
+      background:var(--muted);
+    }
+
+    .status-dot.new{background:var(--blue)}
+    .status-dot.needs{background:var(--red)}
+    .status-dot.ready{background:var(--accent)}
+    .status-dot.progress{background:var(--orange)}
+    .status-dot.approval{background:var(--purple)}
+    .status-dot.live{background:var(--green)}
+    .status-dot.reporting{background:var(--cyan)}
+    .status-dot.complete{background:var(--muted)}
+
+    .cards{
+      display:grid;
+      gap:10px;
+    }
+
+    .card{
+      border:1px solid var(--line);
+      background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.03));
+      border-radius:17px;
+      padding:14px;
+      box-shadow:0 12px 28px rgba(0,0,0,.16);
+      transition:.16s;
+      cursor:grab;
+    }
+
+    .card:hover{
+      transform:translateY(-2px);
+      border-color:rgba(var(--accent-rgb),.30);
+      background:rgba(255,255,255,.07);
+    }
+
+    .card h3{
+      margin:0 0 8px;
+      font-size:15px;
+      letter-spacing:-.025em;
+    }
+
+    .card p{
+      margin:0;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.45;
+    }
+
+    .budget-summary{
+      display:grid;
+      gap:6px;
+      margin-top:12px;
+      border:1px solid var(--line);
+      border-radius:13px;
+      background:rgba(0,0,0,.18);
+      padding:10px;
+      font-size:12px;
+      line-height:1.35;
+      color:var(--muted);
+    }
+
+    .budget-summary strong{color:var(--text)}
+    .main-budget{font-size:13px}
+
+    .adset-line{
+      display:flex;
+      align-items:center;
+      gap:7px;
+    }
+
+    .adset-status-dot{
+      width:8px;
+      height:8px;
+      border-radius:999px;
+      display:inline-block;
+      flex:0 0 auto;
+    }
+
+    .adset-running{background:var(--green)}
+    .adset-paused{background:var(--orange)}
+    .adset-ended{background:var(--muted2)}
+    .adset-review{background:var(--red)}
+
+    .meta-grid{
+      margin-top:12px;
+      display:flex;
+      gap:7px;
+      flex-wrap:wrap;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.18);
+      border-radius:999px;
+      padding:5px 8px;
+      color:var(--muted);
+      font-size:11px;
+      font-weight:800;
+    }
+
+    .progress-bar{
+      height:7px;
+      border-radius:999px;
+      background:rgba(255,255,255,.07);
+      overflow:hidden;
+      margin-top:12px;
+    }
+
+    .progress-fill{
+      height:100%;
+      background:var(--accent);
+      border-radius:inherit;
+    }
+
+    .empty{
+      border:1px dashed var(--line);
+      color:var(--muted2);
+      border-radius:16px;
+      padding:18px;
+      text-align:center;
+      font-size:13px;
+    }
+
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.62);
+      display:grid;
+      place-items:center;
+      padding:22px;
+      z-index:50;
+    }
+
+    .modal{
+      width:min(1180px,100%);
+      max-height:min(900px,calc(100vh - 44px));
+      display:grid;
+      grid-template-rows:auto auto 1fr;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:28px;
+      background:#0f0f15;
+      box-shadow:var(--shadow);
+    }
+
+    .modal-head{
+      padding:22px 24px;
+      border-bottom:1px solid var(--line);
+    }
+
+    .modal-head h2{
+      margin:0 0 7px;
+      font-size:28px;
+      letter-spacing:-.055em;
+    }
+
+    .tabs{
+      display:flex;
+      gap:8px;
+      padding:14px 24px;
+      border-bottom:1px solid var(--line);
+      background:rgba(255,255,255,.025);
+      overflow-x:auto;
+    }
+
+    .tab{
+      border:1px solid var(--line);
+      background:transparent;
+      color:var(--muted);
+      border-radius:999px;
+      padding:8px 12px;
+      font-weight:850;
+      font-size:12px;
+    }
+
+    .tab.active{
+      background:rgba(var(--accent-rgb),.1);
+      color:var(--accent);
+      border-color:rgba(var(--accent-rgb),.25);
+    }
+
+    .modal-body{
+      overflow:auto;
+      padding:28px 24px 32px;
+    }
+
+    .panel{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.035);
+      border-radius:18px;
+      padding:16px;
+    }
+
+    .panel h3{
+      margin:0 0 13px;
+      font-size:14px;
+      letter-spacing:-.02em;
+    }
+
+    .check-item,
+    .build-step{
+      display:flex;
+      align-items:flex-start;
+      gap:11px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:11px;
+      background:rgba(0,0,0,.16);
+      margin-bottom:9px;
+    }
+
+    .check-item input,
+    .build-step input{
+      width:auto;
+      margin-top:3px;
+      accent-color:var(--accent);
+    }
+
+    .check-item.done span,
+    .build-step.done span{
+      color:var(--muted2);
+      text-decoration:line-through;
+    }
+
+    .log-list{
+      display:grid;
+      gap:10px;
+    }
+
+    .log-item{
+      border-left:3px solid rgba(var(--accent-rgb),.45);
+      background:rgba(255,255,255,.035);
+      border-radius:0 14px 14px 0;
+      padding:12px;
+    }
+
+    .quality-list{
+      display:grid;
+      gap:8px;
+    }
+
+    .quality-item{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px 12px;
+      background:rgba(0,0,0,.16);
+    }
+
+    .quality-ok{
+      color:var(--green);
+      font-weight:900;
+    }
+
+    .quality-missing{
+      color:var(--red);
+      font-weight:900;
+    }
+
+    .autosave-note{
+      font-size:12px;
+      color:var(--muted2);
+      font-weight:800;
+    }
+
+    .toast{
+      position:fixed;
+      right:18px;
+      bottom:18px;
+      z-index:80;
+      max-width:460px;
+      padding:13px 14px;
+      border-radius:16px;
+      border:1px solid rgba(114,255,153,.28);
+      background:rgba(20,35,25,.94);
+      color:var(--green);
+      box-shadow:var(--shadow);
+      font-size:13px;
+    }
+
+    .toast.error{
+      border-color:rgba(255,95,109,.35);
+      background:rgba(40,20,24,.94);
+      color:var(--red);
+    }
+
+    @media(max-width:900px){
+      .app{grid-template-columns:1fr}
+      .sidebar{display:none}
+      .grid-2,.grid-3{grid-template-columns:1fr}
+      .stack-campaign{grid-template-columns:1fr}
+      .stats-grid{grid-template-columns:repeat(2,1fr)}
+      .toolbar{align-items:flex-start;flex-direction:column}
+      .search{max-width:none}
+    }
   </style>
 </head>
+
 <body>
-<section id="loginScreen" class="login-screen"><div class="login-card stack"><div class="logo-row"><div class="logo">JW</div><div><h2 style="margin:0;font-size:14px;letter-spacing:.08em;text-transform:uppercase;">JDW Campaign Hub</h2><p class="small" style="margin:3px 0 0;">Supabase-powered campaign operations portal</p></div></div><div><h1>Briefs, builds, logs and reports in one place.</h1><p class="muted">Sign in with your Supabase email and password.</p></div><form id="authForm" class="stack"><div class="grid-2"><div class="field"><label>Email</label><input id="emailInput" type="email" required></div><div class="field"><label>Password</label><input id="passwordInput" type="password" required></div></div><div class="row"><button id="signInButton" class="btn" type="submit">Sign In</button><button id="signUpButton" class="btn secondary" type="button">Create Account</button></div><div id="authStatus" class="status-box">Loading login...</div></form><p class="small">Use this only for you and James. Keep RLS enabled and use authenticated policies.</p></div></section>
-<section id="app" class="app hidden"><aside class="sidebar"><div class="logo-row side-title"><div class="logo">JW</div><div><h2>Campaign Hub</h2><p id="userLabel">Shared dashboard</p></div></div><button class="btn" style="width:100%;" id="newCampaignSideBtn">+ New Campaign</button><button class="btn secondary" style="width:100%;margin-top:12px;" id="importBriefSideBtn">Import Messy Brief</button><button class="btn secondary" style="width:100%;margin-top:12px;" id="settingsBtn">Settings</button><div id="artistList" class="folder-list" style="margin-top:24px;"></div><button class="btn danger hidden" style="width:100%;margin-top:12px;" id="deleteArtistBtn">Delete Artist Folder</button><div class="side-section-title">Actions</div><button class="btn secondary" style="width:100%;" id="undoBtn" disabled>Undo Last Action</button></aside><main class="main"><header class="topbar between"><div><h1 id="pageTitle">All Artists</h1><p class="small" style="margin:5px 0 0;">Drag campaign cards between columns to update status.</p></div></header><section class="stats-grid" id="statsGrid"></section><section class="toolbar"><input id="searchInput" class="search" placeholder="Search campaigns, artists, briefs or logs..."><div class="row"><button class="btn secondary" id="viewToggleBtn">Stack View</button><select id="artistFilterMobile"></select><select id="sortSelect"><option value="updated">Sort: recently updated</option><option value="deadline">Sort: deadline</option><option value="priority">Sort: priority</option><option value="artist">Sort: artist</option></select></div></section><section id="board" class="board"></section></main></section><div id="modalRoot"></div><div id="toast" class="toast hidden"></div>
-<script>
-const SUPABASE_URL="https://zpkfxdyvesftnhkknggz.supabase.co";
-const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpwa2Z4ZHl2ZXNmdG5oa2tuZ2d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMDM5NjgsImV4cCI6MjA5NTg3OTk2OH0._w0PMiMUVh7MPyGWpKyRU4Sm6DXok-Yz657ctjUml3k";
-const STATUSES=[{key:"New Brief",className:"new"},{key:"Needs Info",className:"needs"},{key:"Ready to Build",className:"ready"},{key:"In Progress",className:"progress"},{key:"Awaiting Approval",className:"approval"},{key:"Live",className:"live"},{key:"Reporting",className:"reporting"},{key:"Complete",className:"complete"}];
-const DEFAULT_CHECKLIST=["Interpret brief: real objective, release status, territories, budget and assets","Choose platform split: Meta / TikTok / YouTube depending on objective","Confirm account/business access and advertiser settings","Generate or confirm ACID compliance code if required","Confirm tracking link, pixel/dataset and View Content or equivalent event","Test destination link on mobile before build","Confirm native vs dark ad preference and artist optics","Create campaign with correct objective and budget structure","Create warm / retargeting ad set if audience exists","Create prospecting / related artist ad set","Set age, territories, audience type and exclusions","Use manual placements and exclude low-quality placements where relevant","Build or attach approved creative assets","Disable unwanted AI/site-link/creative enhancements","Check naming convention across campaign, ad sets and ads","Preview campaign and send setup summary to James","Confirm approval, delivery, tracking and spend pacing after launch","Check early CPM/CPC/CPV and engagement quality","Optimise after enough data, not too early","Generate first report / update for James"];
-let supabaseClient,currentUser=null,artists=[],campaigns=[],checklistItems=[],workLogs=[],adSets=[],activeArtistId="all",activeCampaignId=null,activeTab="overview",tempDraft=null,expandedArtists=new Set(),undoAction=null,boardView=localStorage.getItem("jdw_board_view")||"columns",autosaveTimer=null;
-function applyTheme(hex){const c=hex||"#d7ff38";const n=parseInt(c.replace("#",""),16);document.documentElement.style.setProperty("--accent",c);document.documentElement.style.setProperty("--accent-rgb",`${(n>>16)&255},${(n>>8)&255},${n&255}`)}
-function applySavedSettings(){try{applyTheme(JSON.parse(localStorage.getItem("jdw_settings")||"{}").accent||"#d7ff38")}catch(e){applyTheme("#d7ff38")}}
-function defaultLoggedBy(){try{return JSON.parse(localStorage.getItem("jdw_settings")||"{}").loggedBy||"Aidan"}catch(e){return"Aidan"}}
-function start(){applySavedSettings();try{if(!window.supabase)throw new Error("Supabase library did not load. Refresh or check internet.");supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);wireUi();setAuthStatus("Login ready. Enter details and press Sign In.");supabaseClient.auth.getSession().then(({data,error})=>{if(error)throw error;currentUser=data.session?.user||null;supabaseClient.auth.onAuthStateChange((_e,s)=>{currentUser=s?.user||null;showCorrectScreen()});showCorrectScreen()}).catch(e=>setAuthStatus(e.message,true))}catch(e){setAuthStatus(e.message,true)}}
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start);else start();
-function on(id,event,fn){const el=document.getElementById(id);if(el&&!el.dataset.wired){el.addEventListener(event,fn);el.dataset.wired="true"}}
-function wireUi(){on("authForm","submit",async e=>{e.preventDefault();await signIn()});on("signUpButton","click",signUp);on("newCampaignSideBtn","click",()=>openCampaignModal(null));on("importBriefSideBtn","click",openImportModal);on("settingsBtn","click",openSettingsModal);on("refreshBtn","click",loadData);on("settingsRefreshBtn","click",loadData);on("undoBtn","click",undoLastAction);on("signOutBtn","click",signOut);on("settingsSignOutBtn","click",signOut);on("searchInput","input",renderAll);on("viewToggleBtn","click",toggleBoardView);on("artistFilterMobile","change",e=>setActiveArtist(e.target.value));on("sortSelect","change",renderAll);on("deleteArtistBtn","click",deleteActiveArtist)}
-function setUndo(label,fn){undoAction={label,fn};const btn=document.getElementById("undoBtn");if(btn){btn.disabled=false;btn.textContent=label||"Undo Last Action"}}
-function clearUndo(){undoAction=null;const btn=document.getElementById("undoBtn");if(btn){btn.disabled=true;btn.textContent="Undo Last Action"}}
-async function undoLastAction(){if(!undoAction)return;const action=undoAction;clearUndo();try{await action.fn();toast("Undo complete.")}catch(e){toast("Undo failed: "+e.message,true)}}
-async function signIn(){const email=val("emailInput"),password=val("passwordInput");if(!email||!password)return setAuthStatus("Enter email and password.",true);setAuthStatus("Signing in...");const{data,error}=await supabaseClient.auth.signInWithPassword({email,password});if(error)return setAuthStatus(error.message,true);currentUser=data.user;await showCorrectScreen()}
-async function signUp(){const email=val("emailInput"),password=val("passwordInput");if(!email||!password)return setAuthStatus("Enter email and password.",true);setAuthStatus("Creating account...");const{data,error}=await supabaseClient.auth.signUp({email,password});if(error)return setAuthStatus(error.message,true);if(data.session){currentUser=data.user;await showCorrectScreen()}else setAuthStatus("Account created. Check email confirmation settings, then sign in.")}
-async function signOut(){await supabaseClient.auth.signOut();currentUser=null;artists=[];campaigns=[];showCorrectScreen()}
-async function showCorrectScreen(){if(currentUser){document.getElementById("loginScreen").classList.add("hidden");document.getElementById("app").classList.remove("hidden");document.getElementById("userLabel").textContent=currentUser.email||"Signed in";renderAll();await loadData()}else{document.getElementById("loginScreen").classList.remove("hidden");document.getElementById("app").classList.add("hidden")}}
-async function loadData(){try{renderAll();const [ar,cr,chk,logs,ads]=await Promise.all([supabaseClient.from("artists").select("*").order("name"),supabaseClient.from("campaigns").select("*").order("updated_at",{ascending:false}),supabaseClient.from("checklist_items").select("*").order("position"),supabaseClient.from("work_logs").select("*").order("created_at"),supabaseClient.from("ad_sets").select("*").order("position")]);if(ar.error)throw ar.error;if(cr.error)throw cr.error;if(chk.error)throw chk.error;if(logs.error)throw logs.error;if(ads.error)throw ads.error;artists=ar.data||[];campaigns=cr.data||[];checklistItems=chk.data||[];workLogs=logs.data||[];adSets=ads.data||[];renderAll()}catch(e){toast("Load failed: "+e.message,true);renderAll()}}
-function renderAll(){renderArtists();renderMobileArtistSelect();renderStats();renderBoard();updateDeleteArtistButton()}function getArtistName(id){return artists.find(a=>a.id===id)?.name||"Unknown Artist"}function getCampaignChecklist(id){return checklistItems.filter(i=>i.campaign_id===id).sort((a,b)=>(a.position||0)-(b.position||0))}function getCampaignLogs(id){return workLogs.filter(l=>l.campaign_id===id).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at))}function getCampaignAdSets(id){return adSets.filter(a=>a.campaign_id===id).sort((a,b)=>(a.position||0)-(b.position||0))}
-function renderArtists(){const list=document.getElementById("artistList");if(!list)return;const rows=[`<button class="folder-item ${activeArtistId==="all"?"active":""}" data-artist="all"><span class="folder-name"><span>▾</span><span>All Artists</span></span><span class="badge">${campaigns.length}</span></button>`];artists.forEach(a=>{const cs=campaigns.filter(c=>c.artist_id===a.id),open=expandedArtists.has(a.id)||activeArtistId===a.id;rows.push(`<button class="folder-item ${activeArtistId===a.id?"active":""}" data-artist="${a.id}"><span class="folder-name"><span>${open?"▾":"▸"}</span><span>${escapeHtml(a.name)}</span></span><span class="badge">${cs.length}</span></button>`);if(open)rows.push(`<div class="campaign-sublist">${cs.length?cs.map(c=>`<button class="campaign-subitem" data-campaign-folder-item="${c.id}">${escapeHtml(c.title||"Untitled Campaign")}<br><span class="small">${escapeHtml(c.status||"New Brief")}</span></button>`).join(""):`<div class="empty" style="padding:10px;font-size:12px;">No campaigns yet.</div>`}</div>`)});list.innerHTML=rows.join("");list.querySelectorAll(".folder-item").forEach(b=>b.addEventListener("click",()=>{const id=b.dataset.artist;if(id==="all"){activeArtistId="all";document.getElementById("pageTitle").textContent="All Artists";renderAll();return}if(expandedArtists.has(id)){expandedArtists.delete(id);if(activeArtistId===id){activeArtistId="all";document.getElementById("pageTitle").textContent="All Artists"}}else{expandedArtists.add(id);activeArtistId=id;document.getElementById("pageTitle").textContent=getArtistName(id)}renderAll()}));list.querySelectorAll("[data-campaign-folder-item]").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();openCampaignModal(b.dataset.campaignFolderItem)}))}
-function renderMobileArtistSelect(){const s=document.getElementById("artistFilterMobile");if(!s)return;s.innerHTML=[`<option value="all">Artist: All</option>`,...artists.map(a=>`<option value="${a.id}">Artist: ${escapeHtml(a.name)}</option>`)].join("");s.value=activeArtistId}function setActiveArtist(id){activeArtistId=id;if(id!=="all")expandedArtists.add(id);document.getElementById("pageTitle").textContent=id==="all"?"All Artists":getArtistName(id);renderAll()}function updateDeleteArtistButton(){document.getElementById("deleteArtistBtn")?.classList.toggle("hidden",activeArtistId==="all")}async function deleteActiveArtist(){if(activeArtistId==="all")return;const a=artists.find(x=>x.id===activeArtistId);if(!a)return;if(!confirm(`Delete artist folder "${a.name}" and all attached campaigns?`))return;const artistCampaigns=campaigns.filter(c=>c.artist_id===activeArtistId);const ids=artistCampaigns.map(c=>c.id);const backup={artist:a,campaigns:artistCampaigns,checklist:checklistItems.filter(i=>ids.includes(i.campaign_id)),logs:workLogs.filter(l=>ids.includes(l.campaign_id)),adsets:adSets.filter(ad=>ids.includes(ad.campaign_id))};const{error}=await supabaseClient.from("artists").delete().eq("id",activeArtistId);if(error)return toast(error.message,true);setUndo("Undo artist delete",async()=>{await supabaseClient.from("artists").insert(backup.artist);if(backup.campaigns.length)await supabaseClient.from("campaigns").insert(backup.campaigns);if(backup.checklist.length)await supabaseClient.from("checklist_items").insert(backup.checklist);if(backup.logs.length)await supabaseClient.from("work_logs").insert(backup.logs);if(backup.adsets.length)await supabaseClient.from("ad_sets").insert(backup.adsets);activeArtistId=backup.artist.id;expandedArtists.add(backup.artist.id);await loadData()});activeArtistId="all";await loadData();toast("Artist folder deleted.")}
-function filteredCampaigns(){const search=document.getElementById("searchInput")?.value?.toLowerCase()||"",sort=document.getElementById("sortSelect")?.value||"updated";let items=campaigns.filter(c=>{const artistMatch=activeArtistId==="all"||c.artist_id===activeArtistId;const blob=[c.title,getArtistName(c.artist_id),c.status,c.priority,c.raw_brief,c.structured_brief,c.missing_info,getCampaignAdSets(c.id).map(a=>[a.name,a.objective,a.audience,a.notes].join(" ")).join(" "),getCampaignLogs(c.id).map(l=>l.text).join(" ")].join(" ").toLowerCase();return artistMatch&&blob.includes(search)});items.sort((a,b)=>sort==="artist"?getArtistName(a.artist_id).localeCompare(getArtistName(b.artist_id)):sort==="deadline"?(a.deadline||"9999").localeCompare(b.deadline||"9999"):new Date(b.updated_at||b.created_at)-new Date(a.updated_at||a.created_at));return items}
-function renderStats(){const items=filteredCampaigns(),count=s=>items.filter(c=>c.status===s).length,due=items.filter(c=>c.deadline&&(new Date(c.deadline+"T00:00:00")-new Date())<=6048e5&&(new Date(c.deadline+"T00:00:00")-new Date())>=-864e5).length;document.getElementById("statsGrid").innerHTML=`<div class="stat-card"><strong>${items.length}</strong><span>Campaigns</span></div><div class="stat-card"><strong>${count("Needs Info")}</strong><span>Needs Info</span></div><div class="stat-card"><strong>${count("Awaiting Approval")}</strong><span>Awaiting Approval</span></div><div class="stat-card"><strong>${count("Live")}</strong><span>Live</span></div><div class="stat-card"><strong>${due}</strong><span>Due This Week</span></div>`}
-function toggleBoardView(){boardView=boardView==="columns"?"stack":"columns";localStorage.setItem("jdw_board_view",boardView);renderBoard()}
-function renderBoard(){const board=document.getElementById("board"),items=filteredCampaigns();if(!board)return;const toggle=document.getElementById("viewToggleBtn");if(toggle)toggle.textContent=boardView==="columns"?"Stack View":"Column View";if(boardView==="stack")return renderStackBoard(board,items);board.className="board";board.innerHTML=STATUSES.map(s=>{const si=items.filter(c=>c.status===s.key);return`<div class="column" data-status="${s.key}"><div class="column-head"><div class="column-title"><span class="status-dot ${s.className}"></span>${s.key}</div><span class="badge">${si.length}</span></div><div class="cards">${si.length?si.map(renderCampaignCard).join(""):`<div class="empty">Drop campaigns here.</div>`}</div></div>`}).join("");board.querySelectorAll(".column").forEach(col=>{col.addEventListener("dragover",e=>{e.preventDefault();col.classList.add("drag-over")});col.addEventListener("dragleave",()=>col.classList.remove("drag-over"));col.addEventListener("drop",async e=>{e.preventDefault();col.classList.remove("drag-over");await moveCampaign(e.dataTransfer.getData("text/plain"),col.dataset.status)})});board.querySelectorAll(".card").forEach(card=>{card.addEventListener("dragstart",e=>e.dataTransfer.setData("text/plain",card.dataset.id));card.addEventListener("click",()=>openCampaignModal(card.dataset.id))})}
-function renderStackBoard(board,items){board.className="board stack-board";const grouped={};items.forEach(c=>{const artist=getArtistName(c.artist_id);if(!grouped[artist])grouped[artist]=[];grouped[artist].push(c)});board.innerHTML=Object.keys(grouped).length?Object.entries(grouped).map(([artist,list])=>`<section class="stack-group"><div class="between stack-group-head"><h3>${escapeHtml(artist)}</h3><span class="badge">${list.length}</span></div><div class="stack-list">${list.map(renderStackCampaignCard).join("")}</div></section>`).join(""):`<div class="empty">No campaigns found.</div>`;board.querySelectorAll("[data-stack-id]").forEach(card=>card.addEventListener("click",()=>openCampaignModal(card.dataset.stackId)))}
-function renderStackCampaignCard(c){const ads=getCampaignAdSets(c.id),logs=getCampaignLogs(c.id),last=logs[logs.length-1]?.text||c.structured_brief||"No work logs yet.";return`<article class="stack-campaign" data-stack-id="${c.id}"><div><h3>${escapeHtml(c.title||"Untitled")}</h3><p>${escapeHtml(truncate(last,120))}</p></div><div class="stack-budget"><strong>Budget:</strong> ${escapeHtml(formatCampaignBudget(c.budget)||"TBC")} ${ads.map(a=>`<span>${escapeHtml(a.name||"Ad Set")}: ${escapeHtml(formatAdSetBudget(a))}</span>`).join("")}</div><div class="meta-grid"><span class="chip">${escapeHtml(c.status||"New Brief")}</span><span class="chip">${ads.length} ad sets</span></div></article>`}
-function renderCampaignCard(c){const checklist=getCampaignChecklist(c.id),logs=getCampaignLogs(c.id),ads=getCampaignAdSets(c.id),done=checklist.filter(i=>i.done).length,total=checklist.length,progress=total?Math.round(done/total*100):0,last=logs[logs.length-1]?.text||c.structured_brief||"No work logs yet.";return`<article class="card" draggable="true" data-id="${c.id}"><h3>${escapeHtml(getArtistName(c.artist_id))} — ${escapeHtml(c.title||"Untitled")}</h3><div class="budget-summary main-budget"><div><strong>Budget</strong>: ${escapeHtml(formatCampaignBudget(c.budget)||"TBC")}</div>${ads.map(a=>`<div><strong>${escapeHtml(a.name||"Ad Set")}</strong>: ${escapeHtml(formatAdSetBudget(a))}</div>`).join("")}</div><div class="meta-grid"><span class="chip">${escapeHtml(c.priority||"Normal")}</span>${c.deadline?`<span class="chip">Due ${formatDate(c.deadline)}</span>`:""}</div><div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div><p class="small" style="margin-top:7px;">Checklist ${done}/${total}</p></article>`}
-async function moveCampaign(id,status){if(!id)return;const campaign=campaigns.find(c=>c.id===id);const previousStatus=campaign?.status||"New Brief";const{error}=await supabaseClient.from("campaigns").update({status,updated_at:new Date().toISOString()}).eq("id",id);if(error)return toast(error.message,true);await supabaseClient.from("work_logs").insert({campaign_id:id,logged_by:"System",log_type:"Status",text:`Status changed to ${status}.`,visible_to_james:true});setUndo("Undo status move",async()=>{await supabaseClient.from("campaigns").update({status:previousStatus,updated_at:new Date().toISOString()}).eq("id",id);await supabaseClient.from("work_logs").insert({campaign_id:id,logged_by:"System",log_type:"Undo",text:`Undo: status changed back to ${previousStatus}.`,visible_to_james:true});await loadData()});await loadData();toast("Moved to "+status)}
-function blankDraft(){return{artistName:activeArtistId!=="all"?getArtistName(activeArtistId):"",title:"",status:"New Brief",priority:"Normal",deadline:"",budget:"",objective:"",campaign_link:"",territories:"",raw_brief:"",structured_brief:"",missing_info:"",report:"",checklist:DEFAULT_CHECKLIST,ad_sets:[]}}function campaignToDraft(c){return{id:c.id,artistName:getArtistName(c.artist_id),title:c.title||"",status:c.status||"New Brief",priority:c.priority||"Normal",deadline:c.deadline||"",budget:c.budget||"",objective:c.objective||"",campaign_link:c.campaign_link||"",territories:c.territories||"",raw_brief:c.raw_brief||"",structured_brief:c.structured_brief||"",missing_info:c.missing_info||"",report:c.report||"",checklist_items:getCampaignChecklist(c.id),work_logs:getCampaignLogs(c.id),ad_sets:getCampaignAdSets(c.id)}}
-function openCampaignModal(id,prefill=null){activeCampaignId=id;activeTab="overview";tempDraft=prefill||(id?campaignToDraft(campaigns.find(c=>c.id===id)):blankDraft());renderModal()}function renderModal(){const isNew=!activeCampaignId,d=tempDraft;document.getElementById("modalRoot").innerHTML=`<div class="modal-backdrop" id="modalBackdrop"><div class="modal"><div class="modal-head between"><div><h2>${isNew?"New Campaign":`${escapeHtml(d.artistName)} — ${escapeHtml(d.title)}`}</h2><p class="small">${isNew?"Create a campaign under an artist folder.":`Status: ${escapeHtml(d.status)} · Artist folder: ${escapeHtml(d.artistName)}`}</p></div><div class="row">${!isNew?`<button class="btn danger" id="deleteCampaignBtn">Delete</button>`:""}<button class="btn secondary" id="closeModalBtn">Close</button></div></div><div class="tabs">${["overview","brief","setup","build","logs"].map(t=>`<button class="tab ${activeTab===t?"active":""}" data-tab="${t}">${tabLabel(t)}</button>`).join("")}</div><div class="modal-body" id="modalBody"></div></div></div>`;document.getElementById("closeModalBtn").addEventListener("click",closeModal);document.getElementById("modalBackdrop").addEventListener("click",e=>{if(e.target.id==="modalBackdrop")closeModal()});document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{collectDraft();activeTab=b.dataset.tab;renderModal()}));document.getElementById("deleteCampaignBtn")?.addEventListener("click",deleteActiveCampaign);renderModalBody()}
-function renderModalBody(){if(activeTab==="overview")renderOverviewTab();if(activeTab==="brief")renderBriefTab();if(activeTab==="setup")renderSetupTab();if(activeTab==="build")renderBuildTab();if(activeTab==="logs")renderLogsTab()}
-function renderOverviewTab(){collectDraft();const d=tempDraft,checklist=activeCampaignId?getCampaignChecklist(activeCampaignId):(d.checklist||DEFAULT_CHECKLIST).map(text=>({text,done:false})),logs=activeCampaignId?getCampaignLogs(activeCampaignId):[],ads=activeCampaignId?getCampaignAdSets(activeCampaignId):(d.ad_sets||[]),done=checklist.filter(i=>i.done).length,total=checklist.length,missing=[];if(!d.campaign_link)missing.push("Campaign link");if(!d.budget)missing.push("Budget");if(!d.objective)missing.push("Objective / pixel / event");if(!d.territories)missing.push("Territories");if(!ads.length)missing.push("Ad sets");if(!/acid|compliance/i.test((d.raw_brief||"")+" "+(d.structured_brief||"")))missing.push("ACID compliance note");const next=missing.length?`Confirm ${missing[0]}`:d.status==="Awaiting Approval"?"Send preview / campaign link to James":"Update status or add next work log";const missingHtml=missing.length?`<div class="panel" style="border-color:rgba(255,95,109,.35);background:rgba(255,95,109,.06);"><h3 style="color:var(--red);">Missing Information</h3><div class="quality-list">${missing.map(item=>`<div class="quality-item"><span>${escapeHtml(item)}</span><strong class="quality-missing">Missing</strong></div>`).join("")}</div></div>`:`<div class="panel" style="border-color:rgba(114,255,153,.25);background:rgba(114,255,153,.05);"><h3 style="color:var(--green);">Missing Information</h3><p class="small">Nothing major missing.</p></div>`;document.getElementById("modalBody").innerHTML=`<div class="grid-2"><div class="panel stack"><h3>Campaign Overview</h3><div class="quality-list"><div class="quality-item"><span>Status</span><strong>${escapeHtml(d.status)}</strong></div><div class="quality-item"><span>Ad Sets</span><strong>${ads.length}</strong></div><div class="quality-item"><span>Checklist</span><strong>${done}/${total}</strong></div><div class="quality-item"><span>Missing Info</span><strong class="${missing.length?"quality-missing":"quality-ok"}">${missing.length?missing.length:"None"}</strong></div></div>${missingHtml}<div class="field"><label>Next Action</label><textarea id="overviewNextAction" style="min-height:90px;">${escapeHtml(next)}</textarea></div><button class="btn" id="copyNextActionBtn">Copy Next Action</button></div><div class="panel stack"><h3>Recent Activity</h3><div class="log-list">${logs.length?logs.slice(-6).reverse().map(l=>`<div class="log-item"><p>${escapeHtml(l.text)}</p><p class="small" style="margin-top:6px;">${escapeHtml(l.log_type)} · ${escapeHtml(l.logged_by)} · ${formatDateTime(l.created_at)}</p></div>`).join(""):`<div class="empty">No activity yet.</div>`}</div></div></div>`;document.getElementById("copyNextActionBtn").addEventListener("click",()=>navigator.clipboard.writeText(val("overviewNextAction")).then(()=>toast("Next action copied")))}
-function renderBriefTab(){const d=tempDraft;document.getElementById("modalBody").innerHTML=`<div class="stack"><div class="grid-3"><div class="field"><label>Artist Folder</label><input id="m_artistName" list="artistOptions" value="${escapeAttr(d.artistName)}"></div><div class="field"><label>Status</label><select id="m_status">${STATUSES.map(s=>`<option ${d.status===s.key?"selected":""}>${s.key}</option>`).join("")}</select></div><div class="field"><label>Priority</label><select id="m_priority">${["Urgent","Normal","Low"].map(p=>`<option ${d.priority===p?"selected":""}>${p}</option>`).join("")}</select></div></div><datalist id="artistOptions">${artists.map(a=>`<option value="${escapeAttr(a.name)}"></option>`).join("")}</datalist><div class="grid-2"><div class="field"><label>Campaign / Track</label><input id="m_title" value="${escapeAttr(d.title)}"></div><div class="field"><label>Deadline</label><input id="m_deadline" type="date" value="${escapeAttr(d.deadline)}"></div></div><div class="grid-3"><div class="field"><label>Budget</label><input id="m_budget" value="${escapeAttr(d.budget)}"></div><div class="field"><label>Territories</label><input id="m_territories" value="${escapeAttr(d.territories)}"></div><div class="field"><label>Campaign Link</label><input id="m_campaignLink" value="${escapeAttr(d.campaign_link)}"></div></div><div class="field"><label>Objective / Pixel / Event Setup</label><input id="m_objective" value="${escapeAttr(d.objective)}"></div><div class="grid-2"><div class="field"><label>Raw Messy Brief</label><textarea id="m_rawBrief">${escapeHtml(d.raw_brief)}</textarea></div><div class="field"><label>Structured Campaign Brief</label><textarea id="m_structuredBrief">${escapeHtml(d.structured_brief)}</textarea></div></div><div class="field"><label>Missing Info / Questions for James</label><textarea id="m_missingInfo" style="min-height:90px;">${escapeHtml(d.missing_info)}</textarea></div><div class="row"><button class="btn" id="saveCampaignBtn">${activeCampaignId?"Save Changes":"Create Campaign"}</button><button class="btn secondary" id="organiseBtn">Organise Current Brief</button><button class="btn secondary" id="namesBtn">Generate Names</button></div></div>`;document.getElementById("saveCampaignBtn").addEventListener("click",saveCampaign);document.getElementById("organiseBtn").addEventListener("click",organiseCurrentBrief);document.getElementById("namesBtn").addEventListener("click",generateNames);wireAutosaveFields()}
-function renderSetupTab(){document.getElementById("modalBody").innerHTML=`<div class="stack"><div class="panel"><h3>Ad Sets</h3><div class="log-list">${(activeCampaignId?getCampaignAdSets(activeCampaignId):(tempDraft.ad_sets||[])).map(a=>`<div class="log-item"><div class="between"><div><p><strong>${escapeHtml(a.name||"Untitled Ad Set")}</strong></p><p class="small">Objective: ${escapeHtml(a.objective||"TBC")} · ${escapeHtml(a.budget_type||"Daily Budget")}: ${escapeHtml(a.budget||"TBC")} · Status: ${escapeHtml(a.status||"Running")}</p></div>${activeCampaignId?`<button class="btn danger" data-delete-adset="${a.id}" style="padding:8px 10px;">Delete</button>`:""}</div>${a.audience?`<p class="small">Audience: ${escapeHtml(a.audience)}</p>`:""}${a.notes?`<p class="small" style="margin-top:8px;">Notes: ${escapeHtml(a.notes)}</p>`:""}${activeCampaignId?`<div class="grid-3" style="margin-top:12px;"><select data-adset-status="${a.id}"><option ${String(a.status||"Running")==="Running"?"selected":""}>Running</option><option ${String(a.status||"")==="Paused"?"selected":""}>Paused</option><option ${String(a.status||"")==="Ended"?"selected":""}>Ended</option><option ${String(a.status||"")==="Needs Review"?"selected":""}>Needs Review</option></select><select data-adset-budget-type="${a.id}"><option ${String(a.budget_type||"Daily Budget")==="Daily Budget"?"selected":""}>Daily Budget</option><option ${String(a.budget_type||"")==="Lifetime Budget"?"selected":""}>Lifetime Budget</option></select><input data-adset-budget="${a.id}" value="${escapeAttr(a.budget||"")}" placeholder="Budget amount"></div><textarea data-adset-note="${a.id}" placeholder="Add/update notes for this ad set..." style="margin-top:10px;min-height:80px;">${escapeHtml(a.notes||"")}</textarea><button class="btn secondary" data-save-adset="${a.id}" style="margin-top:10px;">Save Ad Set Update</button>`:""}</div>`).join("")||`<div class="empty">No ad sets yet.</div>`}</div><div class="grid-3" style="margin-top:16px;"><input id="adset_name" placeholder="Ad set name"><input id="adset_objective" placeholder="Objective"><input id="adset_budget" placeholder="Budget"></div><div class="grid-2" style="margin-top:12px;"><select id="adset_status"><option>Running</option><option>Paused</option><option>Ended</option><option>Needs Review</option></select><select id="adset_budget_type"><option>Daily Budget</option><option>Lifetime Budget</option></select></div><textarea id="adset_audience" placeholder="Audience" style="margin-top:12px;"></textarea><textarea id="adset_notes" placeholder="Notes" style="margin-top:12px;"></textarea><button class="btn" id="addAdSetBtn" style="margin-top:12px;">${activeCampaignId?"Add Ad Set":"Add Ad Set To Draft"}</button></div><div class="panel stack"><h3>Naming + Links</h3><button class="btn secondary" id="namesInlineBtn">Generate Names Into Brief</button><div class="field"><label>Main Link</label><input id="linksCampaignLink" value="${escapeAttr(tempDraft.campaign_link)}"></div><button class="btn secondary" id="saveLinkBtn">Save Link</button></div></div>`;document.getElementById("addAdSetBtn")?.addEventListener("click",()=>activeCampaignId?addAdSet():addTempAdSet());document.querySelectorAll("[data-delete-adset]").forEach(b=>b.addEventListener("click",()=>deleteAdSet(b.dataset.deleteAdset)));document.querySelectorAll("[data-save-adset]").forEach(b=>b.addEventListener("click",()=>updateAdSet(b.dataset.saveAdset)));document.getElementById("namesInlineBtn").addEventListener("click",()=>{activeTab="brief";renderModal();setTimeout(generateNames,0)});document.getElementById("saveLinkBtn").addEventListener("click",async()=>{tempDraft.campaign_link=val("linksCampaignLink");await saveCampaign()})}
-function renderBuildTab(){const isNew=!activeCampaignId,steps=isNew?(tempDraft.checklist||DEFAULT_CHECKLIST).map((text,i)=>({id:"temp"+i,text,done:false})):getCampaignChecklist(activeCampaignId);document.getElementById("modalBody").innerHTML=`<div class="grid-2"><div class="panel"><h3>Build Mode</h3><p class="small">Tick each step as you build. Completed steps create work logs.</p>${steps.map(step=>`<div class="build-step ${step.done?"done":""}"><input type="checkbox" ${step.done?"checked":""} ${isNew?"disabled":""} data-build-step="${step.id}"><span>${escapeHtml(step.text)}</span></div>`).join("")}</div><div class="panel stack"><h3>Build Notes</h3><textarea id="buildNote"></textarea>${isNew?`<p class="small">Save the campaign first.</p>`:`<button class="btn" id="addBuildNoteBtn">Add Build Note</button>`}</div></div>`;if(!isNew){document.querySelectorAll("[data-build-step]").forEach(cb=>cb.addEventListener("change",async()=>{const text=cb.closest(".build-step").querySelector("span").textContent;await supabaseClient.from("checklist_items").update({done:cb.checked}).eq("id",cb.dataset.buildStep);if(cb.checked)await supabaseClient.from("work_logs").insert({campaign_id:activeCampaignId,logged_by:defaultLoggedBy(),log_type:"Build",text:`Completed build step: ${text}`,visible_to_james:true});await loadData();tempDraft=campaignToDraft(campaigns.find(c=>c.id===activeCampaignId));renderModal()}));document.getElementById("addBuildNoteBtn").addEventListener("click",async()=>{const note=val("buildNote");if(!note)return toast("Write a note first",true);await supabaseClient.from("work_logs").insert({campaign_id:activeCampaignId,logged_by:defaultLoggedBy(),log_type:"Build",text:note,visible_to_james:true});await loadData();tempDraft=campaignToDraft(campaigns.find(c=>c.id===activeCampaignId));renderModal()})}}
-function renderLogsTab(){const isNew=!activeCampaignId,logs=isNew?[]:getCampaignLogs(activeCampaignId);document.getElementById("modalBody").innerHTML=`<div class="stack"><div class="grid-2"><div class="panel stack"><h3>Add Work Log</h3>${isNew?`<p class="small">Save campaign first.</p>`:`<div class="grid-2"><div class="field"><label>Logged By</label><input id="log_by" value="${escapeAttr(defaultLoggedBy())}"></div><div class="field"><label>Type</label><select id="log_type"><option>Brief</option><option>Setup</option><option>QA</option><option>Approval</option><option>Launch</option><option>Reporting</option><option>Issue</option><option>Status</option></select></div></div><div class="field"><label>What was done?</label><textarea id="log_text"></textarea></div><button class="btn" id="addLogBtn">Add Log</button>`}</div><div class="panel"><div class="between"><h3>Timeline</h3><button class="btn secondary" id="summariseLogsBtn">Summarise Logs</button></div><div class="log-list">${logs.length?logs.slice().reverse().map(l=>`<div class="log-item"><div class="between"><div><p>${escapeHtml(l.text)}</p><p class="small" style="margin-top:6px;">${escapeHtml(l.log_type)} · ${escapeHtml(l.logged_by)} · ${formatDateTime(l.created_at)}</p></div><button class="btn danger" style="padding:8px 10px;" data-delete-log="${l.id}">Delete</button></div></div>`).join(""):`<div class="empty">No work logs yet.</div>`}</div></div></div><div class="panel stack"><div class="between"><h3>James / Client Report</h3><div class="row"><button class="btn secondary" id="jamesUpdateBtn">Generate James Update</button><button class="btn secondary" id="clientReportBtn">Generate Client Report</button></div></div><textarea id="m_report" style="min-height:260px;">${escapeHtml(tempDraft.report||"")}</textarea><div class="row"><button class="btn" id="saveReportBtn">Save Report</button><button class="btn secondary" id="copyReportBtn">Copy Report</button></div></div></div>`;if(!isNew){document.getElementById("addLogBtn").addEventListener("click",addLog);document.querySelectorAll("[data-delete-log]").forEach(b=>b.addEventListener("click",()=>deleteLog(b.dataset.deleteLog)))}document.getElementById("summariseLogsBtn").addEventListener("click",summariseLogs);document.getElementById("jamesUpdateBtn").addEventListener("click",generateJamesUpdate);document.getElementById("clientReportBtn").addEventListener("click",generateClientReport);document.getElementById("saveReportBtn").addEventListener("click",saveCampaign);document.getElementById("copyReportBtn").addEventListener("click",()=>navigator.clipboard.writeText(val("m_report")).then(()=>toast("Report copied")))}
-function collectDraft(){if(document.getElementById("m_artistName")){tempDraft.artistName=val("m_artistName");tempDraft.title=val("m_title");tempDraft.status=val("m_status");tempDraft.priority=val("m_priority");tempDraft.deadline=val("m_deadline");tempDraft.budget=val("m_budget");tempDraft.objective=val("m_objective");tempDraft.campaign_link=val("m_campaignLink");tempDraft.territories=val("m_territories");tempDraft.raw_brief=val("m_rawBrief");tempDraft.structured_brief=val("m_structuredBrief");tempDraft.missing_info=val("m_missingInfo")}if(document.getElementById("m_report"))tempDraft.report=val("m_report");return tempDraft}
-async function getOrCreateArtist(name){const clean=name.trim();const local=artists.find(a=>a.name.toLowerCase()===clean.toLowerCase());if(local)return local;const{data:rows,error:sel}=await supabaseClient.from("artists").select("*").ilike("name",clean).limit(1);if(sel)throw sel;if(rows&&rows.length){artists.push(rows[0]);return rows[0]}const{data,error}=await supabaseClient.from("artists").upsert({name:clean},{onConflict:"name"}).select().single();if(error)throw error;artists.push(data);return data}
-async function saveCampaign(){try{const d=collectDraft();if(!d.artistName||!d.title)return toast("Add artist and campaign/track name",true);const artist=await getOrCreateArtist(d.artistName);const payload={artist_id:artist.id,title:d.title,status:d.status,priority:d.priority,deadline:d.deadline||null,budget:d.budget,objective:d.objective,campaign_link:d.campaign_link,territories:d.territories,raw_brief:d.raw_brief,structured_brief:d.structured_brief,missing_info:d.missing_info,report:d.report||"",updated_at:new Date().toISOString()};if(activeCampaignId){const oldCampaign=campaigns.find(c=>c.id===activeCampaignId);const oldLogs=workLogs.slice();const{error}=await supabaseClient.from("campaigns").update(payload).eq("id",activeCampaignId);if(error)throw error;const logRes=await supabaseClient.from("work_logs").insert({campaign_id:activeCampaignId,logged_by:"System",log_type:"Update",text:"Campaign details updated.",visible_to_james:true}).select().single();setUndo("Undo campaign edit",async()=>{if(oldCampaign)await supabaseClient.from("campaigns").update(oldCampaign).eq("id",oldCampaign.id);if(logRes.data?.id)await supabaseClient.from("work_logs").delete().eq("id",logRes.data.id);await loadData()});toast("Campaign saved")}else{const{data,error}=await supabaseClient.from("campaigns").insert(payload).select().single();if(error)throw error;activeCampaignId=data.id;await supabaseClient.from("checklist_items").insert((d.checklist||DEFAULT_CHECKLIST).map((text,i)=>({campaign_id:data.id,text,position:i})));if(d.ad_sets?.length)await supabaseClient.from("ad_sets").insert(d.ad_sets.map((a,i)=>({campaign_id:data.id,name:a.name||`Ad Set ${i+1}`,objective:a.objective||"",budget:a.budget||"",budget_type:a.budget_type||"Daily Budget",audience:a.audience||"",notes:a.notes||"",status:a.status||"Running",position:i})));await supabaseClient.from("work_logs").insert({campaign_id:data.id,logged_by:"System",log_type:"Brief",text:"Campaign brief created.",visible_to_james:true});setUndo("Undo campaign create",async()=>{await supabaseClient.from("campaigns").delete().eq("id",data.id);await loadData()});toast("Campaign created")}await loadData();tempDraft=campaignToDraft(campaigns.find(c=>c.id===activeCampaignId));renderModal()}catch(e){toast(e.message,true)}}
-function wireAutosaveFields(){
-  if(!activeCampaignId)return;
-  document.querySelectorAll("#modalBody input,#modalBody textarea,#modalBody select").forEach(el=>{
-    if(el.id&&el.id.startsWith("adset_"))return;
-    el.addEventListener("input",scheduleAutosave);
-    el.addEventListener("change",scheduleAutosave);
-  });
-}
-function scheduleAutosave(){
-  if(!activeCampaignId)return;
-  clearTimeout(autosaveTimer);
-  autosaveTimer=setTimeout(saveCampaignSilent,900);
-}
-async function saveCampaignSilent(){
-  try{
-    const d=collectDraft();
-    if(!d.artistName||!d.title||!activeCampaignId)return;
-    const artist=await getOrCreateArtist(d.artistName);
-    const payload={artist_id:artist.id,title:d.title,status:d.status,priority:d.priority,deadline:d.deadline||null,budget:d.budget,objective:d.objective,campaign_link:d.campaign_link,territories:d.territories,raw_brief:d.raw_brief,structured_brief:d.structured_brief,missing_info:d.missing_info,report:d.report||"",updated_at:new Date().toISOString()};
-    const{error}=await supabaseClient.from("campaigns").update(payload).eq("id",activeCampaignId);
-    if(error)throw error;
-    const index=campaigns.findIndex(c=>c.id===activeCampaignId);
-    if(index>=0)campaigns[index]={...campaigns[index],...payload};
-  }catch(e){toast("Autosave failed: "+e.message,true)}
-}
-async function deleteActiveCampaign(){if(!activeCampaignId||!confirm("Delete this campaign?"))return;const id=activeCampaignId;const backup={campaign:campaigns.find(c=>c.id===id),checklist:checklistItems.filter(i=>i.campaign_id===id),logs:workLogs.filter(l=>l.campaign_id===id),adsets:adSets.filter(a=>a.campaign_id===id)};const{error}=await supabaseClient.from("campaigns").delete().eq("id",id);if(error)return toast(error.message,true);setUndo("Undo campaign delete",async()=>{if(backup.campaign)await supabaseClient.from("campaigns").insert(backup.campaign);if(backup.checklist.length)await supabaseClient.from("checklist_items").insert(backup.checklist);if(backup.logs.length)await supabaseClient.from("work_logs").insert(backup.logs);if(backup.adsets.length)await supabaseClient.from("ad_sets").insert(backup.adsets);await loadData()});closeModal();await loadData();toast("Campaign deleted")}function addTempAdSet(){const name=val("adset_name");if(!name)return toast("Add ad set name",true);tempDraft.ad_sets=tempDraft.ad_sets||[];tempDraft.ad_sets.push({name,objective:val("adset_objective"),budget:val("adset_budget"),budget_type:val("adset_budget_type")||"Daily Budget",audience:val("adset_audience"),notes:val("adset_notes"),status:val("adset_status")||"Running"});toast("Ad set added to draft");renderModal()}
-async function addAdSet(){const name=val("adset_name");if(!name)return toast("Add ad set name",true);const payload={campaign_id:activeCampaignId,name,objective:val("adset_objective"),budget:val("adset_budget"),budget_type:val("adset_budget_type")||"Daily Budget",audience:val("adset_audience"),notes:val("adset_notes"),status:val("adset_status")||"Running",position:getCampaignAdSets(activeCampaignId).length};const{data,error}=await supabaseClient.from("ad_sets").insert(payload).select().single();if(error)return toast(error.message,true);await supabaseClient.from("work_logs").insert({campaign_id:activeCampaignId,logged_by:defaultLoggedBy(),log_type:"Ad Set",text:`Ad set added: ${name}. Status: ${payload.status}. ${payload.budget_type}: ${payload.budget||"TBC"}. ${payload.notes?"Notes: "+payload.notes:""}`,visible_to_james:true});if(data?.id)setUndo("Undo ad set add",async()=>{await supabaseClient.from("ad_sets").delete().eq("id",data.id);await loadData()});await loadData();tempDraft=campaignToDraft(campaigns.find(c=>c.id===activeCampaignId));renderModal()}async function updateAdSet(id){const existing=adSets.find(a=>a.id===id);if(!existing)return toast("Ad set not found",true);const status=document.querySelector(`[data-adset-status="${id}"]`)?.value||"Running";const notes=document.querySelector(`[data-adset-note="${id}"]`)?.value||"";const budget=document.querySelector(`[data-adset-budget="${id}"]`)?.value||"";const budget_type=document.querySelector(`[data-adset-budget-type="${id}"]`)?.value||"Daily Budget";const previous={...existing};const{error}=await supabaseClient.from("ad_sets").update({status,notes,budget,budget_type}).eq("id",id);if(error)return toast(error.message,true);const logText=`Ad set update — ${existing.name}: status set to ${status}. ${budget_type}: ${budget||"TBC"}.${notes?" Notes: "+notes:""}`;const logRes=await supabaseClient.from("work_logs").insert({campaign_id:activeCampaignId,logged_by:defaultLoggedBy(),log_type:"Ad Set",text:logText,visible_to_james:true}).select().single();setUndo("Undo ad set update",async()=>{await supabaseClient.from("ad_sets").update({status:previous.status||"Running",notes:previous.notes||"",budget:previous.budget||"",budget_type:previous.budget_type||"Daily Budget"}).eq("id",id);if(logRes.data?.id)await supabaseClient.from("work_logs").delete().eq("id",logRes.data.id);await loadData()});await loadData();tempDraft=campaignToDraft(campaigns.find(c=>c.id===activeCampaignId));renderModal();toast("Ad set update saved and logged")}
-async function deleteAdSet(id){const backup=adSets.find(a=>a.id===id);const{error}=await supabaseClient.from("ad_sets").delete().eq("id",id);if(error)return toast(error.message,true);if(backup)setUndo("Undo ad set delete",async()=>{await supabaseClient.from("ad_sets").insert(backup);await loadData()});await loadData();tempDraft=campaignToDraft(campaigns.find(c=>c.id===activeCampaignId));renderModal()}async function addLog(){const text=val("log_text");if(!text)return toast("Write a log first",true);const{data,error}=await supabaseClient.from("work_logs").insert({campaign_id:activeCampaignId,logged_by:val("log_by")||defaultLoggedBy(),log_type:val("log_type")||"Setup",text,visible_to_james:true}).select().single();if(error)return toast(error.message,true);if(data?.id)setUndo("Undo log add",async()=>{await supabaseClient.from("work_logs").delete().eq("id",data.id);await loadData()});await loadData();tempDraft=campaignToDraft(campaigns.find(c=>c.id===activeCampaignId));renderModal()}async function deleteLog(id){if(!confirm("Delete this work log?"))return;const backup=workLogs.find(l=>l.id===id);const{error}=await supabaseClient.from("work_logs").delete().eq("id",id);if(error)return toast(error.message,true);if(backup)setUndo("Undo log delete",async()=>{await supabaseClient.from("work_logs").insert(backup);await loadData()});await loadData();tempDraft=campaignToDraft(campaigns.find(c=>c.id===activeCampaignId));renderModal()}
-function openImportModal(){document.getElementById("modalRoot").innerHTML=`<div class="modal-backdrop"><div class="modal" style="width:min(900px,100%);"><div class="modal-head between"><div><h2>Import Messy Brief</h2><p class="small">Paste James's brief and organise it.</p></div><button class="btn secondary" onclick="closeModal()">Close</button></div><div class="modal-body stack"><textarea id="importRaw" style="min-height:330px;"></textarea><button class="btn" id="organiseImportBtn">Organise Brief</button></div></div></div>`;document.getElementById("organiseImportBtn").addEventListener("click",()=>{const raw=val("importRaw");if(!raw)return toast("Paste a brief first",true);const o=localBriefOrganiser(raw);closeModal();openCampaignModal(null,o)})}function openTemplate(){openCampaignModal(null,{...blankDraft(),...localBriefOrganiser("Meta music streaming campaign. Objective Engagement. Conversion location Website. Optimise for View Content. Use warm retargeting and prospecting ad sets."),title:"New Streaming Campaign",raw_brief:"Template: Meta Music Streaming / View Content Campaign"})}function openSettingsModal(){const s=JSON.parse(localStorage.getItem("jdw_settings")||"{}"),accent=s.accent||"#d7ff38",loggedBy=s.loggedBy||"Aidan";document.getElementById("modalRoot").innerHTML=`<div class="modal-backdrop"><div class="modal" style="width:min(760px,100%);"><div class="modal-head between"><div><h2>Settings</h2><p class="small">Theme and local preferences.</p></div><button class="btn secondary" onclick="closeModal()">Close</button></div><div class="modal-body stack"><div class="grid-2"><div class="field"><label>Theme Accent Colour</label><input id="settingsAccent" type="color" value="${escapeAttr(accent)}"></div><div class="field"><label>Default Logged By Name</label><input id="settingsLoggedBy" value="${escapeAttr(loggedBy)}"></div></div><div class="panel"><h3>Mac Reminders / To Do Sync</h3><p class="small">A static website cannot directly write to Apple Reminders. Best route later: export next actions to an Apple Shortcut.</p></div><div class="panel stack"><h3>Account</h3><div class="row"><button class="btn secondary" id="settingsRefreshBtn">Refresh Data</button><button class="btn danger" id="settingsSignOutBtn">Sign Out</button></div></div><button class="btn" id="saveSettingsBtn">Save Settings</button></div></div></div>`;document.getElementById("settingsAccent").addEventListener("input",e=>applyTheme(e.target.value));document.getElementById("saveSettingsBtn").addEventListener("click",()=>{localStorage.setItem("jdw_settings",JSON.stringify({accent:val("settingsAccent"),loggedBy:val("settingsLoggedBy")||"Aidan"}));applySavedSettings();toast("Settings saved");closeModal()})}function openBuildGuideModal(){document.getElementById("modalRoot").innerHTML=`<div class="modal-backdrop"><div class="modal"><div class="modal-head between"><div><h2>Music Campaign Build Guide</h2><p class="small">Meta • TikTok • YouTube • Tracking • Reporting</p></div><button class="btn secondary" onclick="closeModal()">Close</button></div><div class="modal-body stack"><div class="grid-2"><div class="panel"><h3>Decision Map</h3><div class="quality-list"><div class="quality-item"><span>Streams / smart link</span><strong>Meta first</strong></div><div class="quality-item"><span>Post engagement</span><strong>Meta native</strong></div><div class="quality-item"><span>Video views</span><strong>YouTube / TikTok</strong></div><div class="quality-item"><span>Creator boosting</span><strong>TikTok Spark</strong></div></div></div><div class="panel"><h3>Must Check</h3><p class="small">Objective, platform split, tracking, ACID, advertiser settings, native/dark choice, creative approval, manual placements, naming and first 24h monitoring.</p></div></div></div></div></div>`}
-function localBriefOrganiser(raw){
-  const lower=raw.toLowerCase();
-  const title=getQuotedText(raw)[0]||"Untitled Campaign";
-  const artist=getArtistBeforeTitle(raw,title)||getWordsBefore(raw,"pixel",2).replace(/^the /i,"")||"Untitled Artist";
-  const objective=lower.includes("engagement")?"Engagement":"Confirm objective";
-  const conversionLocation=lower.includes("website")?"Website":"Confirm conversion location";
-  const event=lower.includes("view content")?"View Content":"Confirm optimisation event";
-  const pixel=artist!=="Untitled Artist"?artist+" pixel":"Confirm pixel";
-  const link=findUrl(raw,"song.so")||findUrl(raw,"http")||"";
-  const budget=findOverallBudget(raw);
-  const daily=findMoneyLine(raw,"day");
-  const territories=extractTerritories(raw).join(", ");
-  const split=extractAdSetBudgetSplit(raw,daily);
-  const structured=[
-    `Artist: ${artist}`,
-    `Campaign / track: ${title}`,
-    `Campaign setup: Objective is ${objective}. Set conversion location to ${conversionLocation}. Optimise for ${event} using ${pixel}.`,
-    `Conversion link: ${link||"TBC"}`,
-    `Campaign budget: ${budget||"TBC"}.`,
-    `Ad set budget split: Warm / Retargeting ${split[0]||"TBC"}; Prospecting ${split[1]||"TBC"}.`,
-    `Targeting: ${territories||"TBC"}.`
-  ].join("\n\n");
-  return{
-    artistName:clean(artist),title:clean(title),status:"New Brief",priority:"Normal",deadline:"",
-    budget:budget,
-    objective:`${objective}. Conversion location: ${conversionLocation}. Optimisation event: ${event}. Pixel: ${pixel}.`,
-    campaign_link:link,territories,raw_brief:raw,structured_brief:structured,missing_info:"No major missing information detected.",report:"",checklist:DEFAULT_CHECKLIST,
-    ad_sets:[
-      {name:"Warm / Retargeting",objective:`${conversionLocation} / ${event}`,budget:split[0]||daily||"TBC",budget_type:"Daily Budget",status:"Running",audience:"Warm custom audiences, lookalike, engagers and followers."},
-      {name:"Prospecting",objective:`${conversionLocation} / ${event}`,budget:split[1]||daily||"TBC",budget_type:"Daily Budget",status:"Running",audience:"Related artist / interest prospecting."}
-    ]
-  }
-}
-function organiseCurrentBrief(){collectDraft();if(!tempDraft.raw_brief)return toast("Paste a raw brief first",true);tempDraft={...tempDraft,...localBriefOrganiser(tempDraft.raw_brief)};renderModal()}function generateNames(){collectDraft();const artist=slug(tempDraft.artistName||"artist"),title=slug(tempDraft.title||"campaign"),terr=slug((tempDraft.territories||"core").replaceAll(",","-"));document.getElementById("m_structuredBrief").value=(tempDraft.structured_brief?tempDraft.structured_brief+"\n\n":"")+`Suggested naming convention:\n\nCampaign:\n${artist}_eng-${title}_vc_${terr}\n\nAd Set 1:\nca_warm-lal_${artist}_18-50_${terr}_ig-fb\n\nAd Set 2:\nint_ra-related-artists_${artist}_18-50_${terr}_ig-fb`;collectDraft();toast("Names added")}
-function summariseLogs(){const logs=activeCampaignId?getCampaignLogs(activeCampaignId):[];tempDraft.report=logs.length?logs.map(l=>`- ${formatDateTime(l.created_at)}: ${l.text}`).join("\n"):"No logs yet.";const box=document.getElementById("m_report");if(box){box.value=tempDraft.report;scheduleAutosave()}else renderModal()}function generateJamesUpdate(){collectDraft();const logs=activeCampaignId?getCampaignLogs(activeCampaignId):[];tempDraft.report=`Hey mate, quick update on ${tempDraft.artistName} — ${tempDraft.title}.\n\nStatus: ${tempDraft.status}.\n\nWhat has been done:\n${logs.slice(-6).map(l=>`- ${l.text}`).join("\n")||"- No work logs added yet."}\n\n${tempDraft.missing_info||"No major missing info flagged."}`;const box=document.getElementById("m_report");if(box){box.value=tempDraft.report;scheduleAutosave()}else renderModal()}function generateClientReport(){collectDraft();const logs=activeCampaignId?getCampaignLogs(activeCampaignId):[];tempDraft.report=`Campaign Report — ${tempDraft.artistName} / ${tempDraft.title}\n\nStatus: ${tempDraft.status}\nObjective / Setup: ${tempDraft.objective||"TBC"}\nBudget: ${tempDraft.budget||"TBC"}\nTerritories: ${tempDraft.territories||"TBC"}\nDestination: ${tempDraft.campaign_link||"TBC"}\n\nBrief Summary:\n${tempDraft.structured_brief||tempDraft.raw_brief||"No brief added yet."}\n\nWork Completed:\n${logs.map(l=>`- ${l.text}`).join("\n")||"No work logs added yet."}`;renderModal()}function closeModal(){document.getElementById("modalRoot").innerHTML="";activeCampaignId=null;tempDraft=null}
-function setAuthStatus(m,e=false){const el=document.getElementById("authStatus");if(!el)return;el.textContent=m;el.className="status-box"+(e?" error":"")}function toast(m,e=false){const el=document.getElementById("toast");el.textContent=m;el.className="toast"+(e?" error":"");el.classList.remove("hidden");setTimeout(()=>el.classList.add("hidden"),3500)}function val(id){return document.getElementById(id)?.value?.trim()||""}function tabLabel(t){return{overview:"Overview",brief:"Brief",setup:"Setup",build:"Build",logs:"Logs / Report"}[t]}function truncate(t,n){return String(t||"").length>n?String(t).slice(0,n-1)+"…":String(t||"")}
-function formatCampaignBudget(value){const text=String(value||"");const compact=text.replace("Budget:","").replace("Campaign spend cap:","").trim();const found=compact.match(new RegExp("[€£$]? *[0-9][0-9,.]* *(euro|eur|gbp|usd|pounds?)?","i"));return found?found[0].trim():compact}
-function formatAdSetBudget(a){let amount=String(a.budget||"").trim();amount=amount.replace("Budget:","").replace("Ad set budget:","").replace("if confirmed","").trim();const found=amount.match(new RegExp("[€£$]? *[0-9][0-9,.]* *(per day|/day|daily|euro|eur|gbp|usd|pounds?)?","i"));amount=found?found[0].trim():amount||"TBC";const type=String(a.budget_type||"Daily Budget").toLowerCase().includes("life")?"lifetime":"daily";return (amount+" "+type).replace(new RegExp(" +","g")," ").trim()}function slug(t){return String(t||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}function clean(t){return String(t||"").replaceAll("-"," ").replace(/\s+/g," ").trim().replace(/^the /i,"")}function formatDate(d){return d?new Date(d+"T00:00:00").toLocaleDateString(undefined,{day:"2-digit",month:"short"}):""}function formatDateTime(d){return d?new Date(d).toLocaleString(undefined,{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}):""}function escapeHtml(s){return String(s??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]))}function escapeAttr(s){return escapeHtml(s).replace(/`/g,"&#96;")}function getQuotedText(t){const m=String(t).match(/["“](.*?)["”]/);return m?[m[1].trim()]:[]}function getArtistBeforeTitle(raw,title){const marker="write up the ",lower=raw.toLowerCase(),start=lower.indexOf(marker),idx=lower.indexOf(String(title).toLowerCase());if(start===-1||idx===-1||idx<=start)return"";return clean(raw.slice(start+marker.length,idx).replaceAll('"',"").replaceAll("“","").replaceAll("”",""))}function getWordsBefore(raw,word,count){const words=String(raw).replace(/[.,()]/g," ").split(/\s+/).filter(Boolean),idx=words.findIndex(w=>w.toLowerCase()===word.toLowerCase());return idx===-1?"":words.slice(Math.max(0,idx-count),idx).join(" ")}function findUrl(text,domain){const tokens=String(text).split(/\s+/).map(t=>t.trim().replace(/[),.]+$/g,"")),found=tokens.find(t=>t.toLowerCase().includes(domain.toLowerCase())&&t.includes("."));return found?(found.startsWith("http")?found:"https://"+found):""}function findMoneyLine(text,keyword){
-  const lines=String(text||"").split(String.fromCharCode(10));
-  const found=lines.find(line=>hasNumber(line)&&(!keyword||line.toLowerCase().includes(keyword.toLowerCase())));
-  return found?found.trim().replace(/^[- ]+/,""):"";
-}
-function hasNumber(text){return getNumbers(text).length>0}
-function getNumbers(text){
-  const out=[];let cur="";
-  for(const ch of String(text||"")){
-    if((ch>="0"&&ch<="9")||ch===","||ch===".")cur+=ch;
-    else{if(cur&&cur!=="."&&cur!==",")out.push(cur);cur="";}
-  }
-  if(cur&&cur!=="."&&cur!==",")out.push(cur);
-  return out;
-}
-function moneySymbolFromText(text){
-  const s=String(text||"");
-  if(s.includes("£"))return "£";
-  if(s.includes("$"))return "$";
-  return "€";
-}
-function cleanNumberToken(n){return String(n||"").replaceAll(",","").trim()}
-function amountWithSymbol(n,raw){return n?moneySymbolFromText(raw)+String(n).trim():""}
-function findOverallBudget(raw){
-  const text=String(raw||"");
-  const lines=text.split(String.fromCharCode(10));
-  const line=lines.find(l=>{const x=l.toLowerCase();return hasNumber(l)&&(x.includes("budget")||x.includes("spend cap")||x.includes("campaign level")||x.includes("campaign-level")||x.includes("total"));});
-  if(line){const nums=getNumbers(line).filter(n=>Number(cleanNumberToken(n))>10);if(nums.length)return amountWithSymbol(nums[0],text);}
-  const nums=getNumbers(text).filter(n=>Number(cleanNumberToken(n))>10);
-  return nums.length?amountWithSymbol(nums[0],text):"";
-}
-function cleanBudgetAmount(value,raw){
-  const nums=getNumbers(value).filter(n=>Number(cleanNumberToken(n))>0);
-  return nums.length?amountWithSymbol(nums[0],raw||value):"";
-}
-function extractAdSetBudgetSplit(raw,fallback){
-  const text=String(raw||"");
-  const lines=text.split(String.fromCharCode(10));
-  let first="",second="";
-  const firstLine=lines.find(l=>{const x=l.toLowerCase();return hasNumber(l)&&(x.includes("warm")||x.includes("retarget")||x.includes("first")||x.includes("1st")||x.includes("ad set 1")||x.includes("adset 1"));});
-  const secondLine=lines.find(l=>{const x=l.toLowerCase();return hasNumber(l)&&(x.includes("prospecting")||x.includes("cold")||x.includes("interest")||x.includes("second")||x.includes("2nd")||x.includes("ad set 2")||x.includes("adset 2"));});
-  if(firstLine){const nums=getNumbers(firstLine).filter(n=>Number(cleanNumberToken(n))>10);if(nums.length)first=amountWithSymbol(nums[nums.length-1],text);}
-  if(secondLine){const nums=getNumbers(secondLine).filter(n=>Number(cleanNumberToken(n))>10);if(nums.length)second=amountWithSymbol(nums[nums.length-1],text);}
-  if(!first||!second){
-    const lower=text.toLowerCase();
-    const startWords=["split","ad sets","adsets","first","warm","prospecting"];
-    let start=0;
-    for(const w of startWords){const i=lower.indexOf(w);if(i>=0){start=i;break;}}
-    const relevant=text.slice(start,start+320);
-    const nums=getNumbers(relevant).filter(n=>{const v=Number(cleanNumberToken(n));return v>10&&v<10000;});
-    if(nums.length>=2){first=first||amountWithSymbol(nums[0],text);second=second||amountWithSymbol(nums[1],text);}
-  }
-  if(!first&&fallback)first=cleanBudgetAmount(fallback,text)||fallback;
-  if(!second&&fallback)second=cleanBudgetAmount(fallback,text)||fallback;
-  return [first,second];
-}
-function extractTerritories(raw){const l=String(raw).toLowerCase(),out=[];if(l.includes("germany"))out.push("Germany");if(l.includes("austria"))out.push("Austria");if(l.includes("switzerland"))out.push("Switzerland");if(l.includes("sweden"))out.push("Sweden");if(l.includes("united kingdom")||l.includes(" uk "))out.push("United Kingdom");if(l.includes("united states")||l.includes(" usa "))out.push("United States");return[...new Set(out)]}
-</script>
+  <section id="loginScreen" class="login-screen">
+    <div class="login-card stack">
+      <div class="logo-row">
+        <div class="logo">JW</div>
+        <div>
+          <h2 style="margin:0;font-size:14px;letter-spacing:.08em;text-transform:uppercase;">JDW Campaign Hub</h2>
+          <p class="small" style="margin:3px 0 0;">Supabase-powered campaign operations portal</p>
+        </div>
+      </div>
+
+      <div>
+        <h1>Briefs, builds, logs and reports in one place.</h1>
+        <p class="muted">Sign in with your Supabase email and password.</p>
+      </div>
+
+      <form id="authForm" class="stack">
+        <div class="grid-2">
+          <div class="field">
+            <label>Email</label>
+            <input id="emailInput" type="email" required>
+          </div>
+
+          <div class="field">
+            <label>Password</label>
+            <input id="passwordInput" type="password" required>
+          </div>
+        </div>
+
+        <div class="row">
+          <button id="signInButton" class="btn" type="submit">Sign In</button>
+          <button id="signUpButton" class="btn secondary" type="button">Create Account</button>
+        </div>
+
+        <div id="authStatus" class="status-box">Loading login...</div>
+      </form>
+    </div>
+  </section>
+
+  <section id="app" class="app hidden">
+    <aside class="sidebar">
+      <div class="logo-row side-title">
+        <div class="logo">JW</div>
+        <div>
+          <h2>Campaign Hub</h2>
+          <p id="userLabel">Shared dashboard</p>
+        </div>
+      </div>
+
+      <button class="btn" style="width:100%;" id="newCampaignSideBtn">+ New Campaign</button>
+      <button class="btn secondary" style="width:100%;margin-top:12px;" id="importBriefSideBtn">Import Messy Brief</button>
+      <button class="btn secondary" style="width:100%;margin-top:12px;" id="settingsBtn">Settings</button>
+
+      <div class="folder-toolbar">
+        <span>Artists</span>
+        <button class="folder-add-btn" id="addArtistBtn" title="Add artist folder">+</button>
+      </div>
+
+      <div id="artistList" class="folder-list"></div>
+
+      <div class="side-section-title">Actions</div>
+      <button class="btn secondary" style="width:100%;" id="undoBtn" disabled>Undo Last Action</button>
+    </aside>
+
+    <main class="main">
+      <header class="topbar between">
+        <div>
+          <h1 id="pageTitle">All Artists</h1>
+          <p class="small" style="margin:5px 0 0;">Drag campaign cards between columns to update status.</p>
+        </div>
+      </header>
+
+      <section class="stats-grid" id="statsGrid"></section>
+
+      <section class="toolbar">
+        <input id="searchInput" class="search" placeholder="Search campaigns, artists, briefs or logs...">
+
+        <div class="row">
+          <button class="btn secondary" id="viewToggleBtn">Stack View</button>
+          <select id="artistFilterMobile"></select>
+          <select id="sortSelect">
+            <option value="updated">Sort: recently updated</option>
+            <option value="deadline">Sort: deadline</option>
+            <option value="artist">Sort: artist</option>
+          </select>
+        </div>
+      </section>
+
+      <section id="board" class="board"></section>
+    </main>
+  </section>
+
+  <div id="modalRoot"></div>
+  <div id="toast" class="toast hidden"></div>
+
+  <script>
+    const SUPABASE_URL = "https://zpkfxdyvesftnhkknggz.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpwa2Z4ZHl2ZXNmdG5oa2tuZ2d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMDM5NjgsImV4cCI6MjA5NTg3OTk2OH0._w0PMiMUVh7MPyGWpKyRU4Sm6DXok-Yz657ctjUml3k";
+
+    const STATUSES = [
+      { key:"New Brief", className:"new" },
+      { key:"Needs Info", className:"needs" },
+      { key:"Ready to Build", className:"ready" },
+      { key:"In Progress", className:"progress" },
+      { key:"Awaiting Approval", className:"approval" },
+      { key:"Live", className:"live" },
+      { key:"Reporting", className:"reporting" },
+      { key:"Complete", className:"complete" }
+    ];
+
+    const DEFAULT_CHECKLIST = [
+      "Interpret brief: real objective, release status, territories, budget and assets",
+      "Choose platform split: Meta / TikTok / YouTube depending on objective",
+      "Confirm account/business access and advertiser settings",
+      "Generate or confirm ACID compliance code if required",
+      "Confirm tracking link, pixel/dataset and View Content or equivalent event",
+      "Test destination link on mobile before build",
+      "Confirm native vs dark ad preference and artist optics",
+      "Create campaign with correct objective and budget structure",
+      "Create warm / retargeting ad set if audience exists",
+      "Create prospecting / related artist ad set",
+      "Set age, territories, audience type and exclusions",
+      "Use manual placements and exclude low-quality placements where relevant",
+      "Build or attach approved creative assets",
+      "Disable unwanted AI/site-link/creative enhancements",
+      "Check naming convention across campaign, ad sets and ads",
+      "Preview campaign and send setup summary to James",
+      "Confirm approval, delivery, tracking and spend pacing after launch",
+      "Check early CPM/CPC/CPV and engagement quality",
+      "Optimise after enough data, not too early",
+      "Generate first report / update for James"
+    ];
+
+    let supabaseClient;
+    let currentUser = null;
+    let artists = [];
+    let campaigns = [];
+    let checklistItems = [];
+    let workLogs = [];
+    let adSets = [];
+
+    let activeArtistId = "all";
+    let activeCampaignId = null;
+    let activeTab = "overview";
+    let tempDraft = null;
+    let expandedArtists = new Set();
+
+    let undoAction = null;
+    let boardView = localStorage.getItem("jdw_board_view") || "columns";
+    let autosaveTimer = null;
+    let adSetAutosaveTimers = {};
+
+    function applyTheme(hex){
+      const colour = hex || "#d7ff38";
+      const number = parseInt(colour.replace("#",""),16);
+      document.documentElement.style.setProperty("--accent",colour);
+      document.documentElement.style.setProperty("--accent-rgb",`${(number>>16)&255},${(number>>8)&255},${number&255}`);
+    }
+
+    function applySavedSettings(){
+      try{
+        const saved = JSON.parse(localStorage.getItem("jdw_settings") || "{}");
+        applyTheme(saved.accent || "#d7ff38");
+      }catch(e){
+        applyTheme("#d7ff38");
+      }
+    }
+
+    function defaultLoggedBy(){
+      try{
+        return JSON.parse(localStorage.getItem("jdw_settings") || "{}").loggedBy || "Aidan";
+      }catch(e){
+        return "Aidan";
+      }
+    }
+
+    function start(){
+      applySavedSettings();
+
+      try{
+        if(!window.supabase){
+          throw new Error("Supabase library did not load. Refresh or check internet.");
+        }
+
+        supabaseClient = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+        wireUi();
+        setAuthStatus("Login ready. Enter details and press Sign In.");
+
+        supabaseClient.auth.getSession().then(({data,error})=>{
+          if(error) throw error;
+
+          currentUser = data.session?.user || null;
+
+          supabaseClient.auth.onAuthStateChange((_event,session)=>{
+            currentUser = session?.user || null;
+            showCorrectScreen();
+          });
+
+          showCorrectScreen();
+        }).catch(error=>{
+          setAuthStatus(error.message,true);
+        });
+      }catch(error){
+        setAuthStatus(error.message,true);
+      }
+    }
+
+    if(document.readyState === "loading"){
+      document.addEventListener("DOMContentLoaded",start);
+    }else{
+      start();
+    }
+
+    function on(id,event,fn){
+      const element = document.getElementById(id);
+
+      if(element && !element.dataset.wired){
+        element.addEventListener(event,fn);
+        element.dataset.wired = "true";
+      }
+    }
+
+    function wireUi(){
+      on("authForm","submit",async event=>{
+        event.preventDefault();
+        await signIn();
+      });
+
+      on("signUpButton","click",signUp);
+      on("newCampaignSideBtn","click",()=>openCampaignModal(null));
+      on("importBriefSideBtn","click",openImportModal);
+      on("settingsBtn","click",openSettingsModal);
+      on("addArtistBtn","click",createArtistFolder);
+      on("undoBtn","click",undoLastAction);
+      on("searchInput","input",renderAll);
+      on("viewToggleBtn","click",toggleBoardView);
+      on("artistFilterMobile","change",event=>setActiveArtist(event.target.value));
+      on("sortSelect","change",renderAll);
+    }
+
+    async function signIn(){
+      const email = val("emailInput");
+      const password = val("passwordInput");
+
+      if(!email || !password){
+        setAuthStatus("Enter email and password.",true);
+        return;
+      }
+
+      setAuthStatus("Signing in...");
+
+      const {data,error} = await supabaseClient.auth.signInWithPassword({email,password});
+
+      if(error){
+        setAuthStatus(error.message,true);
+        return;
+      }
+
+      currentUser = data.user;
+      await showCorrectScreen();
+    }
+
+    async function signUp(){
+      const email = val("emailInput");
+      const password = val("passwordInput");
+
+      if(!email || !password){
+        setAuthStatus("Enter email and password.",true);
+        return;
+      }
+
+      setAuthStatus("Creating account...");
+
+      const {data,error} = await supabaseClient.auth.signUp({email,password});
+
+      if(error){
+        setAuthStatus(error.message,true);
+        return;
+      }
+
+      if(data.session){
+        currentUser = data.user;
+        await showCorrectScreen();
+      }else{
+        setAuthStatus("Account created. Check email confirmation settings, then sign in.");
+      }
+    }
+
+    async function signOut(){
+      await supabaseClient.auth.signOut();
+      currentUser = null;
+      artists = [];
+      campaigns = [];
+      showCorrectScreen();
+    }
+
+    async function showCorrectScreen(){
+      if(currentUser){
+        document.getElementById("loginScreen").classList.add("hidden");
+        document.getElementById("app").classList.remove("hidden");
+        document.getElementById("userLabel").textContent = currentUser.email || "Signed in";
+        renderAll();
+        await loadData();
+      }else{
+        document.getElementById("loginScreen").classList.remove("hidden");
+        document.getElementById("app").classList.add("hidden");
+      }
+    }
+
+    async function loadData(){
+      try{
+        renderAll();
+
+        const [artistsRes,campaignsRes,checklistRes,logsRes,adSetsRes] = await Promise.all([
+          supabaseClient.from("artists").select("*").order("name"),
+          supabaseClient.from("campaigns").select("*").order("updated_at",{ascending:false}),
+          supabaseClient.from("checklist_items").select("*").order("position"),
+          supabaseClient.from("work_logs").select("*").order("created_at"),
+          supabaseClient.from("ad_sets").select("*").order("position")
+        ]);
+
+        if(artistsRes.error) throw artistsRes.error;
+        if(campaignsRes.error) throw campaignsRes.error;
+        if(checklistRes.error) throw checklistRes.error;
+        if(logsRes.error) throw logsRes.error;
+        if(adSetsRes.error) throw adSetsRes.error;
+
+        artists = artistsRes.data || [];
+        campaigns = campaignsRes.data || [];
+        checklistItems = checklistRes.data || [];
+        workLogs = logsRes.data || [];
+        adSets = adSetsRes.data || [];
+
+        renderAll();
+      }catch(error){
+        toast("Load failed: " + error.message,true);
+        renderAll();
+      }
+    }
+
+    function setUndo(label,fn){
+      undoAction = {label,fn};
+
+      const button = document.getElementById("undoBtn");
+
+      if(button){
+        button.disabled = false;
+        button.textContent = label;
+      }
+    }
+
+    function clearUndo(){
+      undoAction = null;
+
+      const button = document.getElementById("undoBtn");
+
+      if(button){
+        button.disabled = true;
+        button.textContent = "Undo Last Action";
+      }
+    }
+
+    async function undoLastAction(){
+      if(!undoAction) return;
+
+      const action = undoAction;
+      clearUndo();
+
+      try{
+        await action.fn();
+        toast("Undo complete.");
+      }catch(error){
+        toast("Undo failed: " + error.message,true);
+      }
+    }
+
+    function renderAll(){
+      renderArtists();
+      renderMobileArtistSelect();
+      renderStats();
+      renderBoard();
+    }
+
+    function getArtistName(id){
+      return artists.find(artist=>artist.id===id)?.name || "Unknown Artist";
+    }
+
+    function getCampaignChecklist(id){
+      return checklistItems
+        .filter(item=>item.campaign_id===id)
+        .sort((a,b)=>(a.position||0)-(b.position||0));
+    }
+
+    function getCampaignLogs(id){
+      return workLogs
+        .filter(log=>log.campaign_id===id)
+        .sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+    }
+
+    function getCampaignAdSets(id){
+      return adSets
+        .filter(adSet=>adSet.campaign_id===id)
+        .sort((a,b)=>(a.position||0)-(b.position||0));
+    }
+
+    function renderArtists(){
+      const list = document.getElementById("artistList");
+
+      if(!list) return;
+
+      const rows = [
+        `<button class="folder-item ${activeArtistId==="all" ? "active" : ""}" data-artist="all">
+          <span class="folder-name"><span>▾</span><span>All Artists</span></span>
+          <span class="badge">${campaigns.length}</span>
+        </button>`
+      ];
+
+      artists.forEach(artist=>{
+        const artistCampaigns = campaigns.filter(campaign=>campaign.artist_id===artist.id);
+        const open = expandedArtists.has(artist.id) || activeArtistId===artist.id;
+
+        rows.push(`
+          <div class="folder-item ${activeArtistId===artist.id ? "active" : ""}" data-artist-row="${artist.id}">
+            <button class="folder-item-inner" data-artist="${artist.id}">
+              <span class="folder-name">
+                <span>${open ? "▾" : "▸"}</span>
+                <span>${escapeHtml(artist.name)}</span>
+              </span>
+              <span class="badge">${artistCampaigns.length}</span>
+            </button>
+            <button class="folder-delete-x" data-delete-artist="${artist.id}" title="Delete artist folder">×</button>
+          </div>
+        `);
+
+        if(open){
+          rows.push(`
+            <div class="campaign-sublist">
+              ${
+                artistCampaigns.length
+                  ? artistCampaigns.map(campaign=>`
+                    <button class="campaign-subitem" data-campaign-folder-item="${campaign.id}">
+                      ${escapeHtml(campaign.title || "Untitled Campaign")}<br>
+                      <span class="small">${escapeHtml(campaign.status || "New Brief")}</span>
+                    </button>
+                  `).join("")
+                  : `<div class="empty" style="padding:10px;font-size:12px;">No campaigns yet.</div>`
+              }
+            </div>
+          `);
+        }
+      });
+
+      list.innerHTML = rows.join("");
+
+      list.querySelectorAll("[data-artist]").forEach(button=>{
+        button.addEventListener("click",()=>{
+          const id = button.dataset.artist;
+
+          if(id==="all"){
+            activeArtistId = "all";
+            document.getElementById("pageTitle").textContent = "All Artists";
+            renderAll();
+            return;
+          }
+
+          if(expandedArtists.has(id)){
+            expandedArtists.delete(id);
+
+            if(activeArtistId===id){
+              activeArtistId = "all";
+              document.getElementById("pageTitle").textContent = "All Artists";
+            }
+          }else{
+            expandedArtists.add(id);
+            activeArtistId = id;
+            document.getElementById("pageTitle").textContent = getArtistName(id);
+          }
+
+          renderAll();
+        });
+      });
+
+      list.querySelectorAll("[data-delete-artist]").forEach(button=>{
+        button.addEventListener("click",event=>{
+          event.stopPropagation();
+          openDeleteArtistConfirm(button.dataset.deleteArtist);
+        });
+      });
+
+      list.querySelectorAll("[data-campaign-folder-item]").forEach(button=>{
+        button.addEventListener("click",event=>{
+          event.stopPropagation();
+          openCampaignModal(button.dataset.campaignFolderItem);
+        });
+      });
+    }
+
+    async function createArtistFolder(){
+      const name = prompt("New artist folder name:");
+
+      if(!name || !name.trim()) return;
+
+      const cleanName = name.trim();
+
+      try{
+        const existing = artists.find(artist=>artist.name.toLowerCase()===cleanName.toLowerCase());
+
+        if(existing){
+          activeArtistId = existing.id;
+          expandedArtists.add(existing.id);
+          document.getElementById("pageTitle").textContent = existing.name;
+          renderAll();
+          toast("Artist folder already exists.");
+          return;
+        }
+
+        const {data,error} = await supabaseClient
+          .from("artists")
+          .insert({name:cleanName})
+          .select()
+          .single();
+
+        if(error) throw error;
+
+        artists.push(data);
+        activeArtistId = data.id;
+        expandedArtists.add(data.id);
+        document.getElementById("pageTitle").textContent = data.name;
+
+        setUndo("Undo artist create",async()=>{
+          await supabaseClient.from("artists").delete().eq("id",data.id);
+          activeArtistId = "all";
+          document.getElementById("pageTitle").textContent = "All Artists";
+          await loadData();
+        });
+
+        renderAll();
+        toast("Artist folder created.");
+      }catch(error){
+        toast(error.message,true);
+      }
+    }
+
+    function openDeleteArtistConfirm(artistId){
+      const artist = artists.find(item=>item.id===artistId);
+
+      if(!artist) return;
+
+      const artistCampaigns = campaigns.filter(campaign=>campaign.artist_id===artistId);
+      const campaignIds = artistCampaigns.map(campaign=>campaign.id);
+      const checklistCount = checklistItems.filter(item=>campaignIds.includes(item.campaign_id)).length;
+      const logCount = workLogs.filter(log=>campaignIds.includes(log.campaign_id)).length;
+      const adSetCount = adSets.filter(adSet=>campaignIds.includes(adSet.campaign_id)).length;
+
+      document.getElementById("modalRoot").innerHTML = `
+        <div class="modal-backdrop">
+          <div class="modal" style="width:min(620px,100%);">
+            <div class="modal-head between">
+              <div>
+                <h2>Delete artist folder?</h2>
+                <p class="small">Type the exact artist name to confirm.</p>
+              </div>
+              <button class="btn secondary" id="cancelDeleteArtistBtn">Close</button>
+            </div>
+
+            <div class="modal-body stack">
+              <div class="panel" style="border-color:rgba(255,95,109,.35);background:rgba(255,95,109,.06);">
+                <h3 style="color:var(--red);">Delete ${escapeHtml(artist.name)}</h3>
+                <div class="quality-list">
+                  <div class="quality-item"><span>Campaigns</span><strong>${artistCampaigns.length}</strong></div>
+                  <div class="quality-item"><span>Ad sets</span><strong>${adSetCount}</strong></div>
+                  <div class="quality-item"><span>Checklist items</span><strong>${checklistCount}</strong></div>
+                  <div class="quality-item"><span>Work logs</span><strong>${logCount}</strong></div>
+                </div>
+              </div>
+
+              <div class="field">
+                <label>Type artist name to confirm</label>
+                <input id="deleteArtistConfirmInput" placeholder="${escapeAttr(artist.name)}">
+              </div>
+
+              <div class="row">
+                <button class="btn secondary" id="cancelDeleteArtistBtn2">Cancel</button>
+                <button class="btn danger" id="confirmDeleteArtistBtn" disabled>Delete Folder</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const input = document.getElementById("deleteArtistConfirmInput");
+      const deleteButton = document.getElementById("confirmDeleteArtistBtn");
+
+      input.addEventListener("input",()=>{
+        deleteButton.disabled = input.value.trim() !== artist.name;
+      });
+
+      document.getElementById("cancelDeleteArtistBtn").addEventListener("click",closeModal);
+      document.getElementById("cancelDeleteArtistBtn2").addEventListener("click",closeModal);
+
+      deleteButton.addEventListener("click",async()=>{
+        await deleteArtistById(artistId);
+        closeModal();
+      });
+    }
+
+    async function deleteArtistById(artistId){
+      const artist = artists.find(item=>item.id===artistId);
+
+      if(!artist) return;
+
+      const artistCampaigns = campaigns.filter(campaign=>campaign.artist_id===artistId);
+      const campaignIds = artistCampaigns.map(campaign=>campaign.id);
+
+      const backup = {
+        artist,
+        campaigns:artistCampaigns,
+        checklist:checklistItems.filter(item=>campaignIds.includes(item.campaign_id)),
+        logs:workLogs.filter(log=>campaignIds.includes(log.campaign_id)),
+        adsets:adSets.filter(adSet=>campaignIds.includes(adSet.campaign_id))
+      };
+
+      const {error} = await supabaseClient
+        .from("artists")
+        .delete()
+        .eq("id",artistId);
+
+      if(error){
+        toast(error.message,true);
+        return;
+      }
+
+      setUndo("Undo artist delete",async()=>{
+        await supabaseClient.from("artists").insert(backup.artist);
+
+        if(backup.campaigns.length){
+          await supabaseClient.from("campaigns").insert(backup.campaigns);
+        }
+
+        if(backup.checklist.length){
+          await supabaseClient.from("checklist_items").insert(backup.checklist);
+        }
+
+        if(backup.logs.length){
+          await supabaseClient.from("work_logs").insert(backup.logs);
+        }
+
+        if(backup.adsets.length){
+          await supabaseClient.from("ad_sets").insert(backup.adsets);
+        }
+
+        activeArtistId = backup.artist.id;
+        expandedArtists.add(backup.artist.id);
+        document.getElementById("pageTitle").textContent = backup.artist.name;
+
+        await loadData();
+      });
+
+      activeArtistId = "all";
+      document.getElementById("pageTitle").textContent = "All Artists";
+
+      await loadData();
+      toast("Artist folder deleted.");
+    }
+
+    function renderMobileArtistSelect(){
+      const select = document.getElementById("artistFilterMobile");
+
+      if(!select) return;
+
+      select.innerHTML = [
+        `<option value="all">Artist: All</option>`,
+        ...artists.map(artist=>`<option value="${artist.id}">Artist: ${escapeHtml(artist.name)}</option>`)
+      ].join("");
+
+      select.value = activeArtistId;
+    }
+
+    function setActiveArtist(id){
+      activeArtistId = id;
+
+      if(id!=="all"){
+        expandedArtists.add(id);
+      }
+
+      document.getElementById("pageTitle").textContent = id==="all" ? "All Artists" : getArtistName(id);
+      renderAll();
+    }
+
+    function filteredCampaigns(){
+      const search = document.getElementById("searchInput")?.value?.toLowerCase() || "";
+      const sort = document.getElementById("sortSelect")?.value || "updated";
+
+      let items = campaigns.filter(campaign=>{
+        const artistMatch = activeArtistId==="all" || campaign.artist_id===activeArtistId;
+
+        const text = [
+          campaign.title,
+          getArtistName(campaign.artist_id),
+          campaign.status,
+          campaign.priority,
+          campaign.raw_brief,
+          campaign.structured_brief,
+          campaign.missing_info,
+          getCampaignAdSets(campaign.id).map(adSet=>[
+            adSet.name,
+            adSet.objective,
+            adSet.audience,
+            adSet.notes,
+            adSet.status,
+            adSet.budget
+          ].join(" ")).join(" "),
+          getCampaignLogs(campaign.id).map(log=>log.text).join(" ")
+        ].join(" ").toLowerCase();
+
+        return artistMatch && text.includes(search);
+      });
+
+      items.sort((a,b)=>{
+        if(sort==="artist"){
+          return getArtistName(a.artist_id).localeCompare(getArtistName(b.artist_id));
+        }
+
+        if(sort==="deadline"){
+          return (a.deadline || "9999").localeCompare(b.deadline || "9999");
+        }
+
+        return new Date(b.updated_at || b.created_at) - new Date(a.updated_at || a.created_at);
+      });
+
+      return items;
+    }
+
+    function renderStats(){
+      const items = filteredCampaigns();
+      const count = status=>items.filter(campaign=>campaign.status===status).length;
+
+      const dueThisWeek = items.filter(campaign=>{
+        if(!campaign.deadline) return false;
+
+        const diff = new Date(campaign.deadline+"T00:00:00") - new Date();
+
+        return diff <= 6048e5 && diff >= -864e5;
+      }).length;
+
+      document.getElementById("statsGrid").innerHTML = `
+        <div class="stat-card"><strong>${items.length}</strong><span>Campaigns</span></div>
+        <div class="stat-card"><strong>${count("Needs Info")}</strong><span>Needs Info</span></div>
+        <div class="stat-card"><strong>${count("Awaiting Approval")}</strong><span>Awaiting Approval</span></div>
+        <div class="stat-card"><strong>${count("Live")}</strong><span>Live</span></div>
+        <div class="stat-card"><strong>${dueThisWeek}</strong><span>Due This Week</span></div>
+      `;
+    }
+
+    function toggleBoardView(){
+      boardView = boardView==="columns" ? "stack" : "columns";
+      localStorage.setItem("jdw_board_view",boardView);
+      renderBoard();
+    }
+
+    function renderBoard(){
+      const board = document.getElementById("board");
+      const items = filteredCampaigns();
+
+      if(!board) return;
+
+      const toggle = document.getElementById("viewToggleBtn");
+
+      if(toggle){
+        toggle.textContent = boardView==="columns" ? "Stack View" : "Column View";
+      }
+
+      if(boardView==="stack"){
+        renderStackBoard(board,items);
+        return;
+      }
+
+      board.className = "board";
+
+      board.innerHTML = STATUSES.map(status=>{
+        const statusCampaigns = items.filter(campaign=>campaign.status===status.key);
+
+        return `
+          <div class="column" data-status="${status.key}">
+            <div class="column-head">
+              <div class="column-title"><span class="status-dot ${status.className}"></span>${status.key}</div>
+              <span class="badge">${statusCampaigns.length}</span>
+            </div>
+
+            <div class="cards">
+              ${
+                statusCampaigns.length
+                  ? statusCampaigns.map(renderCampaignCard).join("")
+                  : `<div class="empty">Drop campaigns here.</div>`
+              }
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      board.querySelectorAll(".column").forEach(column=>{
+        column.addEventListener("dragover",event=>{
+          event.preventDefault();
+          column.classList.add("drag-over");
+        });
+
+        column.addEventListener("dragleave",()=>{
+          column.classList.remove("drag-over");
+        });
+
+        column.addEventListener("drop",async event=>{
+          event.preventDefault();
+          column.classList.remove("drag-over");
+          await moveCampaign(event.dataTransfer.getData("text/plain"),column.dataset.status);
+        });
+      });
+
+      board.querySelectorAll(".card").forEach(card=>{
+        card.addEventListener("dragstart",event=>{
+          event.dataTransfer.setData("text/plain",card.dataset.id);
+        });
+
+        card.addEventListener("click",()=>{
+          openCampaignModal(card.dataset.id);
+        });
+      });
+    }
+
+    function renderStackBoard(board,items){
+      board.className = "board stack-board";
+
+      const grouped = {};
+
+      items.forEach(campaign=>{
+        const artist = getArtistName(campaign.artist_id);
+
+        if(!grouped[artist]){
+          grouped[artist] = [];
+        }
+
+        grouped[artist].push(campaign);
+      });
+
+      board.innerHTML = Object.keys(grouped).length
+        ? Object.entries(grouped).map(([artist,list])=>`
+          <section class="stack-group">
+            <div class="between stack-group-head">
+              <h3>${escapeHtml(artist)}</h3>
+              <span class="badge">${list.length}</span>
+            </div>
+
+            <div class="stack-list">
+              ${list.map(renderStackCampaignCard).join("")}
+            </div>
+          </section>
+        `).join("")
+        : `<div class="empty">No campaigns found.</div>`;
+
+      board.querySelectorAll("[data-stack-id]").forEach(card=>{
+        card.addEventListener("click",()=>{
+          openCampaignModal(card.dataset.stackId);
+        });
+      });
+    }
+
+    function renderStackCampaignCard(campaign){
+      const adsets = getCampaignAdSets(campaign.id);
+      const logs = getCampaignLogs(campaign.id);
+      const last = logs[logs.length-1]?.text || campaign.structured_brief || "No work logs yet.";
+
+      return `
+        <article class="stack-campaign" data-stack-id="${campaign.id}">
+          <div>
+            <h3>${escapeHtml(campaign.title || "Untitled")}</h3>
+            <p>${escapeHtml(truncate(last,120))}</p>
+          </div>
+
+          <div class="stack-budget">
+            <strong>Budget: ${escapeHtml(formatCampaignBudget(campaign.budget) || "TBC")}</strong>
+            ${adsets.map(adset=>`
+              <span>
+                ${escapeHtml(adset.name || "Ad Set")}: ${escapeHtml(formatAdSetBudget(adset))}
+              </span>
+            `).join("")}
+          </div>
+
+          <div class="meta-grid">
+            <span class="chip">${escapeHtml(campaign.status || "New Brief")}</span>
+            <span class="chip">${adsets.length} ad sets</span>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderCampaignCard(campaign){
+      const checklist = getCampaignChecklist(campaign.id);
+      const adsets = getCampaignAdSets(campaign.id);
+      const done = checklist.filter(item=>item.done).length;
+      const total = checklist.length;
+      const progress = total ? Math.round(done/total*100) : 0;
+
+      return `
+        <article class="card" draggable="true" data-id="${campaign.id}">
+          <h3>${escapeHtml(getArtistName(campaign.artist_id))} — ${escapeHtml(campaign.title || "Untitled")}</h3>
+
+          <div class="budget-summary main-budget">
+            <div><strong>Budget</strong>: ${escapeHtml(formatCampaignBudget(campaign.budget) || "TBC")}</div>
+            ${adsets.map(adset=>`
+              <div class="adset-line">
+                <span class="adset-status-dot ${adSetStatusClass(adset.status)}"></span>
+                <strong>${escapeHtml(adset.name || "Ad Set")}</strong>: ${escapeHtml(formatAdSetBudget(adset))}
+              </div>
+            `).join("")}
+          </div>
+
+          <div class="meta-grid">
+            <span class="chip">${escapeHtml(campaign.priority || "Normal")}</span>
+            ${campaign.deadline ? `<span class="chip">Due ${formatDate(campaign.deadline)}</span>` : ""}
+          </div>
+
+          <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+          <p class="small" style="margin-top:7px;">Checklist ${done}/${total}</p>
+        </article>
+      `;
+    }
+
+    async function moveCampaign(id,status){
+      if(!id) return;
+
+      const campaign = campaigns.find(item=>item.id===id);
+      const previousStatus = campaign?.status || "New Brief";
+
+      const {error} = await supabaseClient
+        .from("campaigns")
+        .update({
+          status,
+          updated_at:new Date().toISOString()
+        })
+        .eq("id",id);
+
+      if(error){
+        toast(error.message,true);
+        return;
+      }
+
+      await supabaseClient.from("work_logs").insert({
+        campaign_id:id,
+        logged_by:"System",
+        log_type:"Status",
+        text:`Status changed to ${status}.`,
+        visible_to_james:true
+      });
+
+      setUndo("Undo status move",async()=>{
+        await supabaseClient
+          .from("campaigns")
+          .update({
+            status:previousStatus,
+            updated_at:new Date().toISOString()
+          })
+          .eq("id",id);
+
+        await loadData();
+      });
+
+      await loadData();
+      toast("Moved to "+status);
+    }
+
+    function blankDraft(){
+      return {
+        artistName:activeArtistId!=="all" ? getArtistName(activeArtistId) : "",
+        title:"",
+        status:"New Brief",
+        priority:"Normal",
+        deadline:"",
+        budget:"",
+        objective:"",
+        campaign_link:"",
+        territories:"",
+        raw_brief:"",
+        structured_brief:"",
+        missing_info:"",
+        report:"",
+        checklist:DEFAULT_CHECKLIST,
+        ad_sets:[]
+      };
+    }
+
+    function campaignToDraft(campaign){
+      return {
+        id:campaign.id,
+        artistName:getArtistName(campaign.artist_id),
+        title:campaign.title || "",
+        status:campaign.status || "New Brief",
+        priority:campaign.priority || "Normal",
+        deadline:campaign.deadline || "",
+        budget:campaign.budget || "",
+        objective:campaign.objective || "",
+        campaign_link:campaign.campaign_link || "",
+        territories:campaign.territories || "",
+        raw_brief:campaign.raw_brief || "",
+        structured_brief:campaign.structured_brief || "",
+        missing_info:campaign.missing_info || "",
+        report:campaign.report || "",
+        checklist_items:getCampaignChecklist(campaign.id),
+        work_logs:getCampaignLogs(campaign.id),
+        ad_sets:getCampaignAdSets(campaign.id)
+      };
+    }
+
+    function openCampaignModal(id,prefill=null){
+      activeCampaignId = id;
+      activeTab = "overview";
+      tempDraft = prefill || (id ? campaignToDraft(campaigns.find(campaign=>campaign.id===id)) : blankDraft());
+      renderModal();
+    }
+
+    function renderModal(){
+      const isNew = !activeCampaignId;
+      const d = tempDraft;
+
+      document.getElementById("modalRoot").innerHTML = `
+        <div class="modal-backdrop" id="modalBackdrop">
+          <div class="modal">
+            <div class="modal-head between">
+              <div>
+                <h2>${isNew ? "New Campaign" : `${escapeHtml(d.artistName)} — ${escapeHtml(d.title)}`}</h2>
+                <p class="small">${isNew ? "Create a campaign under an artist folder." : `Status: ${escapeHtml(d.status)} · Artist folder: ${escapeHtml(d.artistName)}`}</p>
+              </div>
+
+              <div class="row">
+                ${!isNew ? `<button class="btn danger" id="deleteCampaignBtn">Delete</button>` : ""}
+                <button class="btn secondary" id="closeModalBtn">Close</button>
+              </div>
+            </div>
+
+            <div class="tabs">
+              ${["overview","brief","setup","build","logs"].map(tab=>`
+                <button class="tab ${activeTab===tab ? "active" : ""}" data-tab="${tab}">
+                  ${tabLabel(tab)}
+                </button>
+              `).join("")}
+            </div>
+
+            <div class="modal-body" id="modalBody"></div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("closeModalBtn").addEventListener("click",closeModal);
+
+      document.getElementById("modalBackdrop").addEventListener("click",event=>{
+        if(event.target.id==="modalBackdrop"){
+          closeModal();
+        }
+      });
+
+      document.querySelectorAll(".tab").forEach(button=>{
+        button.addEventListener("click",()=>{
+          collectDraft();
+          activeTab = button.dataset.tab;
+          renderModal();
+        });
+      });
+
+      document.getElementById("deleteCampaignBtn")?.addEventListener("click",deleteActiveCampaign);
+
+      renderModalBody();
+    }
+
+    function renderModalBody(){
+      if(activeTab==="overview") renderOverviewTab();
+      if(activeTab==="brief") renderBriefTab();
+      if(activeTab==="setup") renderSetupTab();
+      if(activeTab==="build") renderBuildTab();
+      if(activeTab==="logs") renderLogsTab();
+    }
+
+    function renderOverviewTab(){
+      collectDraft();
+
+      const d = tempDraft;
+      const checklist = activeCampaignId
+        ? getCampaignChecklist(activeCampaignId)
+        : (d.checklist || DEFAULT_CHECKLIST).map(text=>({text,done:false}));
+
+      const logs = activeCampaignId ? getCampaignLogs(activeCampaignId) : [];
+      const adsets = activeCampaignId ? getCampaignAdSets(activeCampaignId) : (d.ad_sets || []);
+      const done = checklist.filter(item=>item.done).length;
+      const total = checklist.length;
+      const missing = [];
+
+      if(!d.campaign_link) missing.push("Campaign link");
+      if(!d.budget) missing.push("Budget");
+      if(!d.objective) missing.push("Objective / pixel / event");
+      if(!d.territories) missing.push("Territories");
+      if(!adsets.length) missing.push("Ad sets");
+      if(!/acid|compliance/i.test((d.raw_brief||"")+" "+(d.structured_brief||""))) missing.push("ACID compliance note");
+
+      const next = missing.length
+        ? `Confirm ${missing[0]}`
+        : d.status==="Awaiting Approval"
+          ? "Send preview / campaign link to James"
+          : "Update status or add next work log";
+
+      const missingHtml = missing.length
+        ? `
+          <div class="panel" style="border-color:rgba(255,95,109,.35);background:rgba(255,95,109,.06);">
+            <h3 style="color:var(--red);">Missing Information</h3>
+            <div class="quality-list">
+              ${missing.map(item=>`
+                <div class="quality-item">
+                  <span>${escapeHtml(item)}</span>
+                  <strong class="quality-missing">Missing</strong>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        `
+        : `
+          <div class="panel" style="border-color:rgba(114,255,153,.25);background:rgba(114,255,153,.05);">
+            <h3 style="color:var(--green);">Missing Information</h3>
+            <p class="small">Nothing major missing.</p>
+          </div>
+        `;
+
+      document.getElementById("modalBody").innerHTML = `
+        <div class="grid-2">
+          <div class="panel stack">
+            <h3>Campaign Overview</h3>
+
+            <div class="quality-list">
+              <div class="quality-item"><span>Status</span><strong>${escapeHtml(d.status)}</strong></div>
+              <div class="quality-item"><span>Ad Sets</span><strong>${adsets.length}</strong></div>
+              <div class="quality-item"><span>Checklist</span><strong>${done}/${total}</strong></div>
+              <div class="quality-item"><span>Missing Info</span><strong class="${missing.length ? "quality-missing" : "quality-ok"}">${missing.length ? missing.length : "None"}</strong></div>
+            </div>
+
+            ${missingHtml}
+
+            <div class="field">
+              <label>Next Action</label>
+              <textarea id="overviewNextAction" style="min-height:90px;">${escapeHtml(next)}</textarea>
+            </div>
+
+            <button class="btn" id="copyNextActionBtn">Copy Next Action</button>
+          </div>
+
+          <div class="panel stack">
+            <h3>Recent Activity</h3>
+
+            <div class="log-list">
+              ${
+                logs.length
+                  ? logs.slice(-6).reverse().map(log=>`
+                    <div class="log-item">
+                      <p>${escapeHtml(log.text)}</p>
+                      <p class="small" style="margin-top:6px;">${escapeHtml(log.log_type)} · ${escapeHtml(log.logged_by)} · ${formatDateTime(log.created_at)}</p>
+                    </div>
+                  `).join("")
+                  : `<div class="empty">No activity yet.</div>`
+              }
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("copyNextActionBtn").addEventListener("click",()=>{
+        navigator.clipboard.writeText(val("overviewNextAction")).then(()=>toast("Next action copied"));
+      });
+    }
+
+    function renderBriefTab(){
+      const d = tempDraft;
+
+      document.getElementById("modalBody").innerHTML = `
+        <div class="stack">
+          <div class="grid-3">
+            <div class="field">
+              <label>Artist Folder</label>
+              <input id="m_artistName" list="artistOptions" value="${escapeAttr(d.artistName)}">
+            </div>
+
+            <div class="field">
+              <label>Status</label>
+              <select id="m_status">
+                ${STATUSES.map(status=>`<option ${d.status===status.key ? "selected" : ""}>${status.key}</option>`).join("")}
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Priority</label>
+              <select id="m_priority">
+                ${["Urgent","Normal","Low"].map(priority=>`<option ${d.priority===priority ? "selected" : ""}>${priority}</option>`).join("")}
+              </select>
+            </div>
+          </div>
+
+          <datalist id="artistOptions">
+            ${artists.map(artist=>`<option value="${escapeAttr(artist.name)}"></option>`).join("")}
+          </datalist>
+
+          <div class="grid-2">
+            <div class="field">
+              <label>Campaign / Track</label>
+              <input id="m_title" value="${escapeAttr(d.title)}">
+            </div>
+
+            <div class="field">
+              <label>Deadline</label>
+              <input id="m_deadline" type="date" value="${escapeAttr(d.deadline)}">
+            </div>
+          </div>
+
+          <div class="grid-3">
+            <div class="field">
+              <label>Budget</label>
+              <input id="m_budget" value="${escapeAttr(d.budget)}">
+            </div>
+
+            <div class="field">
+              <label>Territories</label>
+              <input id="m_territories" value="${escapeAttr(d.territories)}">
+            </div>
+
+            <div class="field">
+              <label>Campaign Link</label>
+              <input id="m_campaignLink" value="${escapeAttr(d.campaign_link)}">
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Objective / Pixel / Event Setup</label>
+            <input id="m_objective" value="${escapeAttr(d.objective)}">
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label>Raw Messy Brief</label>
+              <textarea id="m_rawBrief">${escapeHtml(d.raw_brief)}</textarea>
+            </div>
+
+            <div class="field">
+              <label>Structured Campaign Brief</label>
+              <textarea id="m_structuredBrief">${escapeHtml(d.structured_brief)}</textarea>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Missing Info / Questions for James</label>
+            <textarea id="m_missingInfo" style="min-height:90px;">${escapeHtml(d.missing_info)}</textarea>
+          </div>
+
+          <div class="row">
+            ${activeCampaignId ? `<span class="autosave-note">Autosaves while you edit</span>` : `<button class="btn" id="saveCampaignBtn">Create Campaign</button>`}
+            <button class="btn secondary" id="organiseBtn">Organise Current Brief</button>
+            <button class="btn secondary" id="namesBtn">Generate Names</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("saveCampaignBtn")?.addEventListener("click",saveCampaign);
+      document.getElementById("organiseBtn").addEventListener("click",organiseCurrentBrief);
+      document.getElementById("namesBtn").addEventListener("click",generateNames);
+
+      wireAutosaveFields();
+    }
+
+    function renderSetupTab(){
+      const items = activeCampaignId ? getCampaignAdSets(activeCampaignId) : (tempDraft.ad_sets || []);
+
+      document.getElementById("modalBody").innerHTML = `
+        <div class="stack">
+          <div class="panel">
+            <h3>Ad Sets</h3>
+
+            <div class="log-list">
+              ${
+                items.length
+                  ? items.map(adset=>`
+                    <div class="log-item">
+                      <div class="between">
+                        <div>
+                          <p><strong>${escapeHtml(adset.name || "Untitled Ad Set")}</strong></p>
+                          <p class="small">Objective: ${escapeHtml(adset.objective || "TBC")} · ${escapeHtml(adset.budget_type || "Daily Budget")}: ${escapeHtml(adset.budget || "TBC")} · Status: ${escapeHtml(adset.status || "Running")}</p>
+                        </div>
+                        ${activeCampaignId ? `<button class="btn danger" data-delete-adset="${adset.id}" style="padding:8px 10px;">Delete</button>` : ""}
+                      </div>
+
+                      ${adset.audience ? `<p class="small">Audience: ${escapeHtml(adset.audience)}</p>` : ""}
+
+                      <div class="grid-3" style="margin-top:12px;">
+                        <select data-adset-status="${adset.id}">
+                          <option ${String(adset.status || "Running")==="Running" ? "selected" : ""}>Running</option>
+                          <option ${String(adset.status || "")==="Paused" ? "selected" : ""}>Paused</option>
+                          <option ${String(adset.status || "")==="Ended" ? "selected" : ""}>Ended</option>
+                          <option ${String(adset.status || "")==="Needs Review" ? "selected" : ""}>Needs Review</option>
+                        </select>
+
+                        <select data-adset-budget-type="${adset.id}">
+                          <option ${String(adset.budget_type || "Daily Budget")==="Daily Budget" ? "selected" : ""}>Daily Budget</option>
+                          <option ${String(adset.budget_type || "")==="Lifetime Budget" ? "selected" : ""}>Lifetime Budget</option>
+                        </select>
+
+                        <input data-adset-budget="${adset.id}" value="${escapeAttr(adset.budget || "")}" placeholder="Budget amount">
+                      </div>
+
+                      <textarea data-adset-note="${adset.id}" placeholder="Add/update notes for this ad set..." style="margin-top:10px;min-height:80px;">${escapeHtml(adset.notes || "")}</textarea>
+
+                      <div class="autosave-note" style="margin-top:10px;">Autosaves ad set updates</div>
+                    </div>
+                  `).join("")
+                  : `<div class="empty">No ad sets yet.</div>`
+              }
+            </div>
+
+            <div class="grid-3" style="margin-top:16px;">
+              <input id="adset_name" placeholder="Ad set name">
+              <input id="adset_objective" placeholder="Objective">
+              <input id="adset_budget" placeholder="Budget">
+            </div>
+
+            <div class="grid-2" style="margin-top:12px;">
+              <select id="adset_status">
+                <option>Running</option>
+                <option>Paused</option>
+                <option>Ended</option>
+                <option>Needs Review</option>
+              </select>
+
+              <select id="adset_budget_type">
+                <option>Daily Budget</option>
+                <option>Lifetime Budget</option>
+              </select>
+            </div>
+
+            <textarea id="adset_audience" placeholder="Audience" style="margin-top:12px;"></textarea>
+            <textarea id="adset_notes" placeholder="Notes" style="margin-top:12px;"></textarea>
+
+            <button class="btn" id="addAdSetBtn" style="margin-top:12px;">${activeCampaignId ? "Add Ad Set" : "Add Ad Set To Draft"}</button>
+          </div>
+
+          <div class="panel stack">
+            <h3>Naming</h3>
+            <button class="btn secondary" id="namesInlineBtn">Generate Names Into Brief</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("addAdSetBtn")?.addEventListener("click",()=>activeCampaignId ? addAdSet() : addTempAdSet());
+
+      document.querySelectorAll("[data-delete-adset]").forEach(button=>{
+        button.addEventListener("click",()=>deleteAdSet(button.dataset.deleteAdset));
+      });
+
+      document.querySelectorAll("[data-adset-status],[data-adset-budget-type],[data-adset-budget],[data-adset-note]").forEach(element=>{
+        const id = element.dataset.adsetStatus || element.dataset.adsetBudgetType || element.dataset.adsetBudget || element.dataset.adsetNote;
+
+        element.addEventListener("input",()=>scheduleAdSetAutosave(id));
+        element.addEventListener("change",()=>scheduleAdSetAutosave(id));
+      });
+
+      document.getElementById("namesInlineBtn").addEventListener("click",()=>{
+        activeTab = "brief";
+        renderModal();
+        setTimeout(generateNames,0);
+      });
+    }
+
+    function renderBuildTab(){
+      const isNew = !activeCampaignId;
+      const steps = isNew
+        ? (tempDraft.checklist || DEFAULT_CHECKLIST).map((text,index)=>({id:"temp"+index,text,done:false}))
+        : getCampaignChecklist(activeCampaignId);
+
+      document.getElementById("modalBody").innerHTML = `
+        <div class="grid-2">
+          <div class="panel">
+            <h3>Build Mode</h3>
+            <p class="small">Tick each step as you build. Completed steps create work logs.</p>
+
+            ${
+              steps.map(step=>`
+                <div class="build-step ${step.done ? "done" : ""}">
+                  <input type="checkbox" ${step.done ? "checked" : ""} ${isNew ? "disabled" : ""} data-build-step="${step.id}">
+                  <span>${escapeHtml(step.text)}</span>
+                </div>
+              `).join("")
+            }
+          </div>
+
+          <div class="panel stack">
+            <h3>Build Notes</h3>
+            <textarea id="buildNote"></textarea>
+            ${isNew ? `<p class="small">Save the campaign first.</p>` : `<button class="btn" id="addBuildNoteBtn">Add Build Note</button>`}
+          </div>
+        </div>
+      `;
+
+      if(!isNew){
+        document.querySelectorAll("[data-build-step]").forEach(checkbox=>{
+          checkbox.addEventListener("change",async()=>{
+            const text = checkbox.closest(".build-step").querySelector("span").textContent;
+
+            await supabaseClient
+              .from("checklist_items")
+              .update({done:checkbox.checked})
+              .eq("id",checkbox.dataset.buildStep);
+
+            if(checkbox.checked){
+              await supabaseClient.from("work_logs").insert({
+                campaign_id:activeCampaignId,
+                logged_by:defaultLoggedBy(),
+                log_type:"Build",
+                text:`Completed build step: ${text}`,
+                visible_to_james:true
+              });
+            }
+
+            await loadData();
+            tempDraft = campaignToDraft(campaigns.find(campaign=>campaign.id===activeCampaignId));
+            renderModal();
+          });
+        });
+
+        document.getElementById("addBuildNoteBtn").addEventListener("click",async()=>{
+          const note = val("buildNote");
+
+          if(!note){
+            toast("Write a note first",true);
+            return;
+          }
+
+          await supabaseClient.from("work_logs").insert({
+            campaign_id:activeCampaignId,
+            logged_by:defaultLoggedBy(),
+            log_type:"Build",
+            text:note,
+            visible_to_james:true
+          });
+
+          await loadData();
+          tempDraft = campaignToDraft(campaigns.find(campaign=>campaign.id===activeCampaignId));
+          renderModal();
+        });
+      }
+    }
+
+    function renderLogsTab(){
+      const isNew = !activeCampaignId;
+      const logs = isNew ? [] : getCampaignLogs(activeCampaignId);
+
+      document.getElementById("modalBody").innerHTML = `
+        <div class="stack">
+          <div class="grid-2">
+            <div class="panel stack">
+              <h3>Add Work Log</h3>
+
+              ${
+                isNew
+                  ? `<p class="small">Save campaign first.</p>`
+                  : `
+                    <div class="grid-2">
+                      <div class="field">
+                        <label>Logged By</label>
+                        <input id="log_by" value="${escapeAttr(defaultLoggedBy())}">
+                      </div>
+
+                      <div class="field">
+                        <label>Type</label>
+                        <select id="log_type">
+                          <option>Brief</option>
+                          <option>Setup</option>
+                          <option>QA</option>
+                          <option>Approval</option>
+                          <option>Launch</option>
+                          <option>Reporting</option>
+                          <option>Issue</option>
+                          <option>Status</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="field">
+                      <label>What was done?</label>
+                      <textarea id="log_text"></textarea>
+                    </div>
+
+                    <button class="btn" id="addLogBtn">Add Log</button>
+                  `
+              }
+            </div>
+
+            <div class="panel">
+              <div class="between">
+                <h3>Timeline</h3>
+                <button class="btn secondary" id="summariseLogsBtn">Summarise Logs</button>
+              </div>
+
+              <div class="log-list">
+                ${
+                  logs.length
+                    ? logs.slice().reverse().map(log=>`
+                      <div class="log-item">
+                        <div class="between">
+                          <div>
+                            <p>${escapeHtml(log.text)}</p>
+                            <p class="small" style="margin-top:6px;">${escapeHtml(log.log_type)} · ${escapeHtml(log.logged_by)} · ${formatDateTime(log.created_at)}</p>
+                          </div>
+
+                          <button class="btn danger" style="padding:8px 10px;" data-delete-log="${log.id}">Delete</button>
+                        </div>
+                      </div>
+                    `).join("")
+                    : `<div class="empty">No work logs yet.</div>`
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="panel stack">
+            <div class="between">
+              <h3>James / Client Report</h3>
+              <div class="row">
+                <button class="btn secondary" id="jamesUpdateBtn">Generate James Update</button>
+                <button class="btn secondary" id="clientReportBtn">Generate Client Report</button>
+              </div>
+            </div>
+
+            <textarea id="m_report" style="min-height:260px;">${escapeHtml(tempDraft.report || "")}</textarea>
+
+            <div class="row">
+              <button class="btn secondary" id="copyReportBtn">Copy Report</button>
+              <span class="autosave-note">Autosaves while you edit</span>
+            </div>
+          </div>
+        </div>
+      `;
+
+      if(!isNew){
+        document.getElementById("addLogBtn").addEventListener("click",addLog);
+
+        document.querySelectorAll("[data-delete-log]").forEach(button=>{
+          button.addEventListener("click",()=>deleteLog(button.dataset.deleteLog));
+        });
+      }
+
+      document.getElementById("summariseLogsBtn").addEventListener("click",summariseLogs);
+      document.getElementById("jamesUpdateBtn").addEventListener("click",generateJamesUpdate);
+      document.getElementById("clientReportBtn").addEventListener("click",generateClientReport);
+
+      document.getElementById("copyReportBtn").addEventListener("click",()=>{
+        navigator.clipboard.writeText(val("m_report")).then(()=>toast("Report copied"));
+      });
+
+      document.getElementById("m_report").addEventListener("input",scheduleAutosave);
+    }
+
+    function collectDraft(){
+      if(document.getElementById("m_artistName")){
+        tempDraft.artistName = val("m_artistName");
+        tempDraft.title = val("m_title");
+        tempDraft.status = val("m_status");
+        tempDraft.priority = val("m_priority");
+        tempDraft.deadline = val("m_deadline");
+        tempDraft.budget = val("m_budget");
+        tempDraft.objective = val("m_objective");
+        tempDraft.campaign_link = val("m_campaignLink");
+        tempDraft.territories = val("m_territories");
+        tempDraft.raw_brief = val("m_rawBrief");
+        tempDraft.structured_brief = val("m_structuredBrief");
+        tempDraft.missing_info = val("m_missingInfo");
+      }
+
+      if(document.getElementById("m_report")){
+        tempDraft.report = val("m_report");
+      }
+
+      return tempDraft;
+    }
+
+    function wireAutosaveFields(){
+      if(!activeCampaignId) return;
+
+      document.querySelectorAll("#modalBody input,#modalBody textarea,#modalBody select").forEach(element=>{
+        if(element.id && element.id.startsWith("adset_")) return;
+
+        element.addEventListener("input",scheduleAutosave);
+        element.addEventListener("change",scheduleAutosave);
+      });
+    }
+
+    function scheduleAutosave(){
+      if(!activeCampaignId) return;
+
+      clearTimeout(autosaveTimer);
+      autosaveTimer = setTimeout(saveCampaignSilent,900);
+    }
+
+    async function saveCampaignSilent(){
+      try{
+        const draft = collectDraft();
+
+        if(!draft.artistName || !draft.title || !activeCampaignId) return;
+
+        const artist = await getOrCreateArtist(draft.artistName);
+
+        const payload = {
+          artist_id:artist.id,
+          title:draft.title,
+          status:draft.status,
+          priority:draft.priority,
+          deadline:draft.deadline || null,
+          budget:draft.budget,
+          objective:draft.objective,
+          campaign_link:draft.campaign_link,
+          territories:draft.territories,
+          raw_brief:draft.raw_brief,
+          structured_brief:draft.structured_brief,
+          missing_info:draft.missing_info,
+          report:draft.report || "",
+          updated_at:new Date().toISOString()
+        };
+
+        const {error} = await supabaseClient
+          .from("campaigns")
+          .update(payload)
+          .eq("id",activeCampaignId);
+
+        if(error) throw error;
+
+        const index = campaigns.findIndex(campaign=>campaign.id===activeCampaignId);
+
+        if(index>=0){
+          campaigns[index] = {...campaigns[index],...payload};
+        }
+
+        renderBoard();
+        renderStats();
+      }catch(error){
+        toast("Autosave failed: " + error.message,true);
+      }
+    }
+
+    async function getOrCreateArtist(name){
+      const cleanName = name.trim();
+
+      if(!cleanName) throw new Error("Artist name is required.");
+
+      const local = artists.find(artist=>artist.name.toLowerCase()===cleanName.toLowerCase());
+
+      if(local) return local;
+
+      const {data:rows,error:selectError} = await supabaseClient
+        .from("artists")
+        .select("*")
+        .ilike("name",cleanName)
+        .limit(1);
+
+      if(selectError) throw selectError;
+
+      if(rows && rows.length){
+        artists.push(rows[0]);
+        return rows[0];
+      }
+
+      const {data,error} = await supabaseClient
+        .from("artists")
+        .upsert({name:cleanName},{onConflict:"name"})
+        .select()
+        .single();
+
+      if(error) throw error;
+
+      artists.push(data);
+      return data;
+    }
+
+    async function saveCampaign(){
+      try{
+        const draft = collectDraft();
+
+        if(!draft.artistName || !draft.title){
+          toast("Add artist and campaign/track name",true);
+          return;
+        }
+
+        const artist = await getOrCreateArtist(draft.artistName);
+
+        const payload = {
+          artist_id:artist.id,
+          title:draft.title,
+          status:draft.status,
+          priority:draft.priority,
+          deadline:draft.deadline || null,
+          budget:draft.budget,
+          objective:draft.objective,
+          campaign_link:draft.campaign_link,
+          territories:draft.territories,
+          raw_brief:draft.raw_brief,
+          structured_brief:draft.structured_brief,
+          missing_info:draft.missing_info,
+          report:draft.report || "",
+          updated_at:new Date().toISOString()
+        };
+
+        if(activeCampaignId){
+          const oldCampaign = campaigns.find(campaign=>campaign.id===activeCampaignId);
+
+          const {error} = await supabaseClient
+            .from("campaigns")
+            .update(payload)
+            .eq("id",activeCampaignId);
+
+          if(error) throw error;
+
+          setUndo("Undo campaign edit",async()=>{
+            if(oldCampaign){
+              await supabaseClient.from("campaigns").update(oldCampaign).eq("id",oldCampaign.id);
+              await loadData();
+            }
+          });
+
+          toast("Campaign saved");
+        }else{
+          const {data,error} = await supabaseClient
+            .from("campaigns")
+            .insert(payload)
+            .select()
+            .single();
+
+          if(error) throw error;
+
+          activeCampaignId = data.id;
+
+          await supabaseClient.from("checklist_items").insert(
+            (draft.checklist || DEFAULT_CHECKLIST).map((text,index)=>({
+              campaign_id:data.id,
+              text,
+              position:index
+            }))
+          );
+
+          if(draft.ad_sets?.length){
+            await supabaseClient.from("ad_sets").insert(
+              draft.ad_sets.map((adset,index)=>({
+                campaign_id:data.id,
+                name:adset.name || `Ad Set ${index+1}`,
+                objective:adset.objective || "",
+                budget:adset.budget || "",
+                budget_type:adset.budget_type || "Daily Budget",
+                audience:adset.audience || "",
+                notes:adset.notes || "",
+                status:adset.status || "Running",
+                position:index
+              }))
+            );
+          }
+
+          await supabaseClient.from("work_logs").insert({
+            campaign_id:data.id,
+            logged_by:"System",
+            log_type:"Brief",
+            text:"Campaign brief created.",
+            visible_to_james:true
+          });
+
+          setUndo("Undo campaign create",async()=>{
+            await supabaseClient.from("campaigns").delete().eq("id",data.id);
+            await loadData();
+          });
+
+          toast("Campaign created");
+        }
+
+        await loadData();
+        tempDraft = campaignToDraft(campaigns.find(campaign=>campaign.id===activeCampaignId));
+        renderModal();
+      }catch(error){
+        toast(error.message,true);
+      }
+    }
+
+    async function deleteActiveCampaign(){
+      if(!activeCampaignId || !confirm("Delete this campaign?")) return;
+
+      const id = activeCampaignId;
+
+      const backup = {
+        campaign:campaigns.find(campaign=>campaign.id===id),
+        checklist:checklistItems.filter(item=>item.campaign_id===id),
+        logs:workLogs.filter(log=>log.campaign_id===id),
+        adsets:adSets.filter(adset=>adset.campaign_id===id)
+      };
+
+      const {error} = await supabaseClient
+        .from("campaigns")
+        .delete()
+        .eq("id",id);
+
+      if(error){
+        toast(error.message,true);
+        return;
+      }
+
+      setUndo("Undo campaign delete",async()=>{
+        if(backup.campaign) await supabaseClient.from("campaigns").insert(backup.campaign);
+        if(backup.checklist.length) await supabaseClient.from("checklist_items").insert(backup.checklist);
+        if(backup.logs.length) await supabaseClient.from("work_logs").insert(backup.logs);
+        if(backup.adsets.length) await supabaseClient.from("ad_sets").insert(backup.adsets);
+
+        await loadData();
+      });
+
+      closeModal();
+      await loadData();
+      toast("Campaign deleted");
+    }
+
+    function addTempAdSet(){
+      const name = val("adset_name");
+
+      if(!name){
+        toast("Add ad set name",true);
+        return;
+      }
+
+      tempDraft.ad_sets = tempDraft.ad_sets || [];
+
+      tempDraft.ad_sets.push({
+        name,
+        objective:val("adset_objective"),
+        budget:val("adset_budget"),
+        budget_type:val("adset_budget_type") || "Daily Budget",
+        audience:val("adset_audience"),
+        notes:val("adset_notes"),
+        status:val("adset_status") || "Running"
+      });
+
+      toast("Ad set added to draft");
+      renderModal();
+    }
+
+    async function addAdSet(){
+      const name = val("adset_name");
+
+      if(!name){
+        toast("Add ad set name",true);
+        return;
+      }
+
+      const payload = {
+        campaign_id:activeCampaignId,
+        name,
+        objective:val("adset_objective"),
+        budget:val("adset_budget"),
+        budget_type:val("adset_budget_type") || "Daily Budget",
+        audience:val("adset_audience"),
+        notes:val("adset_notes"),
+        status:val("adset_status") || "Running",
+        position:getCampaignAdSets(activeCampaignId).length
+      };
+
+      const {data,error} = await supabaseClient
+        .from("ad_sets")
+        .insert(payload)
+        .select()
+        .single();
+
+      if(error){
+        toast(error.message,true);
+        return;
+      }
+
+      await supabaseClient.from("work_logs").insert({
+        campaign_id:activeCampaignId,
+        logged_by:defaultLoggedBy(),
+        log_type:"Ad Set",
+        text:`Ad set added: ${name}. Status: ${payload.status}. ${payload.budget_type}: ${payload.budget || "TBC"}. ${payload.notes ? "Notes: "+payload.notes : ""}`,
+        visible_to_james:true
+      });
+
+      if(data?.id){
+        setUndo("Undo ad set add",async()=>{
+          await supabaseClient.from("ad_sets").delete().eq("id",data.id);
+          await loadData();
+        });
+      }
+
+      await loadData();
+      tempDraft = campaignToDraft(campaigns.find(campaign=>campaign.id===activeCampaignId));
+      renderModal();
+    }
+
+    function scheduleAdSetAutosave(id){
+      if(!id || !activeCampaignId) return;
+
+      clearTimeout(adSetAutosaveTimers[id]);
+      adSetAutosaveTimers[id] = setTimeout(()=>updateAdSet(id,true),900);
+    }
+
+    async function updateAdSet(id,silent=false){
+      const existing = adSets.find(adset=>adset.id===id);
+
+      if(!existing){
+        toast("Ad set not found",true);
+        return;
+      }
+
+      const status = document.querySelector(`[data-adset-status="${id}"]`)?.value || "Running";
+      const notes = document.querySelector(`[data-adset-note="${id}"]`)?.value || "";
+      const budget = document.querySelector(`[data-adset-budget="${id}"]`)?.value || "";
+      const budget_type = document.querySelector(`[data-adset-budget-type="${id}"]`)?.value || "Daily Budget";
+      const previous = {...existing};
+
+      const {error} = await supabaseClient
+        .from("ad_sets")
+        .update({status,notes,budget,budget_type})
+        .eq("id",id);
+
+      if(error){
+        toast(error.message,true);
+        return;
+      }
+
+      const changed =
+        status !== existing.status ||
+        notes !== existing.notes ||
+        budget !== existing.budget ||
+        budget_type !== existing.budget_type;
+
+      let logRes = {data:null};
+
+      if(changed){
+        const logText = `Ad set update — ${existing.name}: status set to ${status}. ${budget_type}: ${budget || "TBC"}.${notes ? " Notes: "+notes : ""}`;
+
+        logRes = await supabaseClient
+          .from("work_logs")
+          .insert({
+            campaign_id:activeCampaignId,
+            logged_by:defaultLoggedBy(),
+            log_type:"Ad Set",
+            text:logText,
+            visible_to_james:true
+          })
+          .select()
+          .single();
+      }
+
+      setUndo("Undo ad set update",async()=>{
+        await supabaseClient
+          .from("ad_sets")
+          .update({
+            status:previous.status || "Running",
+            notes:previous.notes || "",
+            budget:previous.budget || "",
+            budget_type:previous.budget_type || "Daily Budget"
+          })
+          .eq("id",id);
+
+        if(logRes.data?.id){
+          await supabaseClient.from("work_logs").delete().eq("id",logRes.data.id);
+        }
+
+        await loadData();
+      });
+
+      const index = adSets.findIndex(adset=>adset.id===id);
+
+      if(index>=0){
+        adSets[index] = {...adSets[index],status,notes,budget,budget_type};
+      }
+
+      renderBoard();
+      renderStats();
+
+      if(!silent){
+        toast("Ad set update saved and logged");
+      }
+    }
+
+    async function deleteAdSet(id){
+      const backup = adSets.find(adset=>adset.id===id);
+
+      const {error} = await supabaseClient
+        .from("ad_sets")
+        .delete()
+        .eq("id",id);
+
+      if(error){
+        toast(error.message,true);
+        return;
+      }
+
+      if(backup){
+        setUndo("Undo ad set delete",async()=>{
+          await supabaseClient.from("ad_sets").insert(backup);
+          await loadData();
+        });
+      }
+
+      await loadData();
+      tempDraft = campaignToDraft(campaigns.find(campaign=>campaign.id===activeCampaignId));
+      renderModal();
+    }
+
+    async function addLog(){
+      const text = val("log_text");
+
+      if(!text){
+        toast("Write a log first",true);
+        return;
+      }
+
+      const {data,error} = await supabaseClient
+        .from("work_logs")
+        .insert({
+          campaign_id:activeCampaignId,
+          logged_by:val("log_by") || defaultLoggedBy(),
+          log_type:val("log_type") || "Setup",
+          text,
+          visible_to_james:true
+        })
+        .select()
+        .single();
+
+      if(error){
+        toast(error.message,true);
+        return;
+      }
+
+      if(data?.id){
+        setUndo("Undo log add",async()=>{
+          await supabaseClient.from("work_logs").delete().eq("id",data.id);
+          await loadData();
+        });
+      }
+
+      await loadData();
+      tempDraft = campaignToDraft(campaigns.find(campaign=>campaign.id===activeCampaignId));
+      renderModal();
+    }
+
+    async function deleteLog(id){
+      if(!confirm("Delete this work log?")) return;
+
+      const backup = workLogs.find(log=>log.id===id);
+
+      const {error} = await supabaseClient
+        .from("work_logs")
+        .delete()
+        .eq("id",id);
+
+      if(error){
+        toast(error.message,true);
+        return;
+      }
+
+      if(backup){
+        setUndo("Undo log delete",async()=>{
+          await supabaseClient.from("work_logs").insert(backup);
+          await loadData();
+        });
+      }
+
+      await loadData();
+      tempDraft = campaignToDraft(campaigns.find(campaign=>campaign.id===activeCampaignId));
+      renderModal();
+    }
+
+    function openImportModal(){
+      document.getElementById("modalRoot").innerHTML = `
+        <div class="modal-backdrop">
+          <div class="modal" style="width:min(900px,100%);">
+            <div class="modal-head between">
+              <div>
+                <h2>Import Messy Brief</h2>
+                <p class="small">Paste James's brief and organise it.</p>
+              </div>
+              <button class="btn secondary" onclick="closeModal()">Close</button>
+            </div>
+
+            <div class="modal-body stack">
+              <textarea id="importRaw" style="min-height:330px;"></textarea>
+              <button class="btn" id="organiseImportBtn">Organise Brief</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("organiseImportBtn").addEventListener("click",()=>{
+        const raw = val("importRaw");
+
+        if(!raw){
+          toast("Paste a brief first",true);
+          return;
+        }
+
+        const organised = localBriefOrganiser(raw);
+
+        closeModal();
+        openCampaignModal(null,organised);
+      });
+    }
+
+    function openSettingsModal(){
+      const saved = JSON.parse(localStorage.getItem("jdw_settings") || "{}");
+      const accent = saved.accent || "#d7ff38";
+      const loggedBy = saved.loggedBy || "Aidan";
+
+      document.getElementById("modalRoot").innerHTML = `
+        <div class="modal-backdrop">
+          <div class="modal" style="width:min(760px,100%);">
+            <div class="modal-head between">
+              <div>
+                <h2>Settings</h2>
+                <p class="small">Theme, account and local preferences.</p>
+              </div>
+              <button class="btn secondary" onclick="closeModal()">Close</button>
+            </div>
+
+            <div class="modal-body stack">
+              <div class="grid-2">
+                <div class="field">
+                  <label>Theme Accent Colour</label>
+                  <input id="settingsAccent" type="color" value="${escapeAttr(accent)}">
+                </div>
+
+                <div class="field">
+                  <label>Default Logged By Name</label>
+                  <input id="settingsLoggedBy" value="${escapeAttr(loggedBy)}">
+                </div>
+              </div>
+
+              <div class="panel">
+                <h3>Mac Reminders / To Do Sync</h3>
+                <p class="small">A static website cannot directly write to Apple Reminders. Best route later: export next actions to an Apple Shortcut.</p>
+              </div>
+
+              <div class="panel stack">
+                <h3>Account</h3>
+                <div class="row">
+                  <button class="btn secondary" id="settingsRefreshBtn">Refresh Data</button>
+                  <button class="btn danger" id="settingsSignOutBtn">Sign Out</button>
+                </div>
+              </div>
+
+              <button class="btn" id="saveSettingsBtn">Save Settings</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("settingsAccent").addEventListener("input",event=>{
+        applyTheme(event.target.value);
+      });
+
+      document.getElementById("saveSettingsBtn").addEventListener("click",()=>{
+        localStorage.setItem("jdw_settings",JSON.stringify({
+          accent:val("settingsAccent"),
+          loggedBy:val("settingsLoggedBy") || "Aidan"
+        }));
+
+        applySavedSettings();
+        toast("Settings saved");
+        closeModal();
+      });
+
+      document.getElementById("settingsRefreshBtn").addEventListener("click",loadData);
+      document.getElementById("settingsSignOutBtn").addEventListener("click",signOut);
+    }
+
+    function localBriefOrganiser(raw){
+      const lower = raw.toLowerCase();
+      const title = getQuotedText(raw)[0] || "Untitled Campaign";
+      const artist = getArtistBeforeTitle(raw,title) || getWordsBefore(raw,"pixel",2).replace(/^the /i,"") || "Untitled Artist";
+      const objective = lower.includes("engagement") ? "Engagement" : "Confirm objective";
+      const conversionLocation = lower.includes("website") ? "Website" : "Confirm conversion location";
+      const event = lower.includes("view content") ? "View Content" : "Confirm optimisation event";
+      const pixel = artist!=="Untitled Artist" ? artist+" pixel" : "Confirm pixel";
+      const link = findUrl(raw,"song.so") || findUrl(raw,"http") || "";
+      const budget = findOverallBudget(raw);
+      const daily = findMoneyLine(raw,"day");
+      const territories = extractTerritories(raw).join(", ");
+      const split = extractAdSetBudgetSplit(raw,daily);
+      const names = extractAdSetNames(raw);
+
+      const structured = [
+        `Artist: ${artist}`,
+        `Campaign / track: ${title}`,
+        `Campaign setup: Objective is ${objective}. Set conversion location to ${conversionLocation}. Optimise for ${event} using ${pixel}.`,
+        `Conversion link: ${link || "TBC"}`,
+        `Campaign budget: ${budget || "TBC"}.`,
+        `Ad set budget split: ${names[0]} ${split[0] || "TBC"}; ${names[1]} ${split[1] || "TBC"}.`,
+        `Targeting: ${territories || "TBC"}.`
+      ].join("\\n\\n");
+
+      return {
+        artistName:clean(artist),
+        title:clean(title),
+        status:"New Brief",
+        priority:"Normal",
+        deadline:"",
+        budget:budget,
+        objective:`${objective}. Conversion location: ${conversionLocation}. Optimisation event: ${event}. Pixel: ${pixel}.`,
+        campaign_link:link,
+        territories,
+        raw_brief:raw,
+        structured_brief:structured,
+        missing_info:"No major missing information detected.",
+        report:"",
+        checklist:DEFAULT_CHECKLIST,
+        ad_sets:[
+          {
+            name:names[0],
+            objective:`${conversionLocation} / ${event}`,
+            budget:split[0] || daily || "TBC",
+            budget_type:"Daily Budget",
+            status:"Running",
+            audience:"Warm custom audiences, lookalike, engagers and followers."
+          },
+          {
+            name:names[1],
+            objective:`${conversionLocation} / ${event}`,
+            budget:split[1] || daily || "TBC",
+            budget_type:"Daily Budget",
+            status:"Running",
+            audience:"Related artist / interest prospecting."
+          }
+        ]
+      };
+    }
+
+    function organiseCurrentBrief(){
+      collectDraft();
+
+      if(!tempDraft.raw_brief){
+        toast("Paste a raw brief first",true);
+        return;
+      }
+
+      tempDraft = {...tempDraft,...localBriefOrganiser(tempDraft.raw_brief)};
+      renderModal();
+    }
+
+    function generateNames(){
+      collectDraft();
+
+      const artist = slug(tempDraft.artistName || "artist");
+      const title = slug(tempDraft.title || "campaign");
+      const territories = slug((tempDraft.territories || "core").replaceAll(",","-"));
+
+      const text = `Suggested naming convention:\\n\\nCampaign:\\n${artist}_eng-${title}_vc_${territories}\\n\\nAd Set 1:\\nca_warm-lal_${artist}_18-50_${territories}_ig-fb\\n\\nAd Set 2:\\nint_ra-related-artists_${artist}_18-50_${territories}_ig-fb`;
+
+      const box = document.getElementById("m_structuredBrief");
+
+      if(box){
+        box.value = (tempDraft.structured_brief ? tempDraft.structured_brief + "\\n\\n" : "") + text;
+        collectDraft();
+        scheduleAutosave();
+      }
+
+      toast("Names added");
+    }
+
+    function summariseLogs(){
+      const logs = activeCampaignId ? getCampaignLogs(activeCampaignId) : [];
+
+      tempDraft.report = logs.length
+        ? logs.map(log=>`- ${formatDateTime(log.created_at)}: ${log.text}`).join("\\n")
+        : "No logs yet.";
+
+      const box = document.getElementById("m_report");
+
+      if(box){
+        box.value = tempDraft.report;
+        scheduleAutosave();
+      }else{
+        renderModal();
+      }
+    }
+
+    function generateJamesUpdate(){
+      collectDraft();
+
+      const logs = activeCampaignId ? getCampaignLogs(activeCampaignId) : [];
+
+      tempDraft.report = `Hey mate, quick update on ${tempDraft.artistName} — ${tempDraft.title}.\\n\\nStatus: ${tempDraft.status}.\\n\\nWhat has been done:\\n${logs.slice(-6).map(log=>`- ${log.text}`).join("\\n") || "- No work logs added yet."}\\n\\n${tempDraft.missing_info || "No major missing info flagged."}`;
+
+      const box = document.getElementById("m_report");
+
+      if(box){
+        box.value = tempDraft.report;
+        scheduleAutosave();
+      }else{
+        renderModal();
+      }
+    }
+
+    function generateClientReport(){
+      collectDraft();
+
+      const logs = activeCampaignId ? getCampaignLogs(activeCampaignId) : [];
+
+      tempDraft.report = `Campaign Report — ${tempDraft.artistName} / ${tempDraft.title}\\n\\nStatus: ${tempDraft.status}\\nObjective / Setup: ${tempDraft.objective || "TBC"}\\nBudget: ${tempDraft.budget || "TBC"}\\nTerritories: ${tempDraft.territories || "TBC"}\\nDestination: ${tempDraft.campaign_link || "TBC"}\\n\\nBrief Summary:\\n${tempDraft.structured_brief || tempDraft.raw_brief || "No brief added yet."}\\n\\nWork Completed:\\n${logs.map(log=>`- ${log.text}`).join("\\n") || "No work logs added yet."}`;
+
+      const box = document.getElementById("m_report");
+
+      if(box){
+        box.value = tempDraft.report;
+        scheduleAutosave();
+      }else{
+        renderModal();
+      }
+    }
+
+    function closeModal(){
+      document.getElementById("modalRoot").innerHTML = "";
+      activeCampaignId = null;
+      tempDraft = null;
+    }
+
+    function setAuthStatus(message,isError=false){
+      const element = document.getElementById("authStatus");
+
+      if(!element) return;
+
+      element.textContent = message;
+      element.className = "status-box" + (isError ? " error" : "");
+    }
+
+    function toast(message,isError=false){
+      const element = document.getElementById("toast");
+
+      element.textContent = message;
+      element.className = "toast" + (isError ? " error" : "");
+      element.classList.remove("hidden");
+
+      setTimeout(()=>{
+        element.classList.add("hidden");
+      },3500);
+    }
+
+    function val(id){
+      return document.getElementById(id)?.value?.trim() || "";
+    }
+
+    function tabLabel(tab){
+      return {
+        overview:"Overview",
+        brief:"Brief",
+        setup:"Setup",
+        build:"Build",
+        logs:"Logs / Report"
+      }[tab];
+    }
+
+    function truncate(text,length){
+      return String(text || "").length > length
+        ? String(text).slice(0,length-1)+"…"
+        : String(text || "");
+    }
+
+    function adSetStatusClass(status){
+      const s = String(status || "Running").toLowerCase();
+
+      if(s.includes("pause")) return "adset-paused";
+      if(s.includes("end")) return "adset-ended";
+      if(s.includes("review") || s.includes("need")) return "adset-review";
+
+      return "adset-running";
+    }
+
+    function formatCampaignBudget(value){
+      const text = String(value || "");
+      const compact = text.replace("Budget:","").replace("Campaign spend cap:","").trim();
+      const found = compact.match(new RegExp("[€£$]? *[0-9][0-9,.]* *(euro|eur|gbp|usd|pounds?)?","i"));
+
+      return found ? found[0].trim() : compact;
+    }
+
+    function formatAdSetBudget(adset){
+      let amount = String(adset.budget || "").trim();
+
+      amount = amount
+        .replace("Budget:","")
+        .replace("Ad set budget:","")
+        .replace("if confirmed","")
+        .trim();
+
+      const found = amount.match(new RegExp("[€£$]? *[0-9][0-9,.]* *(per day|/day|daily|euro|eur|gbp|usd|pounds?)?","i"));
+
+      amount = found ? found[0].trim() : amount || "TBC";
+
+      const type = String(adset.budget_type || "Daily Budget").toLowerCase().includes("life")
+        ? "lifetime"
+        : "daily";
+
+      return (amount+" "+type).replace(new RegExp(" +","g")," ").trim();
+    }
+
+    function slug(text){
+      return String(text || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g,"-")
+        .replace(/^-|-$/g,"");
+    }
+
+    function clean(text){
+      return String(text || "")
+        .replaceAll("-"," ")
+        .replace(/\s+/g," ")
+        .trim()
+        .replace(/^the /i,"");
+    }
+
+    function formatDate(date){
+      return date
+        ? new Date(date+"T00:00:00").toLocaleDateString(undefined,{day:"2-digit",month:"short"})
+        : "";
+    }
+
+    function formatDateTime(date){
+      return date
+        ? new Date(date).toLocaleString(undefined,{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"})
+        : "";
+    }
+
+    function escapeHtml(value){
+      return String(value ?? "").replace(/[&<>'"]/g,char=>({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        "'":"&#39;",
+        '"':"&quot;"
+      }[char]));
+    }
+
+    function escapeAttr(value){
+      return escapeHtml(value).replace(/`/g,"&#96;");
+    }
+
+    function getQuotedText(text){
+      const match = String(text).match(/["“](.*?)["”]/);
+
+      return match ? [match[1].trim()] : [];
+    }
+
+    function getArtistBeforeTitle(raw,title){
+      const marker = "write up the ";
+      const lower = raw.toLowerCase();
+      const start = lower.indexOf(marker);
+      const index = lower.indexOf(String(title).toLowerCase());
+
+      if(start===-1 || index===-1 || index<=start) return "";
+
+      return clean(
+        raw
+          .slice(start+marker.length,index)
+          .replaceAll('"',"")
+          .replaceAll("“","")
+          .replaceAll("”","")
+      );
+    }
+
+    function getWordsBefore(raw,word,count){
+      const words = String(raw)
+        .replace(/[.,()]/g," ")
+        .split(/\s+/)
+        .filter(Boolean);
+
+      const index = words.findIndex(item=>item.toLowerCase()===word.toLowerCase());
+
+      return index===-1
+        ? ""
+        : words.slice(Math.max(0,index-count),index).join(" ");
+    }
+
+    function findUrl(text,domain){
+      const tokens = String(text)
+        .split(/\s+/)
+        .map(token=>token.trim().replace(/[),.]+$/g,""));
+
+      const found = tokens.find(token=>token.toLowerCase().includes(domain.toLowerCase()) && token.includes("."));
+
+      return found
+        ? (found.startsWith("http") ? found : "https://"+found)
+        : "";
+    }
+
+    function findMoneyLine(text,keyword){
+      const lines = String(text || "").split(String.fromCharCode(10));
+
+      const found = lines.find(line=>
+        hasNumber(line) && (!keyword || line.toLowerCase().includes(keyword.toLowerCase()))
+      );
+
+      return found ? found.trim().replace(/^[- ]+/,"") : "";
+    }
+
+    function hasNumber(text){
+      return getNumbers(text).length > 0;
+    }
+
+    function getNumbers(text){
+      const output = [];
+      let current = "";
+
+      for(const character of String(text || "")){
+        if((character>="0" && character<="9") || character==="," || character==="."){
+          current += character;
+        }else{
+          if(current && current!=="." && current!==","){
+            output.push(current);
+          }
+
+          current = "";
+        }
+      }
+
+      if(current && current!=="." && current!==","){
+        output.push(current);
+      }
+
+      return output;
+    }
+
+    function moneySymbolFromText(text){
+      const value = String(text || "");
+
+      if(value.includes("£")) return "£";
+      if(value.includes("$")) return "$";
+
+      return "€";
+    }
+
+    function cleanNumberToken(number){
+      return String(number || "").replaceAll(",","").trim();
+    }
+
+    function amountWithSymbol(number,raw){
+      return number ? moneySymbolFromText(raw)+String(number).trim() : "";
+    }
+
+    function findOverallBudget(raw){
+      const text = String(raw || "");
+      const lines = text.split(String.fromCharCode(10));
+
+      const line = lines.find(item=>{
+        const lower = item.toLowerCase();
+
+        return hasNumber(item) && (
+          lower.includes("budget") ||
+          lower.includes("spend cap") ||
+          lower.includes("campaign level") ||
+          lower.includes("campaign-level") ||
+          lower.includes("total")
+        );
+      });
+
+      if(line){
+        const numbers = getNumbers(line).filter(number=>Number(cleanNumberToken(number))>10);
+
+        if(numbers.length){
+          return amountWithSymbol(numbers[0],text);
+        }
+      }
+
+      const numbers = getNumbers(text).filter(number=>Number(cleanNumberToken(number))>10);
+
+      return numbers.length ? amountWithSymbol(numbers[0],text) : "";
+    }
+
+    function cleanBudgetAmount(value,raw){
+      const numbers = getNumbers(value).filter(number=>Number(cleanNumberToken(number))>0);
+
+      return numbers.length ? amountWithSymbol(numbers[0],raw || value) : "";
+    }
+
+    function extractAdSetBudgetSplit(raw,fallback){
+      const text = String(raw || "");
+      const lines = text.split(String.fromCharCode(10));
+      let first = "";
+      let second = "";
+
+      const firstLine = lines.find(line=>{
+        const lower = line.toLowerCase();
+
+        return hasNumber(line) && (
+          lower.includes("warm") ||
+          lower.includes("retarget") ||
+          lower.includes("first") ||
+          lower.includes("1st") ||
+          lower.includes("ad set 1") ||
+          lower.includes("adset 1")
+        );
+      });
+
+      const secondLine = lines.find(line=>{
+        const lower = line.toLowerCase();
+
+        return hasNumber(line) && (
+          lower.includes("prospecting") ||
+          lower.includes("cold") ||
+          lower.includes("interest") ||
+          lower.includes("second") ||
+          lower.includes("2nd") ||
+          lower.includes("ad set 2") ||
+          lower.includes("adset 2")
+        );
+      });
+
+      if(firstLine){
+        const numbers = getNumbers(firstLine).filter(number=>Number(cleanNumberToken(number))>10);
+
+        if(numbers.length){
+          first = amountWithSymbol(numbers[numbers.length-1],text);
+        }
+      }
+
+      if(secondLine){
+        const numbers = getNumbers(secondLine).filter(number=>Number(cleanNumberToken(number))>10);
+
+        if(numbers.length){
+          second = amountWithSymbol(numbers[numbers.length-1],text);
+        }
+      }
+
+      if(!first || !second){
+        const lower = text.toLowerCase();
+        const startWords = ["split","ad sets","adsets","first","warm","prospecting"];
+        let start = 0;
+
+        for(const word of startWords){
+          const index = lower.indexOf(word);
+
+          if(index>=0){
+            start = index;
+            break;
+          }
+        }
+
+        const relevant = text.slice(start,start+320);
+
+        const numbers = getNumbers(relevant).filter(number=>{
+          const value = Number(cleanNumberToken(number));
+
+          return value>10 && value<10000;
+        });
+
+        if(numbers.length>=2){
+          first = first || amountWithSymbol(numbers[0],text);
+          second = second || amountWithSymbol(numbers[1],text);
+        }
+      }
+
+      if(!first && fallback){
+        first = cleanBudgetAmount(fallback,text) || fallback;
+      }
+
+      if(!second && fallback){
+        second = cleanBudgetAmount(fallback,text) || fallback;
+      }
+
+      return [first,second];
+    }
+
+    function extractAdSetNames(raw){
+      const text = String(raw || "");
+      const lines = text.split(String.fromCharCode(10));
+
+      let first = "";
+      let second = "";
+
+      const firstLine = lines.find(line=>{
+        const lower = line.toLowerCase();
+
+        return (
+          lower.includes("warm") ||
+          lower.includes("retarget") ||
+          lower.includes("lookalike") ||
+          lower.includes("lal") ||
+          lower.includes("first") ||
+          lower.includes("1st") ||
+          lower.includes("ad set 1") ||
+          lower.includes("adset 1")
+        );
+      });
+
+      const secondLine = lines.find(line=>{
+        const lower = line.toLowerCase();
+
+        return (
+          lower.includes("prospecting") ||
+          lower.includes("related artist") ||
+          lower.includes("interest") ||
+          lower.includes("cold") ||
+          lower.includes("second") ||
+          lower.includes("2nd") ||
+          lower.includes("ad set 2") ||
+          lower.includes("adset 2")
+        );
+      });
+
+      if(firstLine){
+        first = cleanAdSetName(firstLine,"Warm / Retargeting");
+      }
+
+      if(secondLine){
+        second = cleanAdSetName(secondLine,"Prospecting");
+      }
+
+      return [
+        first || "Warm / Retargeting",
+        second || "Prospecting"
+      ];
+    }
+
+    function cleanAdSetName(line,fallback){
+      let value = String(line || "")
+        .replace(/^\s*[-*0-9.)]+/,"")
+        .replace(/ad\s*set\s*\d+/i,"")
+        .replace(/first|1st|second|2nd/i,"")
+        .replace(/budget|daily|lifetime|spend|€|£|\$/ig,"")
+        .replace(/[0-9,.]+/g,"")
+        .replace(/[:;,-]+$/g,"")
+        .replace(/\s+/g," ")
+        .trim();
+
+      if(value.length>48){
+        value = value.slice(0,48).trim();
+      }
+
+      return value || fallback;
+    }
+
+    function extractTerritories(raw){
+      const lower = String(raw).toLowerCase();
+      const output = [];
+
+      if(lower.includes("germany")) output.push("Germany");
+      if(lower.includes("austria")) output.push("Austria");
+      if(lower.includes("switzerland")) output.push("Switzerland");
+      if(lower.includes("sweden")) output.push("Sweden");
+      if(lower.includes("united kingdom") || lower.includes(" uk ")) output.push("United Kingdom");
+      if(lower.includes("united states") || lower.includes(" usa ")) output.push("United States");
+
+      return [...new Set(output)];
+    }
+  </script>
 </body>
 </html>
