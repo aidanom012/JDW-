@@ -618,8 +618,11 @@
     function renderLogsTab() {
       const isNew = !activeCampaignId;
       const logs = isNew ? [] : getCampaignLogs(activeCampaignId);
-      document.getElementById("modalBody").innerHTML = `<div class="grid-2"><div class="panel stack"><h3>Add Work Log</h3>${isNew ? `<p class="small">Save the campaign first before adding work logs.</p>` : `<div class="grid-2"><div class="field"><label>Logged By</label><input id="log_by" value="Aidan"></div><div class="field"><label>Type</label><select id="log_type"><option>Brief</option><option>Setup</option><option>QA</option><option>Approval</option><option>Launch</option><option>Reporting</option><option>Issue</option><option>Status</option></select></div></div><div class="field"><label>What was done?</label><textarea id="log_text" placeholder="e.g. Created warm/LAL ad set and checked View Content event."></textarea></div><button class="btn" id="addLogBtn">Add Log</button>`}</div><div class="panel"><div class="between"><h3>Timeline</h3><button class="btn secondary" id="summariseLogsBtn">Summarise Logs</button></div><div class="log-list">${logs.length ? logs.slice().reverse().map(l => `<div class="log-item"><p>${escapeHtml(l.text)}</p><p class="small" style="margin-top:6px;">${escapeHtml(l.log_type)} · ${escapeHtml(l.logged_by)} · ${formatDateTime(l.created_at)}</p></div>`).join("") : `<div class="empty">No work logs yet.</div>`}</div></div></div>`;
-      if (!isNew) document.getElementById("addLogBtn").addEventListener("click", addLog);
+      document.getElementById("modalBody").innerHTML = `<div class="grid-2"><div class="panel stack"><h3>Add Work Log</h3>${isNew ? `<p class="small">Save the campaign first before adding work logs.</p>` : `<div class="grid-2"><div class="field"><label>Logged By</label><input id="log_by" value="Aidan"></div><div class="field"><label>Type</label><select id="log_type"><option>Brief</option><option>Setup</option><option>QA</option><option>Approval</option><option>Launch</option><option>Reporting</option><option>Issue</option><option>Status</option></select></div></div><div class="field"><label>What was done?</label><textarea id="log_text" placeholder="e.g. Created warm/LAL ad set and checked View Content event."></textarea></div><button class="btn" id="addLogBtn">Add Log</button>`}</div><div class="panel"><div class="between"><h3>Timeline</h3><button class="btn secondary" id="summariseLogsBtn">Summarise Logs</button></div><div class="log-list">${logs.length ? logs.slice().reverse().map(l => `<div class="log-item"><div class="between"><div><p>${escapeHtml(l.text)}</p><p class="small" style="margin-top:6px;">${escapeHtml(l.log_type)} · ${escapeHtml(l.logged_by)} · ${formatDateTime(l.created_at)}</p></div><button class="btn danger" style="padding:8px 10px;" data-delete-log="${l.id}">Delete</button></div></div>`).join("") : `<div class="empty">No work logs yet.</div>`}</div></div></div>`;
+      if (!isNew) {
+        document.getElementById("addLogBtn").addEventListener("click", addLog);
+        document.querySelectorAll("[data-delete-log]").forEach(btn => btn.addEventListener("click", () => deleteLog(btn.dataset.deleteLog)));
+      }
       document.getElementById("summariseLogsBtn").addEventListener("click", summariseLogs);
     }
 
@@ -761,6 +764,16 @@
       if (error) return toast(error.message, true);
       await supabaseClient.from("campaigns").update({ updated_at: new Date().toISOString() }).eq("id", activeCampaignId);
       await loadData(); tempDraft = campaignToDraft(campaigns.find(c => c.id === activeCampaignId)); renderModal(); toast("Log added.");
+    }
+
+    async function deleteLog(id) {
+      if (!confirm("Delete this work log?")) return;
+      const { error } = await supabaseClient.from("work_logs").delete().eq("id", id);
+      if (error) return toast(error.message, true);
+      await loadData();
+      tempDraft = campaignToDraft(campaigns.find(c => c.id === activeCampaignId));
+      renderModal();
+      toast("Log deleted.");
     }
 
     function openImportModal() {
