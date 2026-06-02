@@ -758,6 +758,14 @@
     .activity-mini{display:grid;gap:8px;max-height:235px;overflow:auto}
     .activity-mini-item{border-left:3px solid rgba(var(--accent-rgb),.4);background:rgba(0,0,0,.16);border-radius:0 12px 12px 0;padding:9px;font-size:12px;line-height:1.35;color:var(--muted)}
     .edit-brief-bar{border:1px solid rgba(var(--accent-rgb),.22);border-radius:16px;background:rgba(var(--accent-rgb),.06);padding:12px;margin-bottom:14px}
+    .panel.stack{align-content:start}
+    .raw-brief-viewer{position:fixed;inset:18px;z-index:120;border:1px solid var(--line);border-radius:24px;background:#0f0f15;box-shadow:var(--shadow);display:grid;grid-template-rows:auto 1fr;overflow:hidden}
+    .raw-brief-viewer-backdrop{position:fixed;inset:0;z-index:119;background:rgba(0,0,0,.74);backdrop-filter:blur(8px)}
+    .raw-brief-viewer-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 20px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.035)}
+    .raw-brief-viewer-head h3{margin:0;font-size:20px;letter-spacing:-.035em}
+    .raw-brief-content{margin:0;padding:22px;overflow:auto;white-space:pre-wrap;font-size:14px;line-height:1.55;color:var(--text);background:rgba(0,0,0,.16)}
+    .mini-btn{border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.05);color:var(--muted);padding:7px 10px;font-size:11px;font-weight:950}
+    .mini-btn:hover{color:var(--accent);border-color:rgba(var(--accent-rgb),.25);background:rgba(var(--accent-rgb),.08)}
 
     @media(max-width:1100px){
       .brief-meta-row,.snapshot-grid{grid-template-columns:repeat(2,1fr)}
@@ -1570,7 +1578,6 @@
       const setup = parseSetupSnapshot(draft.objective);
       const blockers = parseBlockers(draft.missing_info);
       const creatives = parseCreativesFromBrief(draft,ads);
-      const timeline = getCampaignTimeline();
 
       document.getElementById("modalBody").innerHTML = `
         <div class="brief-command">
@@ -1597,22 +1604,6 @@
             </div>
           </section>
 
-          <section class="brief-card">
-            <div class="brief-card-head"><h3>Campaign Timeline / Calendar Tracker</h3><span class="small">Autosaves locally per campaign</span></div>
-            <div class="timeline-track">
-              ${timeline.map((stage,index)=>`
-                <div class="timeline-stage ${stage.done ? "done" : ""}">
-                  <label><input type="checkbox" data-timeline-done="${index}" ${stage.done ? "checked" : ""}> ${stage.done ? "Done" : "Open"}</label>
-                  <strong>${esc(stage.name)}</strong>
-                  <select data-timeline-status="${index}">
-                    ${["Not Started","In Progress","Waiting","Complete"].map(s=>`<option ${stage.status===s?"selected":""}>${s}</option>`).join("")}
-                  </select>
-                  <input type="date" data-timeline-due="${index}" value="${attr(stage.due || "")}" />
-                  <input data-timeline-owner="${index}" value="${attr(stage.owner || "")}" placeholder="Owner" />
-                </div>
-              `).join("")}
-            </div>
-          </section>
 
           <section class="brief-card">
             <div class="brief-card-head"><h3>Campaign Setup Snapshot</h3><span class="pill accent">Website / View Content check</span></div>
@@ -1640,7 +1631,10 @@
 
           <div class="grid-2">
             <section class="brief-card">
-              <div class="brief-card-head"><h3>Brief Notes</h3></div>
+              <div class="brief-card-head">
+                <h3>Brief Notes</h3>
+                <button class="mini-btn" id="expandRawBriefBtn">Expand Raw Brief</button>
+              </div>
               <div class="brief-note-tabs">
                 <button class="brief-note-tab ${briefNotesTab==="clean"?"active":""}" data-brief-note-tab="clean">Clean Team Brief</button>
                 <button class="brief-note-tab ${briefNotesTab==="raw"?"active":""}" data-brief-note-tab="raw">Raw Imported Brief</button>
@@ -1678,10 +1672,7 @@
         });
       });
 
-      document.querySelectorAll("[data-timeline-done],[data-timeline-status],[data-timeline-due],[data-timeline-owner]").forEach(el=>{
-        el.addEventListener("input",saveTimelineFromDom);
-        el.addEventListener("change",saveTimelineFromDom);
-      });
+      document.getElementById("expandRawBriefBtn")?.addEventListener("click",openRawBriefViewer);
     }
 
     function renderBriefEditTab(){
@@ -1772,6 +1763,44 @@
       document.getElementById("organiseBtn").addEventListener("click",organiseCurrentBrief);
       document.getElementById("namesBtn").addEventListener("click",generateNames);
       wireAutosave();
+    }
+
+
+    function openRawBriefViewer(){
+      const oldBackdrop = document.getElementById("rawBriefViewerBackdrop");
+      const oldViewer = document.getElementById("rawBriefViewer");
+      oldBackdrop?.remove();
+      oldViewer?.remove();
+
+      const raw = draft.raw_brief || "No raw imported brief saved for this campaign.";
+      const backdrop = document.createElement("div");
+      backdrop.id = "rawBriefViewerBackdrop";
+      backdrop.className = "raw-brief-viewer-backdrop";
+
+      const viewer = document.createElement("div");
+      viewer.id = "rawBriefViewer";
+      viewer.className = "raw-brief-viewer";
+      viewer.innerHTML = `
+        <div class="raw-brief-viewer-head">
+          <div>
+            <h3>Raw Imported Brief</h3>
+            <p class="small" style="margin:4px 0 0;">Use this to compare the original messy import against the clean team brief.</p>
+          </div>
+          <div class="row">
+            <button class="btn secondary" id="copyRawBriefBtn">Copy Raw Brief</button>
+            <button class="btn" id="closeRawBriefBtn">Close</button>
+          </div>
+        </div>
+        <pre class="raw-brief-content">${esc(raw)}</pre>
+      `;
+
+      document.body.appendChild(backdrop);
+      document.body.appendChild(viewer);
+
+      const close = ()=>{ backdrop.remove(); viewer.remove(); };
+      backdrop.addEventListener("click",close);
+      document.getElementById("closeRawBriefBtn").addEventListener("click",close);
+      document.getElementById("copyRawBriefBtn").addEventListener("click",()=>navigator.clipboard.writeText(raw).then(()=>toast("Raw brief copied")));
     }
 
 
