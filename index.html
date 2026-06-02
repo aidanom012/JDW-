@@ -2781,23 +2781,28 @@
     function openImportModal(){
       document.getElementById("modalRoot").innerHTML = `
         <div class="modal-backdrop">
-          <div class="modal" style="width:min(900px,100%);">
+          <div class="modal" style="width:min(980px,100%);">
             <div class="modal-head between">
               <div>
                 <h2>Import Messy Brief</h2>
-                <p class="small">Paste James's brief and organise it locally with private browser AI.</p>
+                <p class="small">Paste a brief/report. Local AI extracts fields, then a strict review screen checks numbers, missing info and assumptions before anything becomes a campaign draft.</p>
               </div>
               <button class="btn secondary" onclick="closeModal()">Close</button>
             </div>
             <div class="modal-body stack">
               <textarea id="importRaw" style="min-height:330px;" placeholder="Paste the raw campaign brief here..."></textarea>
+
               <div class="panel" style="padding:13px;">
                 <div class="between">
                   <div>
-                    <strong>Local AI Import</strong>
-                    <p id="aiImportProgress" class="small" style="margin:5px 0 0;">Runs privately in your browser. Nothing is sent to OpenAI.</p>
+                    <strong>Strict Local AI Import</strong>
+                    <p id="aiImportProgress" class="small" style="margin:5px 0 0;">Runs in your browser. AI extracts, code validates, you review before creating a campaign draft.</p>
+                    <label style="display:flex;align-items:center;gap:8px;margin:10px 0 0;text-transform:none;letter-spacing:0;font-size:12px;color:var(--muted);font-weight:850;">
+                      <input id="saveRawBriefToggle" type="checkbox" style="width:auto;" />
+                      Save raw brief in Supabase after I create the campaign
+                    </label>
                   </div>
-                  <button class="btn" id="organiseImportBtn">Organise with Local AI</button>
+                  <button class="btn" id="organiseImportBtn">Extract & Review</button>
                 </div>
               </div>
             </div>
@@ -2815,37 +2820,49 @@
 
         const btn = document.getElementById("organiseImportBtn");
         const progress = document.getElementById("aiImportProgress");
+        const saveRawBrief = document.getElementById("saveRawBriefToggle")?.checked || false;
 
         btn.disabled = true;
         btn.textContent = "Loading local AI...";
         progress.textContent = "First use may take a while because the browser has to download the model.";
 
         try{
-          let organised;
+          let aiResult;
 
           if(window.parseBriefWithWebLLM){
-            organised = await window.parseBriefWithWebLLM(raw,message=>{
-              progress.textContent = message || "Organising brief locally...";
+            aiResult = await window.parseBriefWithWebLLM(raw,message=>{
+              progress.textContent = message || "Extracting brief locally...";
             });
           }else{
-            organised = localBriefOrganiser(raw);
+            aiResult = {
+              brief_type:classifyBriefTypeStrict(raw),
+              confidence:"low",
+              finalDraft:localBriefOrganiser(raw),
+              evidence:{},
+              reviewFlags:["Local AI was unavailable, so the older JavaScript organiser was used. Review every field carefully."]
+            };
           }
 
-          closeModal();
-          openCampaignModal(null,organised);
+          const review = buildStrictImportReview(raw,aiResult,{saveRawBrief});
+          renderAIImportReviewModal(review);
         }catch(error){
           console.error(error);
 
-          progress.textContent = "Local AI failed, using basic organiser instead.";
+          progress.textContent = "Local AI failed. Falling back to basic organiser and strict review.";
 
-          const organised = localBriefOrganiser(raw);
-          closeModal();
-          openCampaignModal(null,organised);
+          const review = buildStrictImportReview(raw,{
+            brief_type:classifyBriefTypeStrict(raw),
+            confidence:"low",
+            finalDraft:localBriefOrganiser(raw),
+            evidence:{},
+            reviewFlags:["Local AI failed. Basic organiser used instead. Review every field carefully.",error.message]
+          },{saveRawBrief});
 
-          toast("Local AI failed, so basic organiser was used.",true);
+          renderAIImportReviewModal(review);
+          toast("Local AI failed, so basic organiser was reviewed instead.",true);
         }finally{
           btn.disabled = false;
-          btn.textContent = "Organise with Local AI";
+          btn.textContent = "Extract & Review";
         }
       });
     }
@@ -3507,6 +3524,497 @@
 
       return [...new Set(out)];
     }
+
+
+    function classifyBriefTypeStrict(raw){
+      const t = String(raw || "").toLowerCase();
+      if(t.includes("campaign report") || t.includes("roas") || t.includes("cpp") || t.includes("attributed purchases") || t.includes("closing thoughts")) return "campaign_report";
+      if(t.includes("paid media brief") || t.includes("objectives and kpis") || t.includes("campaign timeline") || t.includes("audience profile")) return "strategy_brief";
+      if(t.includes("go to adsmanager") || t.includes("ad sets") || t.includes("objective:") || t.includes("conversion location") || t.includes("optimising") || t.includes("campaign-level spend cap")) return "build_brief";
+      return "unknown";
+    }
+
+    function defaultDraftShape(){
+      return {
+        artistName:"",
+        title:"",
+        status:"New Brief",
+        priority:"Normal",
+        deadline:"",
+        budget:"",
+        objective:"",
+        campaign_link:"",
+        territories:"",
+        raw_brief:"",
+        structured_brief:"",
+        missing_info:"",
+        report:"",
+        checklist:DEFAULT_CHECKLIST,
+        ad_sets:[]
+      };
+    }
+
+    function detectCurrency(text,fallback=""){
+      const t = String(text || "");
+      const m = t.match(/[€£$]/);
+      return m ? m[0] : fallback;
+    }
+
+    function normaliseBudgetStrict(value,defaultCurrency=""){
+      const text = String(value || "").trim();
+      if(!text) return {value:"",flag:"Budget missing",evidence:""};
+
+      const match = text.match(/([€£$])?\s*([0-9]+(?:[.,][0-9]+)?)\s*(k|m|thousand|million)?\b/i);
+      if(!match) return {value:text,flag:"Budget format needs review",evidence:text};
+
+      const originalNumber = match[0].trim();
+      const currency = match[1] || defaultCurrency || "";
+      let number = parseFloat(String(match[2]).replace(/,/g,""));
+      const suffix = String(match[3] || "").toLowerCase();
+
+      if(suffix==="k" || suffix==="thousand") number *= 1000;
+      if(suffix==="m" || suffix==="million") number *= 1000000;
+
+      let formatted = Math.round(number).toLocaleString("en-GB");
+      const daily = /\/\s*day|per\s+day|daily/i.test(text);
+      const suffixText = daily ? "/day" : "";
+
+      if(!currency){
+        return {value:formatted+suffixText+" currency TBC",flag:"Budget has no currency stated",evidence:text};
+      }
+
+      const out = currency+formatted+suffixText;
+      const wasShorthand = /\b(k|m|thousand|million)\b/i.test(originalNumber);
+      return {value:out,flag:wasShorthand ? `Budget shorthand normalised from "${originalNumber}" to "${out}"` : "",evidence:text};
+    }
+
+    function extractBudgetCandidatesStrict(text){
+      const raw = String(text || "");
+      const lines = raw.split(/\n/).map(x=>x.trim()).filter(Boolean);
+      const candidates = [];
+      const budgetPattern = /([€£$])?\s*([0-9]+(?:[.,][0-9]+)?)\s*(k|m|thousand|million)?\s*(?:\/\s*day|per\s+day|daily)?/ig;
+
+      for(const line of lines){
+        let match;
+        while((match = budgetPattern.exec(line))){
+          const token = match[0].trim();
+          const hasCurrency = !!match[1];
+          const hasScale = !!match[3];
+          const hasBudgetContext = /budget|spend|cap|ceiling|daily|\/day|per day|each|boosting|pre-order|preorder|ecom|awareness/i.test(line);
+          if(!hasCurrency && !hasScale) continue;
+          if(!hasBudgetContext && !/\/\s*day|per\s+day|daily/i.test(token)) continue;
+          candidates.push({token,line,value:normaliseBudgetStrict(token+(/\/\s*day|per\s+day|daily/i.test(line) ? "/day" : ""),detectCurrency(line)).value});
+        }
+      }
+      return candidates;
+    }
+
+    function findOverallBudget(raw){
+      const lines = String(raw || "").split(/\n/).map(x=>x.trim()).filter(Boolean);
+      const priority = lines.find(line=>{
+        const lower = line.toLowerCase();
+        return extractBudgetFromText(line) && (
+          lower.includes("campaign-level") ||
+          lower.includes("campaign level") ||
+          lower.includes("spend cap") ||
+          lower.includes("ceiling") ||
+          lower.includes("total budget") ||
+          lower.includes("campaign budget") ||
+          /^budget\s*:/i.test(line)
+        );
+      });
+      if(priority) return extractBudgetFromText(priority);
+
+      const fallback = lines.find(line=>/budget|spend cap|initial meta budget/i.test(line) && extractBudgetFromText(line));
+      return fallback ? extractBudgetFromText(fallback) : "";
+    }
+
+    function extractBudgetFromText(text){
+      const candidates = extractBudgetCandidatesStrict(text);
+      return candidates[0]?.value || "";
+    }
+
+    function findOverallBudgetStrict(raw){
+      const lines = String(raw || "").split(/\n/).map(x=>x.trim()).filter(Boolean);
+      const priority = lines.find(line=>{
+        const lower = line.toLowerCase();
+        return extractBudgetFromText(line) && (
+          lower.includes("campaign-level") ||
+          lower.includes("campaign level") ||
+          lower.includes("spend cap") ||
+          lower.includes("ceiling") ||
+          lower.includes("total budget") ||
+          lower.includes("campaign budget") ||
+          lower.includes("initial meta budget") ||
+          /^budget\s*:/i.test(line)
+        );
+      });
+      if(priority){
+        const norm = normaliseBudgetStrict(extractBudgetFromText(priority),detectCurrency(priority));
+        return {...norm,evidence:priority};
+      }
+      const candidates = extractBudgetCandidatesStrict(raw).filter(c=>/budget|spend|cap|ceiling|initial meta/i.test(c.line));
+      if(candidates[0]) return {value:candidates[0].value,flag:"",evidence:candidates[0].line};
+      return {value:"",flag:"Budget missing",evidence:""};
+    }
+
+    function extractBudgetSplitsStrict(raw,defaultCurrency=""){
+      const lines = String(raw || "").split(/\n/).map(x=>x.trim()).filter(Boolean);
+      const splits = [];
+      for(const line of lines){
+        if(!/(boosting|awareness|pre-?order|ecom|ad set|retargeting|prospecting)/i.test(line)) continue;
+        const budget = extractBudgetFromText(line);
+        if(!budget) continue;
+        let name = line.replace(/[·•-]/g," ").replace(/([€£$])?\s*[0-9]+(?:[.,][0-9]+)?\s*(k|m|thousand|million)?/ig,"").replace(/\s+/g," ").trim();
+        name = name.replace(/^budget\s*:?/i,"").trim() || "Budget Split";
+        const norm = normaliseBudgetStrict(budget,detectCurrency(line,defaultCurrency));
+        splits.push({
+          name:clean(name),
+          objective:name,
+          budget:norm.value,
+          budget_type:/\/\s*day|per\s+day|daily/i.test(line) ? "Daily Budget" : "Lifetime Budget",
+          status:"Needs Review",
+          audience:"",
+          notes:`Source: ${line}`
+        });
+      }
+      return splits;
+    }
+
+    function buildEvidenceValue(evidence,key){
+      const value = evidence && evidence[key];
+      if(Array.isArray(value)) return value.join("\n");
+      if(value && typeof value === "object") return JSON.stringify(value,null,2);
+      return String(value || "");
+    }
+
+    function buildStrictImportReview(raw,aiResult={},options={}){
+      const final = {...defaultDraftShape(),...(aiResult.finalDraft || aiResult || {})};
+      const evidence = aiResult.evidence || {};
+      const flags = Array.isArray(aiResult.reviewFlags) ? [...aiResult.reviewFlags] : [];
+      const rawType = aiResult.brief_type || aiResult.briefType || "";
+      const briefType = rawType && rawType !== "unknown" ? rawType : classifyBriefTypeStrict(raw);
+      const confidence = aiResult.confidence || "medium";
+
+      const rawOverallBudget = findOverallBudgetStrict(raw);
+      const defaultCurrency = detectCurrency(rawOverallBudget.value || raw);
+
+      if(rawOverallBudget.value){
+        const aiBudgetNorm = normaliseBudgetStrict(final.budget,defaultCurrency);
+        if(!final.budget || aiBudgetNorm.value !== rawOverallBudget.value || /currency TBC|£2$|€2$|\$2$/.test(aiBudgetNorm.value)){
+          if(final.budget && final.budget !== rawOverallBudget.value){
+            flags.push(`Budget overwritten from AI value "${final.budget}" to source-checked value "${rawOverallBudget.value}".`);
+          }
+          final.budget = rawOverallBudget.value;
+          evidence.budget = rawOverallBudget.evidence;
+        }
+        if(rawOverallBudget.flag) flags.push(rawOverallBudget.flag);
+      }else if(final.budget){
+        const norm = normaliseBudgetStrict(final.budget,defaultCurrency);
+        final.budget = norm.value;
+        if(norm.flag) flags.push(norm.flag);
+      }
+
+      if(!final.territories){
+        const t = extractTerritories(raw).join(", ");
+        if(t){
+          final.territories = t;
+          evidence.territories = "Detected exact territory names in brief.";
+        }
+      }
+
+      if(!final.campaign_link){
+        const songLink = findUrl(raw,"song.so");
+        if(songLink){
+          final.campaign_link = songLink;
+          evidence.campaign_link = songLink;
+        }
+      }
+
+      final.ad_sets = Array.isArray(final.ad_sets) ? final.ad_sets : [];
+      final.ad_sets = final.ad_sets.filter(a=>a && (a.name || a.budget || a.audience || a.notes)).map(a=>{
+        const norm = normaliseBudgetStrict(a.budget || "",defaultCurrency);
+        if(norm.flag && a.budget) flags.push(`${a.name || "Ad set"}: ${norm.flag}`);
+        return {
+          name:a.name || "Ad Set",
+          objective:a.objective || "",
+          budget:norm.value || a.budget || "",
+          budget_type:a.budget_type || (/\/day|per day|daily/i.test(String(a.budget || "")) ? "Daily Budget" : "Needs Review"),
+          status:a.status || "Needs Review",
+          audience:a.audience || "",
+          notes:a.notes || ""
+        };
+      });
+
+      if(briefType === "campaign_report"){
+        final.status = "Reporting";
+        final.priority = final.priority || "Normal";
+        final.report = final.report || final.structured_brief || "Campaign report imported. Review the source report before client-facing use.";
+        final.ad_sets = [];
+        flags.push("Campaign report detected: build ad-set rows were not created automatically.");
+        if(!final.objective) flags.push("Campaign report does not contain a safe build objective field.");
+      }
+
+      if(briefType === "strategy_brief"){
+        const splits = extractBudgetSplitsStrict(raw,defaultCurrency);
+        if(!final.ad_sets.length && splits.length) final.ad_sets = splits;
+        final.ad_sets = final.ad_sets.map(a=>({...a,status:a.status || "Needs Review"}));
+        flags.push("Strategy brief detected: exact Meta build settings may be incomplete. Review objective, pixel, ad sets and links before saving.");
+      }
+
+      if(briefType === "build_brief"){
+        final.status = final.status || "New Brief";
+      }
+
+      const missing = [];
+      if(!final.artistName) missing.push("Confirm artist name");
+      if(!final.title) missing.push("Confirm campaign / track title");
+      if(!final.budget) missing.push("Confirm campaign budget");
+      if(!final.territories) missing.push("Confirm territories");
+      if(!final.campaign_link && briefType !== "campaign_report") missing.push("Campaign/conversion link missing");
+      if(!final.objective && briefType !== "campaign_report") missing.push("Objective / pixel / event setup missing or not explicit");
+      if(/\b\d+(?:\.\d+)?k\b/i.test(raw) && !/[€£$]\s*\d+(?:\.\d+)?k/i.test(raw)) missing.push("A K shorthand budget appears without a currency. Confirm currency.");
+
+      const combinedMissing = [...new Set([
+        ...parseBlockers(final.missing_info || ""),
+        ...missing,
+        ...flags.filter(Boolean)
+      ])];
+
+      final.missing_info = combinedMissing.length ? combinedMissing.join("\n") : "No major missing information detected.";
+      final.raw_brief = options.saveRawBrief ? raw : "";
+      final.checklist = DEFAULT_CHECKLIST;
+      final.report = final.report || "";
+      final.structured_brief = final.structured_brief || buildStrictStructuredBrief(final,briefType);
+
+      return {rawBrief:raw,briefType,confidence,finalDraft:final,evidence,reviewFlags:combinedMissing,saveRawBrief:!!options.saveRawBrief};
+    }
+
+    function buildStrictStructuredBrief(d,briefType){
+      return [
+        `Brief type: ${briefType}`,
+        `Artist: ${d.artistName || "TBC"}`,
+        `Campaign / track: ${d.title || "TBC"}`,
+        `Budget: ${d.budget || "TBC"}`,
+        `Territories: ${d.territories || "TBC"}`,
+        `Campaign link: ${d.campaign_link || "TBC"}`,
+        `Objective / setup: ${d.objective || "TBC"}`,
+        `Ad sets: ${d.ad_sets?.length ? d.ad_sets.map(a=>`${a.name} (${a.budget || "budget TBC"})`).join("; ") : "No safe build ad sets detected."}`
+      ].join("\n\n");
+    }
+
+    function renderAIImportReviewModal(review){
+      const d = review.finalDraft;
+      const fields = [
+        ["artistName","Artist Folder"],
+        ["title","Campaign / Track"],
+        ["status","Status"],
+        ["priority","Priority"],
+        ["deadline","Deadline"],
+        ["budget","Budget"],
+        ["territories","Territories"],
+        ["campaign_link","Campaign Link"],
+        ["objective","Objective / Pixel / Event Setup"]
+      ];
+
+      document.getElementById("modalRoot").innerHTML = `
+        <div class="modal-backdrop">
+          <div class="modal" style="width:min(1180px,100%);">
+            <div class="modal-head between">
+              <div>
+                <h2>Review AI Import</h2>
+                <p class="small">Type: ${esc(review.briefType)} · Confidence: ${esc(review.confidence)} · Raw brief ${review.saveRawBrief ? "will be saved" : "will NOT be saved"}</p>
+              </div>
+              <div class="row">
+                <button class="btn secondary" id="backToImportBtn">Back</button>
+                <button class="btn secondary" id="copyImportJsonBtn">Copy JSON</button>
+                <button class="btn" id="useImportDraftBtn">Use These Fields</button>
+              </div>
+            </div>
+            <div class="modal-body stack">
+              <div class="panel" style="${review.reviewFlags.length ? "border-color:rgba(255,180,84,.35);background:rgba(255,180,84,.06);" : "border-color:rgba(114,255,153,.25);background:rgba(114,255,153,.05);"}">
+                <h3>${review.reviewFlags.length ? "Review Warnings / Missing Info" : "No major warnings"}</h3>
+                ${review.reviewFlags.length ? `<div class="blocker-list">${review.reviewFlags.map(f=>`<div class="blocker-item"><span>⚠️</span><span>${esc(f)}</span></div>`).join("")}</div>` : `<p class="small">Still manually check all fields before creating the campaign.</p>`}
+              </div>
+
+              <div class="panel">
+                <h3>Field Review</h3>
+                <table class="meta-table">
+                  <thead><tr><th>Field</th><th>Value to use</th><th>Source / Evidence</th></tr></thead>
+                  <tbody>
+                    ${fields.map(([key,label])=>`
+                      <tr>
+                        <td>${esc(label)}</td>
+                        <td><textarea data-review-field="${key}" style="min-height:${key==="objective" ? "80" : "42"}px;padding:9px 10px;border-radius:10px;font-size:12px;">${esc(d[key] || "")}</textarea></td>
+                        <td style="color:var(--muted);line-height:1.35;">${esc(buildEvidenceValue(review.evidence,key) || "No exact source evidence supplied. Check manually.")}</td>
+                      </tr>
+                    `).join("")}
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="grid-2">
+                <div class="panel stack">
+                  <h3>Clean Team Brief</h3>
+                  <textarea id="reviewStructuredBrief" style="min-height:220px;">${esc(d.structured_brief || "")}</textarea>
+                </div>
+                <div class="panel stack">
+                  <h3>Questions / Blockers</h3>
+                  <textarea id="reviewMissingInfo" style="min-height:220px;">${esc(d.missing_info || "")}</textarea>
+                </div>
+              </div>
+
+              <div class="panel stack">
+                <h3>Ad Sets JSON</h3>
+                <p class="small">These are not saved yet. They will open as a campaign draft for you to review/edit first.</p>
+                <textarea id="reviewAdSetsJson" style="min-height:180px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;">${esc(JSON.stringify(d.ad_sets || [],null,2))}</textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("backToImportBtn").addEventListener("click",openImportModal);
+      document.getElementById("copyImportJsonBtn").addEventListener("click",()=>navigator.clipboard.writeText(JSON.stringify(review,null,2)).then(()=>toast("Import JSON copied")));
+      document.getElementById("useImportDraftBtn").addEventListener("click",()=>{
+        const draft = collectAIReviewDraft(review);
+        closeModal();
+        openCampaignModal(null,draft);
+      });
+    }
+
+    function collectAIReviewDraft(review){
+      const d = {...review.finalDraft};
+      document.querySelectorAll("[data-review-field]").forEach(el=>{
+        d[el.dataset.reviewField] = el.value.trim();
+      });
+      d.structured_brief = val("reviewStructuredBrief");
+      d.missing_info = val("reviewMissingInfo");
+      try{
+        const adSets = JSON.parse(document.getElementById("reviewAdSetsJson")?.value || "[]");
+        d.ad_sets = Array.isArray(adSets) ? adSets : [];
+      }catch(error){
+        toast("Ad Sets JSON is invalid. Keeping original ad sets.",true);
+        d.ad_sets = review.finalDraft.ad_sets || [];
+      }
+      d.raw_brief = review.saveRawBrief ? review.rawBrief : "";
+      d.checklist = DEFAULT_CHECKLIST;
+      return d;
+    }
   </script>
+
+  <script type="module">
+    import * as webllm from "https://esm.run/@mlc-ai/web-llm";
+
+    let jdwAIEngine = null;
+    const JDW_MODEL_ID = "Llama-3.2-1B-Instruct-q4f16_1-MLC";
+
+    async function getJDWAIEngine(onProgress){
+      if(jdwAIEngine) return jdwAIEngine;
+      if(!("gpu" in navigator)) throw new Error("WebGPU is not supported in this browser. Use latest Chrome or Edge on desktop.");
+      jdwAIEngine = await webllm.CreateMLCEngine(JDW_MODEL_ID, {
+        initProgressCallback: progress => onProgress?.(progress.text)
+      });
+      return jdwAIEngine;
+    }
+
+    window.parseBriefWithWebLLM = async function(rawBrief,onProgress){
+      const engine = await getJDWAIEngine(onProgress);
+      onProgress?.("Extracting exact fields locally...");
+
+      const systemPrompt = `
+You are a STRICT paid media campaign brief extractor for JDW Media.
+
+Your job is to extract exact campaign data into the website fields. This is a high-risk operations tool. A wrong budget, objective, pixel, date, link, territory, audience or ad-set instruction could cause serious damage.
+
+ABSOLUTE RULES:
+- Return JSON only. No markdown. No explanation.
+- Do not guess. Do not invent. Do not complete missing information from general knowledge.
+- If a field is not explicitly stated, use an empty string and add a review flag.
+- Every important field should have source evidence copied from the brief.
+- Preserve exact URLs.
+- K means thousand: £2K = £2,000, €2K = €2,000, 2K = 2,000 currency TBC.
+- Never convert 2K to 2.
+- Campaign-level spend cap, spend cap, ceiling, total budget, campaign budget = campaign budget.
+- /day, per day, daily, each to start = ad set daily budget.
+- Do not confuse total campaign budget with ad set daily budget.
+- DACH means Germany, Austria, Switzerland.
+- LAL = Lookalike Audience. CA = Custom Audience. INT = Interest Audience. RA = Related Artists. IG = Instagram. FB = Facebook.
+- Native = existing public post. Dark = unpublished ad.
+- If the document is a campaign report, classify it as campaign_report and do NOT create build ad sets.
+- If the document is a strategy/paid media brief without exact build instructions, classify it as strategy_brief and mark ad sets as Needs Review.
+- If the document gives exact Meta build instructions, classify it as build_brief.
+
+Return this exact JSON shape:
+{
+  "brief_type": "build_brief | strategy_brief | campaign_report | unknown",
+  "confidence": "high | medium | low",
+  "finalDraft": {
+    "artistName": "",
+    "title": "",
+    "status": "New Brief",
+    "priority": "Normal",
+    "deadline": "",
+    "budget": "",
+    "objective": "",
+    "campaign_link": "",
+    "territories": "",
+    "raw_brief": "",
+    "structured_brief": "",
+    "missing_info": "",
+    "report": "",
+    "ad_sets": [
+      {
+        "name": "",
+        "objective": "",
+        "budget": "",
+        "budget_type": "",
+        "status": "Needs Review",
+        "audience": "",
+        "notes": ""
+      }
+    ]
+  },
+  "evidence": {
+    "artistName": "",
+    "title": "",
+    "budget": "",
+    "objective": "",
+    "campaign_link": "",
+    "territories": "",
+    "deadline": "",
+    "ad_sets": []
+  },
+  "reviewFlags": []
+}
+
+EXAMPLE RULES:
+- For a brief saying "Budget: set €1,000 as the campaign-level spend cap" finalDraft.budget must be "€1,000".
+- For a brief saying "£2K Initial Meta budget" finalDraft.budget must be "£2,000".
+- For "£1K boosting / awareness" and "£1K pre-order / ecom", create two Needs Review ad sets/budget split rows, not final build-ready ad sets.
+- For a campaign report containing ROAS/CPP/purchases/spend tables, put the summary in report/structured_brief, set status to Reporting, and leave objective/campaign_link blank unless explicitly stated.
+`;
+
+      const response = await engine.chat.completions.create({
+        messages:[
+          {role:"system",content:systemPrompt},
+          {role:"user",content:rawBrief}
+        ],
+        temperature:0,
+        response_format:{type:"json_object"}
+      });
+
+      const content = response.choices?.[0]?.message?.content;
+      if(!content) throw new Error("AI returned no content.");
+
+      try{
+        return JSON.parse(content);
+      }catch(error){
+        console.error("Invalid AI JSON:",content);
+        throw new Error("AI returned invalid JSON.");
+      }
+    };
+  </script>
+
 </body>
 </html>
