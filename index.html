@@ -1663,11 +1663,25 @@
 
     function renderBuildTab(){
       const checks = activeCampaignId ? getCampaignChecklist(activeCampaignId) : DEFAULT_CHECKLIST.map((text,index)=>({id:"temp"+index,text,done:false}));
+      const usingOldChecklist = activeCampaignId && checks.length && !checks.some(i=>/Warm \+ LAL rule|Prospecting rule|Duplicate the Warm/i.test(i.text || ""));
 
       document.getElementById("modalBody").innerHTML = `
         <div class="grid-2">
           <div class="panel">
-            <h3>Build Checklist</h3>
+            <div class="between" style="margin-bottom:13px;">
+              <div>
+                <h3 style="margin-bottom:4px;">Build Checklist</h3>
+                <p class="small" style="margin:0;">James-style Meta build flow: campaign setup, Warm + LAL, Prospecting, placements, ad creative and approval.</p>
+              </div>
+              ${activeCampaignId ? `<button class="btn secondary" id="resetChecklistBtn" style="padding:9px 11px;">Use James Meta Checklist</button>` : ""}
+            </div>
+
+            ${usingOldChecklist ? `
+              <div class="status-box" style="margin-bottom:12px;">
+                This campaign is still using the old saved checklist. Press <strong>Use James Meta Checklist</strong> to replace it with the updated Warm + LAL / Prospecting build flow.
+              </div>
+            ` : ""}
+
             ${
               checks.map(i=>`
                 <div class="check-item ${i.done?"done":""}">
@@ -1685,6 +1699,8 @@
           </div>
         </div>
       `;
+
+      document.getElementById("resetChecklistBtn")?.addEventListener("click",resetChecklistToDefault);
 
       document.querySelectorAll("[data-check]").forEach(input=>{
         input.addEventListener("change",async()=>{
@@ -1728,6 +1744,58 @@
         draft = campaignToDraft(campaigns.find(c=>c.id===activeCampaignId));
         renderModal();
       });
+    }
+
+    async function resetChecklistToDefault(){
+      if(!activeCampaignId) return;
+
+      if(!confirm("Replace this campaign's current build checklist with the updated James Meta checklist? Completed ticks will reset.")) return;
+
+      const oldItems = getCampaignChecklist(activeCampaignId);
+
+      const deleteResult = await sb.from("checklist_items").delete().eq("campaign_id",activeCampaignId);
+      if(deleteResult.error){
+        toast(deleteResult.error.message,true);
+        return;
+      }
+
+      const insertResult = await sb.from("checklist_items").insert(DEFAULT_CHECKLIST.map((text,index)=>({
+        campaign_id:activeCampaignId,
+        text,
+        position:index,
+        done:false
+      })));
+
+      if(insertResult.error){
+        toast(insertResult.error.message,true);
+        return;
+      }
+
+      await sb.from("work_logs").insert({
+        campaign_id:activeCampaignId,
+        logged_by:defaultLoggedBy(),
+        log_type:"Build",
+        text:"Build checklist replaced with the updated James Meta Warm + LAL / Prospecting template.",
+        visible_to_james:true
+      });
+
+      setUndo("Undo checklist replacement",async()=>{
+        await sb.from("checklist_items").delete().eq("campaign_id",activeCampaignId);
+        if(oldItems.length){
+          await sb.from("checklist_items").insert(oldItems.map((item,index)=>({
+            campaign_id:activeCampaignId,
+            text:item.text,
+            position:index,
+            done:item.done || false
+          })));
+        }
+        await loadData();
+      });
+
+      await loadData();
+      draft = campaignToDraft(campaigns.find(c=>c.id===activeCampaignId));
+      renderModal();
+      toast("Checklist updated.");
     }
 
     function renderLogsTab(){
