@@ -904,6 +904,7 @@
       "Ad level: use the correct existing post/Reel, CTA, destination URL, page/IG account, and turn off Advantage+ creative enhancements",
       "Final review: preview both ad sets, confirm Warm vs Prospecting difference, send campaign link/setup summary for approval before launch"
     ];
+    window.DEFAULT_CHECKLIST = DEFAULT_CHECKLIST;
     let sb;
     let user = null;
     let artists = [];
@@ -2784,27 +2785,68 @@
             <div class="modal-head between">
               <div>
                 <h2>Import Messy Brief</h2>
-                <p class="small">Paste James's brief and organise it.</p>
+                <p class="small">Paste James's brief and organise it locally with private browser AI.</p>
               </div>
               <button class="btn secondary" onclick="closeModal()">Close</button>
             </div>
             <div class="modal-body stack">
-              <textarea id="importRaw" style="min-height:330px;"></textarea>
-              <button class="btn" id="organiseImportBtn">Organise Brief</button>
+              <textarea id="importRaw" style="min-height:330px;" placeholder="Paste the raw campaign brief here..."></textarea>
+              <div class="panel" style="padding:13px;">
+                <div class="between">
+                  <div>
+                    <strong>Local AI Import</strong>
+                    <p id="aiImportProgress" class="small" style="margin:5px 0 0;">Runs privately in your browser. Nothing is sent to OpenAI.</p>
+                  </div>
+                  <button class="btn" id="organiseImportBtn">Organise with Local AI</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       `;
 
-      document.getElementById("organiseImportBtn").addEventListener("click",()=>{
-        if(!val("importRaw")){
+      document.getElementById("organiseImportBtn").addEventListener("click",async()=>{
+        const raw = val("importRaw");
+
+        if(!raw){
           toast("Paste a brief first.",true);
           return;
         }
 
-        const organised = localBriefOrganiser(val("importRaw"));
-        closeModal();
-        openCampaignModal(null,organised);
+        const btn = document.getElementById("organiseImportBtn");
+        const progress = document.getElementById("aiImportProgress");
+
+        btn.disabled = true;
+        btn.textContent = "Loading local AI...";
+        progress.textContent = "First use may take a while because the browser has to download the model.";
+
+        try{
+          let organised;
+
+          if(window.parseBriefWithWebLLM){
+            organised = await window.parseBriefWithWebLLM(raw,message=>{
+              progress.textContent = message || "Organising brief locally...";
+            });
+          }else{
+            organised = localBriefOrganiser(raw);
+          }
+
+          closeModal();
+          openCampaignModal(null,organised);
+        }catch(error){
+          console.error(error);
+
+          progress.textContent = "Local AI failed, using basic organiser instead.";
+
+          const organised = localBriefOrganiser(raw);
+          closeModal();
+          openCampaignModal(null,organised);
+
+          toast("Local AI failed, so basic organiser was used.",true);
+        }finally{
+          btn.disabled = false;
+          btn.textContent = "Organise with Local AI";
+        }
       });
     }
 
