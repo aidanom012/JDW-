@@ -698,6 +698,72 @@
       background:rgba(40,20,24,.95);
     }
 
+
+
+    .brief-command{display:grid;gap:14px}
+    .brief-header-card{
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));
+      padding:16px;
+    }
+    .brief-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:13px}
+    .brief-title-row h3{margin:0;font-size:22px;letter-spacing:-.045em;line-height:1.05}
+    .brief-meta-row{display:grid;grid-template-columns:repeat(6,minmax(110px,1fr));gap:9px}
+    .brief-meta{
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:rgba(0,0,0,.18);
+      padding:9px 10px;
+      min-width:0;
+    }
+    .brief-meta span{display:block;color:var(--muted2);font-size:10px;text-transform:uppercase;letter-spacing:.09em;font-weight:950;margin-bottom:4px}
+    .brief-meta strong{display:block;font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .pill{
+      display:inline-flex;align-items:center;gap:6px;border-radius:999px;
+      padding:5px 8px;font-size:11px;font-weight:950;
+      border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--muted);
+      white-space:nowrap;
+    }
+    .pill.green{color:var(--green);border-color:rgba(114,255,153,.25);background:rgba(114,255,153,.08)}
+    .pill.orange{color:var(--orange);border-color:rgba(255,180,84,.25);background:rgba(255,180,84,.08)}
+    .pill.red{color:var(--red);border-color:rgba(255,95,109,.25);background:rgba(255,95,109,.08)}
+    .pill.accent{color:var(--accent);border-color:rgba(var(--accent-rgb),.25);background:rgba(var(--accent-rgb),.08)}
+    .brief-card{border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.035);padding:14px;min-width:0}
+    .brief-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+    .brief-card-head h3{margin:0;font-size:13px;letter-spacing:.02em}
+    .timeline-track{display:grid;grid-template-columns:repeat(6,minmax(130px,1fr));gap:10px;overflow-x:auto;padding-bottom:2px}
+    .timeline-stage{border:1px solid var(--line);border-radius:15px;background:rgba(0,0,0,.18);padding:10px;min-width:130px;display:grid;gap:8px}
+    .timeline-stage.done{border-color:rgba(114,255,153,.28);background:rgba(114,255,153,.06)}
+    .timeline-stage strong{font-size:12px;line-height:1.2}
+    .timeline-stage input,.timeline-stage select{padding:7px 8px;border-radius:10px;font-size:11px}
+    .timeline-stage label{margin:0;display:flex;align-items:center;gap:7px;text-transform:none;letter-spacing:0;font-size:11px;color:var(--muted);font-weight:850}
+    .snapshot-grid{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:9px}
+    .snapshot-item{border:1px solid var(--line);border-radius:13px;background:rgba(0,0,0,.16);padding:10px;min-width:0}
+    .snapshot-item span{display:block;color:var(--muted2);font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:950;margin-bottom:5px}
+    .snapshot-item strong{display:block;font-size:12px;line-height:1.35;overflow:hidden;text-overflow:ellipsis}
+    .meta-table{width:100%;border-collapse:separate;border-spacing:0 7px;font-size:12px}
+    .meta-table th{color:var(--muted2);text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;padding:0 8px 2px;font-weight:950;white-space:nowrap}
+    .meta-table td{background:rgba(0,0,0,.17);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 8px;vertical-align:middle}
+    .meta-table td:first-child{border-left:1px solid var(--line);border-radius:13px 0 0 13px;font-weight:900;color:var(--text)}
+    .meta-table td:last-child{border-right:1px solid var(--line);border-radius:0 13px 13px 0}
+    .meta-table .expand-row td{background:rgba(255,255,255,.035);border-radius:13px;border:1px solid var(--line);color:var(--muted);line-height:1.45}
+    .mini-link{border:0;background:transparent;color:var(--accent);font-size:11px;font-weight:950;padding:0;text-decoration:none}
+    .brief-note-tabs{display:flex;gap:7px;margin-bottom:10px}
+    .brief-note-tab{border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.04);color:var(--muted);padding:7px 10px;font-size:11px;font-weight:950}
+    .brief-note-tab.active{color:var(--accent);border-color:rgba(var(--accent-rgb),.25);background:rgba(var(--accent-rgb),.08)}
+    .brief-note-box{border:1px solid var(--line);border-radius:15px;background:rgba(0,0,0,.16);padding:13px;min-height:112px;color:var(--text);font-size:13px;line-height:1.5;white-space:pre-wrap}
+    .blocker-list{display:grid;gap:7px}
+    .blocker-item{display:flex;align-items:flex-start;gap:8px;border:1px solid var(--line);border-radius:12px;background:rgba(0,0,0,.16);padding:9px;font-size:12px;color:var(--muted)}
+    .activity-mini{display:grid;gap:8px;max-height:235px;overflow:auto}
+    .activity-mini-item{border-left:3px solid rgba(var(--accent-rgb),.4);background:rgba(0,0,0,.16);border-radius:0 12px 12px 0;padding:9px;font-size:12px;line-height:1.35;color:var(--muted)}
+    .edit-brief-bar{border:1px solid rgba(var(--accent-rgb),.22);border-radius:16px;background:rgba(var(--accent-rgb),.06);padding:12px;margin-bottom:14px}
+
+    @media(max-width:1100px){
+      .brief-meta-row,.snapshot-grid{grid-template-columns:repeat(2,1fr)}
+      .timeline-track{grid-template-columns:repeat(6,150px)}
+    }
+
     @media(max-width:900px){
       body{overflow:auto}
       .app{height:auto;min-height:100vh;grid-template-columns:1fr}
@@ -847,6 +913,8 @@
     let autosaveTimer = null;
     let adsetTimers = {};
     let boardView = localStorage.getItem("jdw_board_view") || "columns";
+    let briefEditMode = false;
+    let briefNotesTab = "clean";
 
     start();
 
@@ -1371,6 +1439,8 @@
     function openCampaignModal(id,prefill=null){
       activeCampaignId = id;
       activeTab = "overview";
+      briefEditMode = false;
+      briefNotesTab = "clean";
       draft = prefill || (id ? campaignToDraft(campaigns.find(c=>c.id===id)) : blankDraft());
       renderModal();
     }
@@ -1488,8 +1558,137 @@
     }
 
     function renderBriefTab(){
+      collectDraft();
+
+      if(briefEditMode || !activeCampaignId){
+        renderBriefEditTab();
+        return;
+      }
+
+      const ads = activeCampaignId ? getCampaignAdSets(activeCampaignId) : draft.ad_sets || [];
+      const activity = activeCampaignId ? getCampaignLogs(activeCampaignId).slice(-8).reverse() : [];
+      const setup = parseSetupSnapshot(draft.objective);
+      const blockers = parseBlockers(draft.missing_info);
+      const creatives = parseCreativesFromBrief(draft,ads);
+      const timeline = getCampaignTimeline();
+
+      document.getElementById("modalBody").innerHTML = `
+        <div class="brief-command">
+          <section class="brief-header-card">
+            <div class="brief-title-row">
+              <div>
+                <h3>${esc(draft.artistName || "Artist")} — ${esc(draft.title || "Track / Campaign")}</h3>
+                <p class="small" style="margin:6px 0 0;">Internal campaign command centre · scan setup, blockers and recent changes fast.</p>
+              </div>
+              <div class="row">
+                <button class="btn secondary" id="editBriefModeBtn">Edit Brief</button>
+                <button class="btn secondary" id="namesBtn">Generate Names</button>
+                <button class="btn secondary" id="copyBriefSummaryBtn">Export / Copy</button>
+              </div>
+            </div>
+
+            <div class="brief-meta-row">
+              <div class="brief-meta"><span>Status</span><strong>${statusPill(draft.status)}</strong></div>
+              <div class="brief-meta"><span>Priority</span><strong>${priorityPill(draft.priority)}</strong></div>
+              <div class="brief-meta"><span>Deadline</span><strong>${draft.deadline ? formatDate(draft.deadline) : "TBC"}</strong></div>
+              <div class="brief-meta"><span>Budget</span><strong>${esc(formatCampaignBudget(draft.budget) || "TBC")}</strong></div>
+              <div class="brief-meta"><span>Territories</span><strong title="${attr(draft.territories || "")}">${esc(draft.territories || "TBC")}</strong></div>
+              <div class="brief-meta"><span>Campaign Link</span><strong>${draft.campaign_link ? `<a class="mini-link" href="${attr(draft.campaign_link)}" target="_blank">Open link</a>` : "TBC"}</strong></div>
+            </div>
+          </section>
+
+          <section class="brief-card">
+            <div class="brief-card-head"><h3>Campaign Timeline / Calendar Tracker</h3><span class="small">Autosaves locally per campaign</span></div>
+            <div class="timeline-track">
+              ${timeline.map((stage,index)=>`
+                <div class="timeline-stage ${stage.done ? "done" : ""}">
+                  <label><input type="checkbox" data-timeline-done="${index}" ${stage.done ? "checked" : ""}> ${stage.done ? "Done" : "Open"}</label>
+                  <strong>${esc(stage.name)}</strong>
+                  <select data-timeline-status="${index}">
+                    ${["Not Started","In Progress","Waiting","Complete"].map(s=>`<option ${stage.status===s?"selected":""}>${s}</option>`).join("")}
+                  </select>
+                  <input type="date" data-timeline-due="${index}" value="${attr(stage.due || "")}" />
+                  <input data-timeline-owner="${index}" value="${attr(stage.owner || "")}" placeholder="Owner" />
+                </div>
+              `).join("")}
+            </div>
+          </section>
+
+          <section class="brief-card">
+            <div class="brief-card-head"><h3>Campaign Setup Snapshot</h3><span class="pill accent">Website / View Content check</span></div>
+            <div class="snapshot-grid">
+              ${snapshotItem("Objective",setup.objective || draft.objective || "TBC")}
+              ${snapshotItem("Conversion Location",setup.conversionLocation || "TBC")}
+              ${snapshotItem("Optimisation Event",setup.optimisationEvent || "TBC")}
+              ${snapshotItem("Pixel",setup.pixel || "TBC")}
+              ${snapshotItem("Campaign Link",draft.campaign_link || "TBC")}
+              ${snapshotItem("Budget Type",inferBudgetType(draft.budget,ads))}
+              ${snapshotItem("Budget",formatCampaignBudget(draft.budget) || "TBC")}
+              ${snapshotItem("Territories",draft.territories || "TBC")}
+            </div>
+          </section>
+
+          <section class="brief-card">
+            <div class="brief-card-head"><h3>Ad Set Table</h3><span class="badge">${ads.length}</span></div>
+            ${renderAdSetManagerTable(ads)}
+          </section>
+
+          <section class="brief-card">
+            <div class="brief-card-head"><h3>Creative / Ad Table</h3><span class="badge">${creatives.length}</span></div>
+            ${renderCreativeManagerTable(creatives)}
+          </section>
+
+          <div class="grid-2">
+            <section class="brief-card">
+              <div class="brief-card-head"><h3>Brief Notes</h3></div>
+              <div class="brief-note-tabs">
+                <button class="brief-note-tab ${briefNotesTab==="clean"?"active":""}" data-brief-note-tab="clean">Clean Team Brief</button>
+                <button class="brief-note-tab ${briefNotesTab==="raw"?"active":""}" data-brief-note-tab="raw">Raw Imported Brief</button>
+              </div>
+              <div class="brief-note-box">${esc((briefNotesTab==="raw" ? draft.raw_brief : draft.structured_brief) || "No brief added yet. Click Edit Brief to add one.")}</div>
+            </section>
+
+            <section class="brief-card">
+              <div class="brief-card-head"><h3>Questions / Blockers</h3></div>
+              ${blockers.length ? `<div class="blocker-list">${blockers.map(b=>`<label class="blocker-item"><input type="checkbox"> <span>${esc(b)}</span></label>`).join("")}</div>` : `<div class="empty">No blockers detected.</div>`}
+            </section>
+          </div>
+
+          <section class="brief-card">
+            <div class="brief-card-head"><h3>Activity / Report Feed</h3><span class="small">Recent field, status, ad set and note updates</span></div>
+            <div class="activity-mini">
+              ${activity.length ? activity.map(l=>`<div class="activity-mini-item"><strong>${esc(l.log_type || "Update")}</strong> · ${esc(formatDateTime(l.created_at))}<br>${esc(l.text)}</div>`).join("") : `<div class="empty">No activity yet.</div>`}
+            </div>
+          </section>
+        </div>
+      `;
+
+      document.getElementById("editBriefModeBtn").addEventListener("click",()=>{ briefEditMode = true; renderModal(); });
+      document.getElementById("namesBtn").addEventListener("click",generateNames);
+      document.getElementById("copyBriefSummaryBtn").addEventListener("click",copyBriefCommandSummary);
+
+      document.querySelectorAll("[data-brief-note-tab]").forEach(btn=>{
+        btn.addEventListener("click",()=>{ briefNotesTab = btn.dataset.briefNoteTab; renderModal(); });
+      });
+
+      document.querySelectorAll("[data-toggle-expand]").forEach(btn=>{
+        btn.addEventListener("click",()=>{
+          const row = document.querySelector(`[data-expand-row="${btn.dataset.toggleExpand}"]`);
+          if(row) row.classList.toggle("hidden");
+        });
+      });
+
+      document.querySelectorAll("[data-timeline-done],[data-timeline-status],[data-timeline-due],[data-timeline-owner]").forEach(el=>{
+        el.addEventListener("input",saveTimelineFromDom);
+        el.addEventListener("change",saveTimelineFromDom);
+      });
+    }
+
+    function renderBriefEditTab(){
       document.getElementById("modalBody").innerHTML = `
         <div class="stack">
+          ${activeCampaignId ? `<div class="edit-brief-bar between"><div><strong>Editing Brief</strong><p class="small" style="margin:4px 0 0;">Autosave stays active. Return to Team View when finished.</p></div><button class="btn secondary" id="viewBriefModeBtn">Back to Team View</button></div>` : ""}
+
           <div class="grid-3">
             <div>
               <label>Artist Folder</label>
@@ -1546,17 +1745,17 @@
 
           <div class="grid-2">
             <div>
-              <label>Raw Messy Brief</label>
-              <textarea id="m_rawBrief">${esc(draft.raw_brief)}</textarea>
+              <label>Clean Team Brief</label>
+              <textarea id="m_structuredBrief">${esc(draft.structured_brief)}</textarea>
             </div>
             <div>
-              <label>Structured Campaign Brief</label>
-              <textarea id="m_structuredBrief">${esc(draft.structured_brief)}</textarea>
+              <label>Raw Imported Brief</label>
+              <textarea id="m_rawBrief">${esc(draft.raw_brief)}</textarea>
             </div>
           </div>
 
           <div>
-            <label>Missing Info / Questions for James</label>
+            <label>Questions / Blockers</label>
             <textarea id="m_missingInfo" style="min-height:90px;">${esc(draft.missing_info)}</textarea>
           </div>
 
@@ -1568,10 +1767,193 @@
         </div>
       `;
 
+      document.getElementById("viewBriefModeBtn")?.addEventListener("click",()=>{ collectDraft(); briefEditMode = false; renderModal(); });
       document.getElementById("saveCampaignBtn")?.addEventListener("click",saveCampaign);
       document.getElementById("organiseBtn").addEventListener("click",organiseCurrentBrief);
       document.getElementById("namesBtn").addEventListener("click",generateNames);
       wireAutosave();
+    }
+
+
+    function statusPill(status){
+      const s = String(status || "New Brief");
+      const cls = s.includes("Live") || s.includes("Complete") ? "green" : s.includes("Needs") ? "red" : s.includes("Progress") || s.includes("Approval") ? "orange" : "accent";
+      return `<span class="pill ${cls}">${esc(s)}</span>`;
+    }
+
+    function priorityPill(priority){
+      const p = String(priority || "Normal");
+      const cls = p==="Urgent" ? "red" : p==="Low" ? "" : "accent";
+      return `<span class="pill ${cls}">${esc(p)}</span>`;
+    }
+
+    function snapshotItem(label,value){
+      return `<div class="snapshot-item"><span>${esc(label)}</span><strong title="${attr(value || "")}">${esc(value || "TBC")}</strong></div>`;
+    }
+
+    function parseSetupSnapshot(text){
+      const t = String(text || "");
+      const get = pattern => (t.match(pattern)?.[1] || "").replace(/[.]+$/g,"").trim();
+      return {
+        objective: get(/objective(?:\s+is)?[:\s]+([^\.]+)(?:\.|$)/i) || (t.split(".")[0] || "").trim(),
+        conversionLocation: get(/conversion location[:\s]+([^\.]+)(?:\.|$)/i),
+        optimisationEvent: get(/optimis(?:e|ation|ing) event[:\s]+([^\.]+)(?:\.|$)/i) || get(/optimi(?:z|s)(?:e|ing) for[:\s]+([^\.]+)(?:\.|$)/i),
+        pixel: get(/pixel[:\s]+([^\.]+)(?:\.|$)/i) || get(/using\s+([^\.]+pixel)(?:\.|$)/i)
+      };
+    }
+
+    function inferBudgetType(budget,ads){
+      const blob = [budget,...(ads || []).map(a=>a.budget_type)].join(" ").toLowerCase();
+      if(blob.includes("lifetime")) return "Lifetime Budget";
+      if(blob.includes("campaign")) return "Campaign Spend Limit";
+      return "Daily Budget / Ad Set Budget";
+    }
+
+    function parseBlockers(text){
+      const clean = String(text || "").trim();
+      if(!clean || /no (major )?(missing|blocker)|nothing major|none/i.test(clean)) return [];
+      return clean.split(/\n|;|\?\s+/).map(x=>x.replace(/^[-•\s]+/,"").trim()).filter(Boolean);
+    }
+
+    function splitNameParts(name){
+      return String(name || "").split(/[_|]/).map(x=>x.trim()).filter(Boolean);
+    }
+
+    function adSetAudienceType(adset){
+      const blob = `${adset.name || ""} ${adset.audience || ""}`.toLowerCase();
+      if(blob.includes("warm")) return "Warm";
+      if(blob.includes("lal") || blob.includes("lookalike")) return "LAL";
+      if(blob.includes("broad")) return "Broad";
+      if(blob.includes("int") || blob.includes("interest") || blob.includes("ra")) return "Interest / RA";
+      if(blob.includes("custom") || blob.includes("ca_")) return "Custom Audience";
+      return "TBC";
+    }
+
+    function inferAge(text){
+      return String(text || "").match(/\b\d{2}\s*-\s*\d{2}\b/)?.[0].replace(/\s/g,"") || "TBC";
+    }
+
+    function inferPlatform(text){
+      const t = String(text || "").toLowerCase();
+      if(t.includes("ig-fb") || (t.includes("instagram") && t.includes("facebook"))) return "IG + FB";
+      if(t.includes("ig") || t.includes("instagram")) return "IG";
+      if(t.includes("fb") || t.includes("facebook")) return "FB";
+      return "TBC";
+    }
+
+    function inferLocation(text,fallback){
+      const t = String(text || "").toLowerCase();
+      if(t.includes("dach") || (t.includes("de") && t.includes("at") && t.includes("ch"))) return "DACH";
+      if(t.includes("uk")) return "UK";
+      if(t.includes("us")) return "US";
+      return fallback || "TBC";
+    }
+
+    function renderAdSetManagerTable(ads){
+      if(!ads.length) return `<div class="empty">No ad sets added yet.</div>`;
+      return `
+        <table class="meta-table">
+          <thead><tr><th>Ad Set Name</th><th>Audience Type</th><th>Age</th><th>Location</th><th>Platform</th><th>Budget</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            ${ads.map((a,index)=>{
+              const blob = [a.name,a.audience,a.notes,draft.territories].join(" ");
+              return `
+                <tr>
+                  <td>${esc(a.name || "Untitled Ad Set")}</td>
+                  <td>${esc(adSetAudienceType(a))}</td>
+                  <td>${esc(inferAge(blob))}</td>
+                  <td>${esc(inferLocation(blob,draft.territories || "TBC"))}</td>
+                  <td>${esc(inferPlatform(blob))}</td>
+                  <td>${esc(formatAdSetBudget(a))}</td>
+                  <td>${statusPill(a.status || "Running")}</td>
+                  <td><button class="mini-link" data-toggle-expand="adset-${index}">Details</button></td>
+                </tr>
+                <tr class="expand-row hidden" data-expand-row="adset-${index}"><td colspan="8"><strong>Audience notes:</strong> ${esc(a.audience || "No audience notes added.")}<br><strong>Targeting details:</strong> ${esc(a.notes || "No targeting details added.")}</td></tr>
+              `;
+            }).join("")}
+          </tbody>
+        </table>`;
+    }
+
+    function parseCreativesFromBrief(d,ads){
+      const text = `${d.structured_brief || ""}\n${d.raw_brief || ""}`;
+      const urls = [...text.matchAll(/https?:\/\/\S+/g)].map(m=>m[0].replace(/[),.]+$/,""));
+      const native = /existing post|native|instagram\.com|use existing/i.test(text);
+      const dark = /dark|unpublished/i.test(text);
+      const cta = text.match(/CTA[:\s-]+([^\n.]+)/i)?.[1]?.trim() || (/listen now/i.test(text) ? "Listen Now" : "TBC");
+      const catchphrase = text.match(/catchphrase[:\s-]+([^\n.]+)/i)?.[1]?.trim() || text.match(/hook[:\s-]+([^\n.]+)/i)?.[1]?.trim() || "TBC";
+      const contentType = /carousel/i.test(text) ? "Carousel" : /image|static/i.test(text) ? "Image" : /gif/i.test(text) ? "GIF" : /reel/i.test(text) ? "Reel" : "Video";
+      const name = `${slug(contentType || "creative")}_${native ? "native" : dark ? "dark" : "native-or-dark"}_${slug(catchphrase || "catchphrase") || "creative"}`;
+      return [{name,contentType,nativeDark:native ? "Native" : dark ? "Dark" : "TBC",cta,catchphrase,status:"Draft / Check",assetLinks:urls.join("\n"),caption:"",notes: text ? "Parsed from campaign brief. Edit the brief to refine creative details." : "No creative details found yet."}];
+    }
+
+    function renderCreativeManagerTable(creatives){
+      if(!creatives.length) return `<div class="empty">No creatives detected yet.</div>`;
+      return `
+        <table class="meta-table">
+          <thead><tr><th>Ad Name</th><th>Content Type</th><th>Native/Dark</th><th>CTA</th><th>Catchphrase</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            ${creatives.map((a,index)=>`
+              <tr>
+                <td>${esc(a.name)}</td>
+                <td>${esc(a.contentType)}</td>
+                <td>${esc(a.nativeDark)}</td>
+                <td>${esc(a.cta)}</td>
+                <td>${esc(a.catchphrase)}</td>
+                <td>${statusPill(a.status)}</td>
+                <td><button class="mini-link" data-toggle-expand="creative-${index}">Details</button></td>
+              </tr>
+              <tr class="expand-row hidden" data-expand-row="creative-${index}"><td colspan="7"><strong>Asset links:</strong><br>${esc(a.assetLinks || "No asset links added.")}<br><br><strong>Captions:</strong> ${esc(a.caption || "No caption added.")}<br><strong>Notes:</strong> ${esc(a.notes || "No notes added.")}</td></tr>
+            `).join("")}
+          </tbody>
+        </table>`;
+    }
+
+    function defaultTimeline(){
+      return ["Brief Received","Build Started","Ads Drafted","Sent for Approval","Live","Report Due"].map((name,index)=>({
+        name,
+        status:index===0 ? "Complete" : "Not Started",
+        due:index===5 ? draft.deadline || "" : "",
+        owner:index===0 ? defaultLoggedBy() : "",
+        done:index===0
+      }));
+    }
+
+    function timelineKey(){
+      return `jdw_timeline_${activeCampaignId || "draft"}`;
+    }
+
+    function getCampaignTimeline(){
+      try{
+        const saved = JSON.parse(localStorage.getItem(timelineKey()) || "null");
+        return Array.isArray(saved) && saved.length ? saved : defaultTimeline();
+      }catch(e){
+        return defaultTimeline();
+      }
+    }
+
+    function saveTimelineFromDom(){
+      const current = getCampaignTimeline();
+      const next = current.map((stage,index)=>({
+        ...stage,
+        done:document.querySelector(`[data-timeline-done="${index}"]`)?.checked || false,
+        status:document.querySelector(`[data-timeline-status="${index}"]`)?.value || stage.status,
+        due:document.querySelector(`[data-timeline-due="${index}"]`)?.value || "",
+        owner:document.querySelector(`[data-timeline-owner="${index}"]`)?.value || ""
+      }));
+      localStorage.setItem(timelineKey(),JSON.stringify(next));
+      renderModal();
+    }
+
+    function buildBriefCommandSummary(){
+      const setup = parseSetupSnapshot(draft.objective);
+      const ads = activeCampaignId ? getCampaignAdSets(activeCampaignId) : draft.ad_sets || [];
+      return `${draft.artistName || "Artist"} — ${draft.title || "Campaign"}\nStatus: ${draft.status || "TBC"}\nPriority: ${draft.priority || "TBC"}\nDeadline: ${draft.deadline || "TBC"}\nBudget: ${draft.budget || "TBC"}\nTerritories: ${draft.territories || "TBC"}\nLink: ${draft.campaign_link || "TBC"}\n\nSetup\nObjective: ${setup.objective || draft.objective || "TBC"}\nConversion Location: ${setup.conversionLocation || "TBC"}\nOptimisation Event: ${setup.optimisationEvent || "TBC"}\nPixel: ${setup.pixel || "TBC"}\n\nAd Sets\n${ads.map(a=>`- ${a.name}: ${adSetAudienceType(a)} / ${formatAdSetBudget(a)} / ${a.status || "Running"}`).join("\n") || "No ad sets added."}\n\nQuestions / Blockers\n${parseBlockers(draft.missing_info).map(b=>`- ${b}`).join("\n") || "No blockers detected."}`;
+    }
+
+    function copyBriefCommandSummary(){
+      collectDraft();
+      navigator.clipboard.writeText(buildBriefCommandSummary()).then(()=>toast("Brief summary copied"));
     }
 
     function renderSetupTab(){
