@@ -3918,6 +3918,23 @@
       return jdwAIEngine;
     }
 
+    function extractJSONObjectFromText(text){
+      const value = String(text || "").trim();
+
+      try{
+        return JSON.parse(value);
+      }catch(error){}
+
+      const first = value.indexOf("{");
+      const last = value.lastIndexOf("}");
+
+      if(first === -1 || last === -1 || last <= first){
+        throw new Error("No JSON object found in AI response.");
+      }
+
+      return JSON.parse(value.slice(first,last + 1));
+    }
+
     window.parseBriefWithWebLLM = async function(rawBrief,onProgress){
       const engine = await getJDWAIEngine(onProgress);
       onProgress?.("Extracting exact fields locally...");
@@ -3995,20 +4012,25 @@ EXAMPLE RULES:
 - For a campaign report containing ROAS/CPP/purchases/spend tables, put the summary in report/structured_brief, set status to Reporting, and leave objective/campaign_link blank unless explicitly stated.
 `;
 
-      const response = await engine.chat.completions.create({
+      const aiRequest = engine.chat.completions.create({
         messages:[
           {role:"system",content:systemPrompt},
           {role:"user",content:rawBrief}
         ],
-        temperature:0,
-        response_format:{type:"json_object"}
+        temperature:0
       });
+
+      const timeout = new Promise((_,reject)=>{
+        setTimeout(()=>reject(new Error("Local AI timed out after 2 minutes.")),120000);
+      });
+
+      const response = await Promise.race([aiRequest,timeout]);
 
       const content = response.choices?.[0]?.message?.content;
       if(!content) throw new Error("AI returned no content.");
 
       try{
-        return JSON.parse(content);
+        return extractJSONObjectFromText(content);
       }catch(error){
         console.error("Invalid AI JSON:",content);
         throw new Error("AI returned invalid JSON.");
