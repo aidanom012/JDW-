@@ -649,12 +649,21 @@
       padding:11px;
       background:rgba(0,0,0,.16);
       margin-bottom:9px;
+      cursor:pointer;
+      user-select:none;
+      transition:.14s;
+    }
+
+    .check-item:hover{
+      border-color:rgba(var(--accent-rgb),.32);
+      background:rgba(var(--accent-rgb),.045);
     }
 
     .check-item input{
       width:auto;
       margin-top:3px;
       accent-color:var(--accent);
+      pointer-events:none;
     }
 
     .check-item.done span{
@@ -810,32 +819,16 @@
     ];
 
     const DEFAULT_CHECKLIST = [
-      "Read the brief and pull out: objective, conversion location, optimisation event, pixel/dataset, link, total spend cap, daily ad set budget, territories, age, placements and creative post URL",
-      "Confirm Ads Manager access, correct business portfolio/account, correct artist pixel/dataset, and any ACID/compliance code required",
-      "Create campaign in draft with the brief objective; for song-link campaigns usually Engagement > Website > optimise for View Content",
-      "Set the destination URL from the brief and test it on mobile before building ad sets",
-      "Set campaign-level spend cap if the brief gives a total ceiling; keep ad set daily budgets separate unless the brief says otherwise",
-      "Name the campaign using the current JDW/Atlantic convention, not old account naming styles",
-      "Build the Warm + LAL ad set first when the brief mentions warm, retargeting, custom audiences, engagers, followers, video viewers, website visitors or LAL",
-      "Warm + LAL rule: turn Advantage+ Audience OFF so the ad set uses manual warm audience controls",
-      "Warm + LAL rule: include the artist's warm custom audiences, such as IG/FB engagers, followers, video viewers, website visitors and any supplied source audiences",
-      "Warm + LAL rule: add the requested lookalike, for example 5% engagers/followers LAL, and do not add unrelated interest targeting",
-      "Duplicate the Warm + LAL ad set to create the Prospecting ad set so pixel, event, URL, budget style, placements and ad settings carry over",
-      "Prospecting rule: rename the duplicate as INT/RA/prospecting using related artist or genre naming, not CA/warm naming",
-      "Prospecting rule: remove warm audiences from the include section and exclude warm audiences where possible to keep it cold",
-      "Prospecting rule: turn Advantage+ Audience ON if the brief asks for broad/prospecting setup, then add related artist or genre interests as targeting suggestions",
-      "Prospecting rule: use focused related artists/genre cues from the brief, such as Hozier/Lana-style acoustic singer-songwriter interests, without overloading the ad set",
-      "For every ad set, set the brief territories exactly and do not add extra countries unless asked",
-      "For every ad set, set the brief age range and keep gender open unless the brief specifically says female/male leaning",
-      "For every ad set, use manual placements only: keep IG/FB feeds, reels and stories; turn off Audience Network, Messenger, Marketplace, Search, in-stream, right column and other suggested placements",
-      "Turn off any suggested placement expansion or automatic placement broadening Meta tries to apply",
-      "At ad level, choose the correct Facebook page and Instagram account, then use the existing post/Reel if the brief provides one",
-      "Set CTA, usually Listen Now for music/song-link campaigns, and confirm the preview shows the correct post/Reel",
-      "Turn off Advantage+ creative enhancements that auto-change text, media, cropping, music, layout or visual treatment",
-      "Check naming across campaign, ad sets and ads: Warm/LAL should read CA/warm-lal; Prospecting should read INT/RA/related-artists",
-      "Preview both ad sets side by side and confirm the difference is clear: Warm + LAL = custom audiences/lookalikes; Prospecting = cold related-artist interests",
-      "Send the campaign link and setup summary to James for review before publishing",
-      "Only launch once approved, then check delivery, spend pacing and early View Content results"
+      "Confirm correct Ads Manager account, business portfolio, artist pixel/dataset, destination link and any required ACID/compliance code",
+      "Create the campaign in draft with the exact brief objective, conversion location and optimisation event, usually Engagement > Website > View Content for song-link campaigns",
+      "Set the campaign spend cap and ad set budgets exactly as briefed; do not publish or overspend outside the ceiling",
+      "Apply the correct naming convention across campaign, ad sets and ads before review",
+      "Warm + LAL ad set: Advantage+ Audience OFF, manual warm custom audiences/LALs added, no unrelated interest targeting",
+      "Prospecting ad set: duplicate Warm + LAL first, remove/exclude warm pools, use Advantage+ Audience/related artist interests as briefed",
+      "Set targeting exactly: territories, age, platform and any gender/language notes from the brief only",
+      "Use manual placements only: IG/FB feeds, reels and stories; turn off all other placements and placement expansion",
+      "Ad level: use the correct existing post/Reel, CTA, destination URL, page/IG account, and turn off Advantage+ creative enhancements",
+      "Final review: preview both ad sets, confirm Warm vs Prospecting difference, send campaign link/setup summary for approval before launch"
     ];
     let sb;
     let user = null;
@@ -1661,97 +1654,13 @@
       });
     }
 
-    function renderBuildTab(){
-      const checks = activeCampaignId ? getCampaignChecklist(activeCampaignId) : DEFAULT_CHECKLIST.map((text,index)=>({id:"temp"+index,text,done:false}));
-      const usingOldChecklist = activeCampaignId && checks.length && !checks.some(i=>/Warm \+ LAL rule|Prospecting rule|Duplicate the Warm/i.test(i.text || ""));
-
-      document.getElementById("modalBody").innerHTML = `
-        <div class="grid-2">
-          <div class="panel">
-            <div class="between" style="margin-bottom:13px;">
-              <div>
-                <h3 style="margin-bottom:4px;">Build Checklist</h3>
-                <p class="small" style="margin:0;">James-style Meta build flow: campaign setup, Warm + LAL, Prospecting, placements, ad creative and approval.</p>
-              </div>
-              ${activeCampaignId ? `<button class="btn secondary" id="resetChecklistBtn" style="padding:9px 11px;">Use James Meta Checklist</button>` : ""}
-            </div>
-
-            ${usingOldChecklist ? `
-              <div class="status-box" style="margin-bottom:12px;">
-                This campaign is still using the old saved checklist. Press <strong>Use James Meta Checklist</strong> to replace it with the updated Warm + LAL / Prospecting build flow.
-              </div>
-            ` : ""}
-
-            ${
-              checks.map(i=>`
-                <div class="check-item ${i.done?"done":""}">
-                  <input type="checkbox" ${i.done?"checked":""} ${activeCampaignId?"":"disabled"} data-check="${i.id}" />
-                  <span>${esc(i.text)}</span>
-                </div>
-              `).join("")
-            }
-          </div>
-
-          <div class="panel stack">
-            <h3>Build Note</h3>
-            <textarea id="buildNote"></textarea>
-            ${activeCampaignId ? `<button class="btn" id="addBuildNoteBtn">Add Build Note</button>` : `<p class="small">Save campaign first.</p>`}
-          </div>
-        </div>
-      `;
-
-      document.getElementById("resetChecklistBtn")?.addEventListener("click",resetChecklistToDefault);
-
-      document.querySelectorAll("[data-check]").forEach(input=>{
-        input.addEventListener("change",async()=>{
-          const text = input.closest(".check-item").querySelector("span").textContent;
-
-          await sb.from("checklist_items").update({done:input.checked}).eq("id",input.dataset.check);
-
-          if(input.checked){
-            await sb.from("work_logs").insert({
-              campaign_id:activeCampaignId,
-              logged_by:defaultLoggedBy(),
-              log_type:"Build",
-              text:`Completed build step: ${text}`,
-              visible_to_james:true
-            });
-          }
-
-          await loadData();
-          draft = campaignToDraft(campaigns.find(c=>c.id===activeCampaignId));
-          renderModal();
-        });
-      });
-
-      document.getElementById("addBuildNoteBtn")?.addEventListener("click",async()=>{
-        const text = val("buildNote");
-
-        if(!text){
-          toast("Write a note first",true);
-          return;
-        }
-
-        await sb.from("work_logs").insert({
-          campaign_id:activeCampaignId,
-          logged_by:defaultLoggedBy(),
-          log_type:"Build",
-          text,
-          visible_to_james:true
-        });
-
-        await loadData();
-        draft = campaignToDraft(campaigns.find(c=>c.id===activeCampaignId));
-        renderModal();
-      });
+    function checklistMatchesDefault(checks){
+      if(!checks || checks.length!==DEFAULT_CHECKLIST.length) return false;
+      return DEFAULT_CHECKLIST.every((text,index)=>(checks[index]?.text || "")===text);
     }
 
-    async function resetChecklistToDefault(){
+    async function refreshChecklistToDefault(silent=true){
       if(!activeCampaignId) return;
-
-      if(!confirm("Replace this campaign's current build checklist with the updated James Meta checklist? Completed ticks will reset.")) return;
-
-      const oldItems = getCampaignChecklist(activeCampaignId);
 
       const deleteResult = await sb.from("checklist_items").delete().eq("campaign_id",activeCampaignId);
       if(deleteResult.error){
@@ -1773,29 +1682,148 @@
 
       await sb.from("work_logs").insert({
         campaign_id:activeCampaignId,
-        logged_by:defaultLoggedBy(),
+        logged_by:"System",
         log_type:"Build",
-        text:"Build checklist replaced with the updated James Meta Warm + LAL / Prospecting template.",
+        text:"Build checklist updated to the condensed 10-step Meta campaign checklist.",
         visible_to_james:true
-      });
-
-      setUndo("Undo checklist replacement",async()=>{
-        await sb.from("checklist_items").delete().eq("campaign_id",activeCampaignId);
-        if(oldItems.length){
-          await sb.from("checklist_items").insert(oldItems.map((item,index)=>({
-            campaign_id:activeCampaignId,
-            text:item.text,
-            position:index,
-            done:item.done || false
-          })));
-        }
-        await loadData();
       });
 
       await loadData();
       draft = campaignToDraft(campaigns.find(c=>c.id===activeCampaignId));
-      renderModal();
-      toast("Checklist updated.");
+      await updateJamesReportSilent(activeCampaignId);
+      if(activeTab==="build") renderModal();
+      if(!silent) toast("Checklist updated.");
+    }
+
+    async function setChecklistItem(input,checked){
+      if(!activeCampaignId || !input || input.disabled) return;
+      if(input.checked===checked && input.closest(".check-item")?.classList.contains(checked ? "done" : "not-done")) return;
+
+      input.checked = checked;
+      const item = input.closest(".check-item");
+      const text = item.querySelector("span").textContent;
+      item.classList.toggle("done",checked);
+
+      await sb.from("checklist_items").update({done:checked}).eq("id",input.dataset.check);
+
+      await sb.from("work_logs").insert({
+        campaign_id:activeCampaignId,
+        logged_by:defaultLoggedBy(),
+        log_type:"Build",
+        text:`${checked ? "Completed" : "Unchecked"} build step: ${text}`,
+        visible_to_james:true
+      });
+
+      const localItem = checklist.find(i=>i.id===input.dataset.check);
+      if(localItem) localItem.done = checked;
+      await updateJamesReportSilent(activeCampaignId);
+      renderBoard();
+    }
+
+    function wireChecklistDrag(){
+      const items = Array.from(document.querySelectorAll(".check-item"));
+      let dragging = false;
+      let targetState = true;
+      let touched = new Set();
+
+      const apply = item=>{
+        const input = item.querySelector("[data-check]");
+        if(!input || input.disabled || touched.has(input.dataset.check)) return;
+        touched.add(input.dataset.check);
+        setChecklistItem(input,targetState);
+      };
+
+      items.forEach(item=>{
+        item.addEventListener("pointerdown",event=>{
+          const input = item.querySelector("[data-check]");
+          if(!input || input.disabled) return;
+          event.preventDefault();
+          dragging = true;
+          targetState = !input.checked;
+          touched = new Set();
+          item.setPointerCapture?.(event.pointerId);
+          apply(item);
+        });
+
+        item.addEventListener("pointerenter",()=>{
+          if(dragging) apply(item);
+        });
+
+        item.addEventListener("pointerup",()=>{
+          dragging = false;
+        });
+      });
+
+      window.addEventListener("pointerup",()=>{ dragging = false; },{once:true});
+    }
+
+    function renderBuildTab(){
+      const checks = activeCampaignId ? getCampaignChecklist(activeCampaignId) : DEFAULT_CHECKLIST.map((text,index)=>({id:"temp"+index,text,done:false}));
+
+      if(activeCampaignId && !checklistMatchesDefault(checks)){
+        document.getElementById("modalBody").innerHTML = `<div class="panel"><h3>Build Checklist</h3><p class="small">Updating this campaign to the condensed 10-step checklist...</p></div>`;
+        refreshChecklistToDefault(true);
+        return;
+      }
+
+      document.getElementById("modalBody").innerHTML = `
+        <div class="grid-2">
+          <div class="panel">
+            <div class="between" style="margin-bottom:13px;">
+              <div>
+                <h3 style="margin-bottom:4px;">Build Checklist</h3>
+                <p class="small" style="margin:0;">Only the critical checks that can break the campaign. Click a row, or drag down the list to tick multiple steps.</p>
+              </div>
+              <span class="badge">${checks.filter(i=>i.done).length}/${checks.length}</span>
+            </div>
+
+            ${
+              checks.map(i=>`
+                <div class="check-item ${i.done?"done":""}">
+                  <input type="checkbox" ${i.done?"checked":""} ${activeCampaignId?"":"disabled"} data-check="${i.id}" />
+                  <span>${esc(i.text)}</span>
+                </div>
+              `).join("")
+            }
+          </div>
+
+          <div class="panel stack">
+            <h3>Build Note</h3>
+            <textarea id="buildNote"></textarea>
+            ${activeCampaignId ? `<button class="btn" id="addBuildNoteBtn">Add Build Note</button>` : `<p class="small">Save campaign first.</p>`}
+          </div>
+        </div>
+      `;
+
+      wireChecklistDrag();
+
+      document.getElementById("addBuildNoteBtn")?.addEventListener("click",async()=>{
+        const text = val("buildNote");
+
+        if(!text){
+          toast("Write a note first",true);
+          return;
+        }
+
+        const {data,error} = await sb.from("work_logs").insert({
+          campaign_id:activeCampaignId,
+          logged_by:defaultLoggedBy(),
+          log_type:"Build",
+          text,
+          visible_to_james:true
+        }).select().single();
+
+        if(error){
+          toast(error.message,true);
+          return;
+        }
+
+        if(data) logs.push(data);
+        await updateJamesReportSilent(activeCampaignId);
+        document.getElementById("buildNote").value = "";
+        renderLogsIfOpen();
+        toast("Build note added.");
+      });
     }
 
     function renderLogsTab(){
@@ -2146,6 +2174,7 @@
 
       await loadData();
       draft = campaignToDraft(campaigns.find(c=>c.id===activeCampaignId));
+      await updateJamesReportSilent(activeCampaignId);
       renderModal();
     }
 
@@ -2183,7 +2212,13 @@
           visible_to_james:true
         }).select().single();
 
+        if(res.error){
+          toast(res.error.message,true);
+          return;
+        }
+
         logRow = res.data;
+        if(logRow) logs.push(logRow);
       }
 
       setUndo("Undo ad set update",async()=>{
@@ -2202,6 +2237,7 @@
       const index = adsets.findIndex(a=>a.id===id);
       if(index>=0) adsets[index] = {...adsets[index],status,budget_type,budget,notes};
 
+      await updateJamesReportSilent(activeCampaignId);
       renderBoard();
 
       if(!silent) toast("Ad set saved.");
@@ -2228,6 +2264,7 @@
 
       await loadData();
       draft = campaignToDraft(campaigns.find(c=>c.id===activeCampaignId));
+      await updateJamesReportSilent(activeCampaignId);
       renderModal();
     }
 
@@ -2257,6 +2294,7 @@
 
       await loadData();
       draft = campaignToDraft(campaigns.find(c=>c.id===activeCampaignId));
+      await updateJamesReportSilent(activeCampaignId);
       renderModal();
     }
 
@@ -2280,6 +2318,7 @@
 
       await loadData();
       draft = campaignToDraft(campaigns.find(c=>c.id===activeCampaignId));
+      await updateJamesReportSilent(activeCampaignId);
       renderModal();
     }
 
@@ -2455,6 +2494,47 @@
       toast("Names added.");
     }
 
+    function buildJamesReportText(campaignId){
+      const c = campaigns.find(item=>item.id===campaignId);
+      const currentDraft = draft && activeCampaignId===campaignId ? collectDraft() : null;
+      const artistName = currentDraft?.artistName || getArtistName(c?.artist_id);
+      const title = currentDraft?.title || c?.title || "Untitled";
+      const status = currentDraft?.status || c?.status || "New Brief";
+      const budget = currentDraft?.budget || c?.budget || "TBC";
+      const missing = currentDraft?.missing_info || c?.missing_info || "No major missing info flagged.";
+      const ads = getCampaignAdSets(campaignId);
+      const activity = getCampaignLogs(campaignId).slice(-10);
+
+      return `Hey mate, quick update on ${artistName} — ${title}.\n\nStatus: ${status}.\n\nBudget: ${budget}\n${ads.map(a=>`- ${a.name}: ${a.status || "Running"} / ${a.budget || "TBC"} ${String(a.budget_type || "Daily Budget").toLowerCase().includes("life") ? "lifetime" : "daily"}${a.notes ? ` — ${a.notes}` : ""}`).join("\n") || "- No ad sets added yet."}\n\nLatest updates:\n${activity.length ? activity.map(l=>`- ${l.text}`).join("\n") : "- No work logs added yet."}\n\n${missing}`;
+    }
+
+    async function updateJamesReportSilent(campaignId=activeCampaignId){
+      if(!campaignId) return;
+      const report = buildJamesReportText(campaignId);
+
+      if(draft && activeCampaignId===campaignId) draft.report = report;
+
+      const box = document.getElementById("m_report");
+      if(box && activeCampaignId===campaignId) box.value = report;
+
+      const {error} = await sb.from("campaigns").update({
+        report,
+        updated_at:new Date().toISOString()
+      }).eq("id",campaignId);
+
+      if(error){
+        toast("James report update failed: "+error.message,true);
+        return;
+      }
+
+      const index = campaigns.findIndex(c=>c.id===campaignId);
+      if(index>=0) campaigns[index] = {...campaigns[index],report,updated_at:new Date().toISOString()};
+    }
+
+    function renderLogsIfOpen(){
+      if(activeTab==="logs") renderModal();
+    }
+
     function summariseLogs(){
       const activity = activeCampaignId ? getCampaignLogs(activeCampaignId) : [];
 
@@ -2469,11 +2549,7 @@
 
     function generateJamesUpdate(){
       collectDraft();
-
-      const activity = activeCampaignId ? getCampaignLogs(activeCampaignId) : [];
-      const ads = activeCampaignId ? getCampaignAdSets(activeCampaignId) : draft.ad_sets || [];
-
-      draft.report = `Hey mate, quick update on ${draft.artistName} — ${draft.title}.\\n\\nStatus: ${draft.status}.\\n\\nBudget: ${draft.budget || "TBC"}\\n${ads.map(a=>`- ${a.name}: ${a.status || "Running"} / ${a.budget || "TBC"} ${String(a.budget_type || "Daily Budget").toLowerCase().includes("life") ? "lifetime" : "daily"}`).join("\\n")}\\n\\nWhat has been done:\\n${activity.slice(-7).map(l=>`- ${l.text}`).join("\\n") || "- No work logs added yet."}\\n\\n${draft.missing_info || "No major missing info flagged."}`;
+      draft.report = buildJamesReportText(activeCampaignId);
 
       const box = document.getElementById("m_report");
       if(box) box.value = draft.report;
