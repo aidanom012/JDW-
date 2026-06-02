@@ -1767,8 +1767,9 @@
       }
 
       document.getElementById("modalBody").innerHTML = `
-        <div class="grid-2">
-          <div class="panel">
+        <div class="stack">
+          <div class="grid-2">
+            <div class="panel">
             <div class="between" style="margin-bottom:13px;">
               <div>
                 <h3 style="margin-bottom:4px;">Build Checklist</h3>
@@ -1787,10 +1788,53 @@
             }
           </div>
 
+            <div class="panel stack">
+              <h3>Build Note</h3>
+              <textarea id="buildNote"></textarea>
+              ${activeCampaignId ? `<button class="btn" id="addBuildNoteBtn">Add Build Note</button>` : `<p class="small">Save campaign first.</p>`}
+            </div>
+          </div>
+
           <div class="panel stack">
-            <h3>Build Note</h3>
-            <textarea id="buildNote"></textarea>
-            ${activeCampaignId ? `<button class="btn" id="addBuildNoteBtn">Add Build Note</button>` : `<p class="small">Save campaign first.</p>`}
+            <div class="between">
+              <div>
+                <h3 style="margin-bottom:4px;">Naming Convention Index</h3>
+                <p class="small" style="margin:0;">Use these formats when naming campaigns, ad sets and ads in Meta.</p>
+              </div>
+              <span class="chip">Naming key</span>
+            </div>
+
+            <div class="grid-3">
+              <div class="budget-box">
+                <strong>Campaign</strong>
+                <code style="color:var(--accent);font-size:12px;line-height:1.45;word-break:break-word;">artist_objective_song_ACID:code</code>
+                <span>Example: <strong>kingfishr_streaming_tswns_ACID:GG5518</strong></span>
+              </div>
+
+              <div class="budget-box">
+                <strong>Ad Set</strong>
+                <code style="color:var(--accent);font-size:12px;line-height:1.45;word-break:break-word;">audience-detail_objective_age_location_platform</code>
+                <span>Example: <strong>ca_warm-lal_streaming_18-50_dach_ig-fb</strong></span>
+              </div>
+
+              <div class="budget-box">
+                <strong>Ad</strong>
+                <code style="color:var(--accent);font-size:12px;line-height:1.45;word-break:break-word;">content-type_native-or-dark_catchphrase-description</code>
+                <span>Example: <strong>reel_native_kein-schlaf-hook</strong></span>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="budget-box">
+                <strong>Audience abbreviations</strong>
+                <span><strong>ca</strong> = custom audience · <strong>lal</strong> = lookalike · <strong>int</strong> = interest · <strong>ra</strong> = related artists · <strong>warm</strong> = retargeting · <strong>broad</strong> = broad/open · <strong>excl</strong> = exclude</span>
+              </div>
+
+              <div class="budget-box">
+                <strong>Rules</strong>
+                <span>Lowercase only, no spaces. Use underscores between main sections, hyphens inside descriptions, and keep ACID at the end of campaign names.</span>
+              </div>
+            </div>
           </div>
         </div>
       `;
