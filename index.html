@@ -810,24 +810,33 @@
     ];
 
     const DEFAULT_CHECKLIST = [
-      "Interpret brief: objective, release status, territories, budget and assets",
-      "Confirm account/business access",
-      "Confirm ACID compliance code if required",
-      "Confirm tracking link, pixel/dataset and View Content event",
-      "Test destination link on mobile",
-      "Confirm native vs dark ad preference",
-      "Create campaign with correct objective and budget structure",
-      "Create warm / retargeting ad set",
-      "Create prospecting / related artist ad set",
-      "Set age, locations, placements and exclusions",
-      "Turn off unwanted Advantage+ creative/placement expansion",
-      "Check naming convention across campaign, ad sets and ads",
-      "Preview campaign and send setup summary to James",
-      "Confirm approval before launch",
-      "Check delivery and spend pacing",
-      "Generate first report / update for James"
+      "Read the brief and pull out: objective, conversion location, optimisation event, pixel/dataset, link, total spend cap, daily ad set budget, territories, age, placements and creative post URL",
+      "Confirm Ads Manager access, correct business portfolio/account, correct artist pixel/dataset, and any ACID/compliance code required",
+      "Create campaign in draft with the brief objective; for song-link campaigns usually Engagement > Website > optimise for View Content",
+      "Set the destination URL from the brief and test it on mobile before building ad sets",
+      "Set campaign-level spend cap if the brief gives a total ceiling; keep ad set daily budgets separate unless the brief says otherwise",
+      "Name the campaign using the current JDW/Atlantic convention, not old account naming styles",
+      "Build the Warm + LAL ad set first when the brief mentions warm, retargeting, custom audiences, engagers, followers, video viewers, website visitors or LAL",
+      "Warm + LAL rule: turn Advantage+ Audience OFF so the ad set uses manual warm audience controls",
+      "Warm + LAL rule: include the artist's warm custom audiences, such as IG/FB engagers, followers, video viewers, website visitors and any supplied source audiences",
+      "Warm + LAL rule: add the requested lookalike, for example 5% engagers/followers LAL, and do not add unrelated interest targeting",
+      "Duplicate the Warm + LAL ad set to create the Prospecting ad set so pixel, event, URL, budget style, placements and ad settings carry over",
+      "Prospecting rule: rename the duplicate as INT/RA/prospecting using related artist or genre naming, not CA/warm naming",
+      "Prospecting rule: remove warm audiences from the include section and exclude warm audiences where possible to keep it cold",
+      "Prospecting rule: turn Advantage+ Audience ON if the brief asks for broad/prospecting setup, then add related artist or genre interests as targeting suggestions",
+      "Prospecting rule: use focused related artists/genre cues from the brief, such as Hozier/Lana-style acoustic singer-songwriter interests, without overloading the ad set",
+      "For every ad set, set the brief territories exactly and do not add extra countries unless asked",
+      "For every ad set, set the brief age range and keep gender open unless the brief specifically says female/male leaning",
+      "For every ad set, use manual placements only: keep IG/FB feeds, reels and stories; turn off Audience Network, Messenger, Marketplace, Search, in-stream, right column and other suggested placements",
+      "Turn off any suggested placement expansion or automatic placement broadening Meta tries to apply",
+      "At ad level, choose the correct Facebook page and Instagram account, then use the existing post/Reel if the brief provides one",
+      "Set CTA, usually Listen Now for music/song-link campaigns, and confirm the preview shows the correct post/Reel",
+      "Turn off Advantage+ creative enhancements that auto-change text, media, cropping, music, layout or visual treatment",
+      "Check naming across campaign, ad sets and ads: Warm/LAL should read CA/warm-lal; Prospecting should read INT/RA/related-artists",
+      "Preview both ad sets side by side and confirm the difference is clear: Warm + LAL = custom audiences/lookalikes; Prospecting = cold related-artist interests",
+      "Send the campaign link and setup summary to James for review before publishing",
+      "Only launch once approved, then check delivery, spend pacing and early View Content results"
     ];
-
     let sb;
     let user = null;
     let artists = [];
