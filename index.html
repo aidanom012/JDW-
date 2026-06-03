@@ -4313,5 +4313,162 @@ EXAMPLE RULES:
     };
   </script>
 
+
+<style>
+  .jdw-builder-modal{width:min(1320px,100%)}
+  .jdw-builder-body{padding:24px;overflow:auto}
+  .jdw-builder-flow{display:flex;gap:10px;flex-wrap:wrap;padding:14px 24px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.025)}
+  .jdw-builder-flow button{border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.035);color:var(--muted);padding:9px 13px;font-weight:950;font-size:12px}
+  .jdw-builder-flow button.active{color:var(--accent);background:rgba(var(--accent-rgb),.10);border-color:rgba(var(--accent-rgb),.3)}
+  .jdw-platform-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+  .jdw-platform-card{border:1px solid var(--line);border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.032));padding:24px;min-height:235px;display:grid;align-content:space-between;gap:18px;transition:.15s}
+  .jdw-platform-card:hover{transform:translateY(-2px);border-color:rgba(var(--accent-rgb),.34);background:rgba(255,255,255,.07)}
+  .jdw-platform-card h3{font-size:30px;letter-spacing:-.06em;margin:0 0 8px}.jdw-platform-card p{margin:0;color:var(--muted);line-height:1.45}
+  .jdw-platform-icon{width:54px;height:54px;border-radius:16px;background:rgba(var(--accent-rgb),.13);border:1px solid rgba(var(--accent-rgb),.25);color:var(--accent);display:grid;place-items:center;font-size:23px;font-weight:950}
+  .jdw-page-card{border:1px solid var(--line);border-radius:22px;background:rgba(255,255,255,.04);padding:18px;margin-bottom:16px}
+  .jdw-page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px}.jdw-page-head h3{margin:0 0 5px;font-size:23px;letter-spacing:-.045em}.jdw-page-head p{margin:0}
+  .jdw-platform-pill{display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(var(--accent-rgb),.25);background:rgba(var(--accent-rgb),.08);color:var(--accent);border-radius:999px;padding:5px 9px;font-size:11px;font-weight:950;text-transform:uppercase;letter-spacing:.06em}
+  .jdw-form-grid{display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:12px}.jdw-form-grid .wide{grid-column:span 2}.jdw-form-grid textarea{min-height:100px}
+  .jdw-table{width:100%;border-collapse:separate;border-spacing:0 9px;font-size:12px}.jdw-table th{text-align:left;color:var(--muted2);font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:0 8px}.jdw-table td{background:rgba(0,0,0,.17);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:9px 8px;vertical-align:top}.jdw-table td:first-child{border-left:1px solid var(--line);border-radius:13px 0 0 13px}.jdw-table td:last-child{border-right:1px solid var(--line);border-radius:0 13px 13px 0}.jdw-table input,.jdw-table textarea,.jdw-table select{padding:8px 9px;border-radius:10px;font-size:12px}.jdw-table textarea{min-height:44px}
+  .jdw-check-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}.jdw-check-list{display:grid;gap:8px}.jdw-ad-targets{display:grid;gap:5px;max-height:155px;overflow:auto}.jdw-ad-targets label{display:flex;gap:6px;align-items:center;margin:0;text-transform:none;letter-spacing:0;font-size:11px;color:var(--muted);font-weight:850}.jdw-ad-targets input{width:auto}.jdw-error-card{border:1px solid rgba(255,95,109,.4);background:rgba(255,95,109,.08);border-radius:18px;padding:16px;color:var(--red)}
+  @media(max-width:1000px){.jdw-platform-grid,.jdw-check-grid,.jdw-form-grid{grid-template-columns:1fr}.jdw-form-grid .wide{grid-column:auto}}
+</style>
+
+<script>
+(function(){
+  const legacyOpenCampaignModal = openCampaignModal;
+  const builderSteps = ["campaign","adsets","ads","checklist","report"];
+  const TIKTOK_BUILDER_CHECKLIST = [
+    "Confirm correct TikTok Business Center and Ads Manager account.",
+    "Confirm objective is Video Views.",
+    "Set optimisation goal to 15-second focused view if briefed.",
+    "Confirm budget strategy, total budget and schedule.",
+    "Confirm ad group/ad set naming follows JDW convention.",
+    "Confirm locations, age, gender and language targeting.",
+    "Add broad folk-pop / singer-songwriter / sad indie targeting only when briefed.",
+    "Keep Smart Interests & Behaviours on unless told otherwise.",
+    "Add Spark codes or authorised TikTok posts at ad level.",
+    "Map each ad to the correct ad groups.",
+    "Check bid control and frequency cap.",
+    "Check automatic enhancements are not changing native/Spark creative.",
+    "Preview each ad before publishing.",
+    "Send summary/update to James or JD before launch if approval is needed."
+  ];
+  const META_BUILDER_CHECKLIST = window.DEFAULT_CHECKLIST || [
+    "Confirm correct Ads Manager account, pixel/dataset, destination link and ACID/compliance code.",
+    "Confirm campaign objective, conversion location and optimisation event.",
+    "Set campaign budget/spend cap exactly as briefed.",
+    "Apply naming convention across campaign, ad sets and ads.",
+    "Confirm ad set audiences, territories, age and placements.",
+    "Confirm exclusions/warm pools where needed.",
+    "Confirm ad-level creative, CTA and destination URL.",
+    "Preview every ad before launch.",
+    "Send setup summary for approval before publishing."
+  ];
+  let builder = null;
+
+  function emptyBuilder(platform){
+    return {
+      platform, step:"campaign", artistName:"", title:"", status:"New Brief", priority:"Normal", deadline:"", budget:"", objective:"", campaign_link:"", territories:"", raw_brief:"", structured_brief:"", missing_info:"", report:"", campaign_name:"", acid_code:"", ad_account:"", optimisation_goal:"", budget_strategy:"", schedule_start:"", schedule_end:"", ad_sets:[], ads:[], checklist:(platform === "tiktok" ? TIKTOK_BUILDER_CHECKLIST : META_BUILDER_CHECKLIST).map((text,i)=>({text,done:false,position:i}))
+    };
+  }
+  function e(v){return String(v??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));}
+  function a(v){return e(v).replace(/`/g,"&#96;");}
+  function g(id){return document.getElementById(id)?.value?.trim() || "";}
+  function term(){return builder.platform === "tiktok" ? "Ad Groups" : "Ad Sets";}
+  function platformLabel(){return builder.platform === "tiktok" ? "TikTok" : "Meta";}
+  function input(id,label,value,type="text",wide=false){return `<div class="${wide?'wide':''}"><label>${label}</label><input id="jdw_${id}" type="${type}" value="${a(value)}" /></div>`;}
+  function select(id,label,value,opts,wide=false){return `<div class="${wide?'wide':''}"><label>${label}</label><select id="jdw_${id}">${opts.map(o=>`<option value="${a(o)}" ${String(value||"")===String(o)?"selected":""}>${e(o || "—")}</option>`).join("")}</select></div>`;}
+  function textarea(id,label,value,wide=false){return `<div class="${wide?'wide':''}"><label>${label}</label><textarea id="jdw_${id}">${e(value)}</textarea></div>`;}
+  function collect(){
+    if(!builder) return;
+    ["artistName","title","campaign_name","acid_code","ad_account","objective","optimisation_goal","budget_strategy","budget","deadline","campaign_link","territories","schedule_start","schedule_end","structured_brief","missing_info","report"].forEach(k=>{const el=document.getElementById("jdw_"+k); if(el) builder[k]=el.value.trim();});
+    const status=document.getElementById("jdw_status"); if(status) builder.status=status.value;
+    const priority=document.getElementById("jdw_priority"); if(priority) builder.priority=priority.value;
+    document.querySelectorAll("[data-jdw-check]").forEach(box=>{const i=+box.dataset.jdwCheck; if(builder.checklist[i]) builder.checklist[i].done=box.checked;});
+    document.querySelectorAll("[data-jdw-adset]").forEach(row=>{const i=+row.dataset.jdwAdset; if(!builder.ad_sets[i]) return; ["name","objective","budget","budget_type","status","audience","notes"].forEach(k=>{const el=row.querySelector(`[data-field="${k}"]`); if(el) builder.ad_sets[i][k]=el.value.trim();});});
+    document.querySelectorAll("[data-jdw-ad]").forEach(row=>{const i=+row.dataset.jdwAd; if(!builder.ads[i]) return; ["name","format","track","source","spark_code","destination","cta","status","notes"].forEach(k=>{const el=row.querySelector(`[data-field="${k}"]`); if(el) builder.ads[i][k]=el.value.trim();}); builder.ads[i].adset_targets=Array.from(row.querySelectorAll("[data-target]:checked")).map(x=>x.value);});
+  }
+  function renderShell(body){
+    const label = platformLabel();
+    modalRoot.innerHTML = `<div class="modal-backdrop" id="modalBackdrop"><div class="modal jdw-builder-modal"><div class="modal-head between"><div><h2><span class="jdw-platform-pill">${label}</span> New Campaign</h2><p class="small">Campaign → ${term()} → Ads → Checklist → Status / Report</p></div><button class="btn secondary" id="jdwCloseBuilder">Close</button></div><div class="jdw-builder-flow">${builderSteps.map((s,i)=>`<button class="${builder.step===s?'active':''}" data-step="${s}">${i+1}. ${s==='adsets'?term():s==='checklist'?'Checklist':s==='report'?'Status / Report':s[0].toUpperCase()+s.slice(1)}</button>`).join("")}</div><div class="modal-body jdw-builder-body">${body}</div></div></div>`;
+    document.getElementById("jdwCloseBuilder").onclick=()=>{modalRoot.innerHTML=""; builder=null;};
+    document.getElementById("modalBackdrop").onclick=(ev)=>{ if(ev.target.id==="modalBackdrop"){modalRoot.innerHTML=""; builder=null;} };
+    document.querySelectorAll("[data-step]").forEach(b=>b.onclick=()=>{collect(); builder.step=b.dataset.step; renderBuilder();});
+  }
+  function renderPlatformChoice(){
+    modalRoot.innerHTML = `<div class="modal-backdrop" id="modalBackdrop"><div class="modal jdw-builder-modal"><div class="modal-head between"><div><h2>New Campaign</h2><p class="small">Choose the platform build style.</p></div><button class="btn secondary" id="jdwCloseBuilder">Close</button></div><div class="modal-body jdw-builder-body"><div class="jdw-platform-grid"><article class="jdw-platform-card" id="jdwChooseMeta"><div><div class="jdw-platform-icon">M</div><h3>Meta</h3><p>Build a Meta / Instagram / Facebook campaign.</p></div><button class="btn">Build Meta Campaign</button></article><article class="jdw-platform-card" id="jdwChooseTikTok"><div><div class="jdw-platform-icon">♫</div><h3>TikTok</h3><p>Build a TikTok / Spark Ads campaign.</p></div><button class="btn">Build TikTok Campaign</button></article></div></div></div></div>`;
+    document.getElementById("jdwCloseBuilder").onclick=()=>modalRoot.innerHTML="";
+    document.getElementById("jdwChooseMeta").onclick=()=>{builder=emptyBuilder("meta"); renderBuilder();};
+    document.getElementById("jdwChooseTikTok").onclick=()=>{builder=emptyBuilder("tiktok"); renderBuilder();};
+  }
+  function renderCampaign(){
+    renderShell(`<section class="jdw-page-card"><div class="jdw-page-head"><div><span class="jdw-platform-pill">${platformLabel()} Campaign</span><h3>Campaign details</h3><p class="small">Blank campaign-level setup. Fill from the brief.</p></div><button class="btn" id="jdwNextAdsets">Next: ${term()}</button></div><div class="jdw-form-grid">${input("artistName","Artist",builder.artistName)}${input("title","Campaign / Track(s)",builder.title)}${input("campaign_name","Campaign Name",builder.campaign_name)}${input("acid_code","ACID Code",builder.acid_code)}${select("status","Status",builder.status,["New Brief","Needs Info","Ready to Build","In Progress","Awaiting Approval","Live","Reporting","Complete"])}${select("priority","Priority",builder.priority,["Urgent","Normal","Low"])}${input("ad_account","Ad Account",builder.ad_account)}${input("objective","Objective",builder.objective)}${input("optimisation_goal",builder.platform==='tiktok'?"Optimisation / Goal":"Optimisation Event",builder.optimisation_goal)}${select("budget_strategy","Budget Strategy",builder.budget_strategy,["","Campaign budget","Ad set budget","Ad group budget","Lifetime campaign budget","Daily campaign budget"])}${input("budget","Budget",builder.budget)}${input("deadline","Deadline / End Date",builder.deadline,"date")}${input("campaign_link","Destination / Campaign Link",builder.campaign_link,true)}${input("territories","Territories",builder.territories)}${input("schedule_start","Schedule Start",builder.schedule_start)}${input("schedule_end","Schedule End",builder.schedule_end)}</div></section><section class="jdw-page-card"><div class="jdw-page-head"><div><h3>Brief outline</h3><p class="small">This is the brief bit you were missing. Keep it condensed.</p></div></div><div class="jdw-form-grid">${textarea("structured_brief","Clean Brief Outline",builder.structured_brief,true)}${textarea("missing_info","Questions / Missing Info",builder.missing_info,true)}</div></section><button class="btn" id="jdwSaveBuilder">Create Campaign</button>`);
+    document.getElementById("jdwNextAdsets").onclick=()=>{collect();builder.step="adsets";renderBuilder();};
+    document.getElementById("jdwSaveBuilder").onclick=saveBuilder;
+  }
+  function renderAdsets(){
+    renderShell(`<section class="jdw-page-card"><div class="jdw-page-head"><div><span class="jdw-platform-pill">${term()}</span><h3>${term()}</h3><p class="small">Add as many as the brief needs.</p></div><div class="row"><button class="btn secondary" id="jdwAddAdset">+ Add ${term().slice(0,-1)}</button><button class="btn" id="jdwNextAds">Next: Ads</button></div></div>${builder.ad_sets.length?`<table class="jdw-table"><thead><tr><th>Name</th><th>Objective</th><th>Budget</th><th>Type</th><th>Status</th><th>Audience</th><th>Notes</th><th></th></tr></thead><tbody>${builder.ad_sets.map((s,i)=>`<tr data-jdw-adset="${i}"><td><input data-field="name" value="${a(s.name||'')}" /></td><td><input data-field="objective" value="${a(s.objective||'')}" /></td><td><input data-field="budget" value="${a(s.budget||'')}" /></td><td><select data-field="budget_type"><option ${s.budget_type==='Daily Budget'?'selected':''}>Daily Budget</option><option ${s.budget_type==='Lifetime Budget'?'selected':''}>Lifetime Budget</option><option ${s.budget_type==='Campaign Budget'?'selected':''}>Campaign Budget</option></select></td><td><select data-field="status"><option ${s.status==='Draft'?'selected':''}>Draft</option><option ${s.status==='Running'?'selected':''}>Running</option><option ${s.status==='Paused'?'selected':''}>Paused</option><option ${s.status==='Needs Review'?'selected':''}>Needs Review</option></select></td><td><textarea data-field="audience">${e(s.audience||'')}</textarea></td><td><textarea data-field="notes">${e(s.notes||'')}</textarea></td><td><button class="mini-btn" data-remove-adset="${i}">×</button></td></tr>`).join("")}</tbody></table>`:`<div class="empty">No ${term().toLowerCase()} yet. Add one.</div>`}</section>`);
+    document.getElementById("jdwAddAdset").onclick=()=>{collect();builder.ad_sets.push({name:"",objective:"",budget:"",budget_type:"Daily Budget",status:"Draft",audience:"",notes:""});renderBuilder();};
+    document.getElementById("jdwNextAds").onclick=()=>{collect();builder.step="ads";renderBuilder();};
+    document.querySelectorAll("[data-remove-adset]").forEach(b=>b.onclick=()=>{collect();builder.ad_sets.splice(+b.dataset.removeAdset,1);renderBuilder();});
+  }
+  function renderAds(){
+    const targets = builder.ad_sets.map((s,i)=>s.name || `${term().slice(0,-1)} ${i+1}`);
+    renderShell(`<section class="jdw-page-card"><div class="jdw-page-head"><div><span class="jdw-platform-pill">Ad level</span><h3>Ads / creative assets</h3><p class="small">Add videos/assets and tick which ${term().toLowerCase()} each sits in.</p></div><div class="row"><button class="btn secondary" id="jdwAddAd">+ Add Ad</button><button class="btn secondary" id="jdwAllAdsAllSets">Put all ads in all ${term().toLowerCase()}</button><button class="btn" id="jdwNextChecklist">Next: Checklist</button></div></div>${builder.ads.length?`<table class="jdw-table"><thead><tr><th>Ad name</th><th>Format</th><th>Track / Asset</th><th>Source / Spark Code</th><th>CTA / Destination</th><th>${term()}</th><th>Status</th><th></th></tr></thead><tbody>${builder.ads.map((ad,i)=>`<tr data-jdw-ad="${i}"><td><input data-field="name" value="${a(ad.name||'')}" /></td><td><input data-field="format" value="${a(ad.format||'')}" placeholder="Video / Reel / Spark" /></td><td><input data-field="track" value="${a(ad.track||'')}" /></td><td><input data-field="source" value="${a(ad.source||'')}" placeholder="Post / asset link" /><input data-field="spark_code" value="${a(ad.spark_code||'')}" placeholder="Spark code" style="margin-top:6px" /></td><td><input data-field="cta" value="${a(ad.cta||'')}" placeholder="CTA" /><input data-field="destination" value="${a(ad.destination||'')}" placeholder="Destination" style="margin-top:6px" /></td><td><div class="jdw-ad-targets">${targets.length?targets.map(t=>`<label><input type="checkbox" data-target value="${a(t)}" ${(ad.adset_targets||[]).includes(t)?'checked':''}>${e(t)}</label>`).join(""):`<span class="small">Add ${term().toLowerCase()} first.</span>`}</div></td><td><select data-field="status"><option ${ad.status==='Draft'?'selected':''}>Draft</option><option ${ad.status==='Ready'?'selected':''}>Ready</option><option ${ad.status==='Live'?'selected':''}>Live</option><option ${ad.status==='Needs Review'?'selected':''}>Needs Review</option></select></td><td><button class="mini-btn" data-remove-ad="${i}">×</button></td></tr>`).join("")}</tbody></table>`:`<div class="empty">No ads yet. Add your first video/asset.</div>`}</section>`);
+    document.getElementById("jdwAddAd").onclick=()=>{collect();builder.ads.push({name:"",format:"",track:"",source:"",spark_code:"",destination:"",cta:"",status:"Draft",adset_targets:[],notes:""});renderBuilder();};
+    document.getElementById("jdwAllAdsAllSets").onclick=()=>{collect();builder.ads.forEach(ad=>ad.adset_targets=targets.slice());renderBuilder();};
+    document.getElementById("jdwNextChecklist").onclick=()=>{collect();builder.step="checklist";renderBuilder();};
+    document.querySelectorAll("[data-remove-ad]").forEach(b=>b.onclick=()=>{collect();builder.ads.splice(+b.dataset.removeAd,1);renderBuilder();});
+  }
+  function summary(){
+    return `${platformLabel()} Campaign Build\n\nCampaign: ${builder.campaign_name || 'TBC'}\nArtist / Track: ${builder.artistName || 'TBC'} — ${builder.title || 'TBC'}\nObjective: ${builder.objective || 'TBC'}\nGoal: ${builder.optimisation_goal || 'TBC'}\nBudget: ${builder.budget || 'TBC'}\nAccount: ${builder.ad_account || 'TBC'}\nTerritories: ${builder.territories || 'TBC'}\n\n${term()}:\n${builder.ad_sets.length?builder.ad_sets.map((s,i)=>`${i+1}. ${s.name || 'Untitled'} — ${s.objective || 'Goal TBC'} — ${s.budget || 'Budget TBC'} — ${s.audience || 'Audience TBC'}`).join('\n'):'None yet'}\n\nAds:\n${builder.ads.length?builder.ads.map((ad,i)=>`${i+1}. ${ad.name || 'Untitled'} — ${(ad.adset_targets||[]).length?'Targets: '+ad.adset_targets.join(', '):'Targets TBC'}`).join('\n'):'None yet'}\n\nQuestions / notes:\n${builder.missing_info || 'None yet'}`;
+  }
+  function renderChecklist(){
+    const done = builder.checklist.filter(x=>x.done).length;
+    renderShell(`<section class="jdw-page-card"><div class="jdw-page-head"><div><span class="jdw-platform-pill">${platformLabel()} Checklist</span><h3>Pre-launch checklist</h3><p class="small">This works before saving too.</p></div><div class="row"><span class="badge">${done}/${builder.checklist.length}</span><button class="btn" id="jdwNextReport">Next: Status / Report</button></div></div><div class="jdw-check-grid"><div class="panel"><div class="jdw-check-list">${builder.checklist.map((c,i)=>`<label class="check-item ${c.done?'done':''}"><input type="checkbox" data-jdw-check="${i}" ${c.done?'checked':''}><span>${e(c.text)}</span></label>`).join("")}</div></div><div class="panel stack"><h3>Build summary</h3><textarea readonly style="min-height:360px">${e(summary())}</textarea><button class="btn secondary" id="jdwCopySummary">Copy Build Summary</button></div></div></section>`);
+    document.querySelectorAll("[data-jdw-check]").forEach(b=>b.onchange=()=>{collect(); renderBuilder();});
+    document.getElementById("jdwNextReport").onclick=()=>{collect();builder.step="report";renderBuilder();};
+    document.getElementById("jdwCopySummary").onclick=()=>navigator.clipboard.writeText(summary()).then(()=>toast("Build summary copied"));
+  }
+  function renderReport(){
+    const rep = builder.report || summary();
+    renderShell(`<section class="jdw-page-card"><div class="jdw-page-head"><div><span class="jdw-platform-pill">Status / Report</span><h3>Status and report</h3><p class="small">Copyable update for James/JD/client.</p></div><div class="row"><button class="btn secondary" id="jdwGenerateReport">Generate Report</button><button class="btn secondary" id="jdwCopyReport">Copy Report</button><button class="btn" id="jdwSaveBuilder">Create Campaign</button></div></div><div class="grid-2"><div class="panel stack"><h3>Status</h3><div class="quality-list"><div class="quality-item"><span>Status</span><strong>${e(builder.status)}</strong></div><div class="quality-item"><span>Platform</span><strong>${platformLabel()}</strong></div><div class="quality-item"><span>${term()}</span><strong>${builder.ad_sets.length}</strong></div><div class="quality-item"><span>Ads</span><strong>${builder.ads.length}</strong></div></div></div><div class="panel stack"><h3>Report</h3><textarea id="jdw_report" style="min-height:360px">${e(rep)}</textarea></div></div></section>`);
+    document.getElementById("jdwGenerateReport").onclick=()=>{builder.report=summary();renderBuilder();};
+    document.getElementById("jdwCopyReport").onclick=()=>navigator.clipboard.writeText(g("report") || document.getElementById("jdw_report").value).then(()=>toast("Report copied"));
+    document.getElementById("jdwSaveBuilder").onclick=saveBuilder;
+  }
+  function renderBuilder(){
+    try{collect(); if(builder.step==="campaign") renderCampaign(); else if(builder.step==="adsets") renderAdsets(); else if(builder.step==="ads") renderAds(); else if(builder.step==="checklist") renderChecklist(); else if(builder.step==="report") renderReport();}
+    catch(err){console.error(err); modalRoot.innerHTML=`<div class="modal-backdrop"><div class="modal"><div class="modal-head between"><h2>Builder error</h2><button class="btn secondary" onclick="modalRoot.innerHTML=''">Close</button></div><div class="modal-body"><div class="jdw-error-card"><strong>${e(err.message||err)}</strong></div></div></div></div>`;}
+  }
+  async function saveBuilder(){
+    collect();
+    if(!builder.artistName || !builder.title){ toast("Add artist and campaign / track name first.",true); builder.step="campaign"; renderBuilder(); return; }
+    try{
+      const artist = await getOrCreateArtist(builder.artistName);
+      const platformData = {platform:builder.platform,campaign_name:builder.campaign_name,acid_code:builder.acid_code,ad_account:builder.ad_account,optimisation_goal:builder.optimisation_goal,budget_strategy:builder.budget_strategy,schedule_start:builder.schedule_start,schedule_end:builder.schedule_end,ads:builder.ads,checklist:builder.checklist};
+      let payload = {artist_id:artist.id,title:builder.title,status:builder.status,priority:builder.priority,deadline:builder.deadline||null,budget:builder.budget,objective:builder.objective,campaign_link:builder.campaign_link,territories:builder.territories,raw_brief:builder.raw_brief||"",structured_brief:builder.structured_brief,missing_info:builder.missing_info,report:builder.report||summary(),updated_at:new Date().toISOString(),platform:builder.platform,platform_data:platformData};
+      let res = await sb.from("campaigns").insert(payload).select().single();
+      if(res.error && /platform/i.test(res.error.message||"")){ delete payload.platform; delete payload.platform_data; res = await sb.from("campaigns").insert(payload).select().single(); }
+      if(res.error) throw res.error;
+      const id = res.data.id;
+      if(builder.ad_sets.length) await sb.from("ad_sets").insert(builder.ad_sets.map((s,i)=>({campaign_id:id,name:s.name||`${term().slice(0,-1)} ${i+1}`,objective:s.objective||"",budget:s.budget||"",budget_type:s.budget_type||"Daily Budget",status:s.status||"Draft",audience:s.audience||"",notes:s.notes||"",position:i})));
+      await sb.from("checklist_items").insert(builder.checklist.map((c,i)=>({campaign_id:id,text:c.text,done:!!c.done,position:i})));
+      await sb.from("work_logs").insert({campaign_id:id,logged_by:"System",log_type:"Brief",text:`${platformLabel()} campaign created from Ads Manager-style builder.`,visible_to_james:true});
+      await loadData();
+      toast("Campaign created.");
+      builder=null;
+      legacyOpenCampaignModal(id);
+    }catch(err){toast(err.message||String(err),true);}
+  }
+  openCampaignModal = function(id,prefill=null){
+    if(id || prefill) return legacyOpenCampaignModal(id,prefill);
+    builder = null;
+    renderPlatformChoice();
+  };
+})();
+</script>
+
 </body>
 </html>
