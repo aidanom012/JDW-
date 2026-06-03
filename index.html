@@ -818,6 +818,36 @@
     .platform-fields textarea{min-height:74px}
 
 
+
+    /* Ads Manager style builder */
+    .builder-modal{width:min(1320px,100%)}
+    .builder-tabs{gap:10px;padding:12px 24px}
+    .ads-manager-shell{display:grid;gap:16px}
+    .builder-flow{display:grid;grid-template-columns:repeat(5,minmax(130px,1fr));gap:10px;margin-bottom:2px}
+    .builder-step{border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.035);color:var(--muted);padding:11px 12px;display:flex;align-items:center;gap:9px;font-size:12px;font-weight:950;text-align:left}
+    .builder-step span{width:24px;height:24px;border-radius:999px;display:grid;place-items:center;background:rgba(255,255,255,.07);color:var(--text);font-size:11px}
+    .builder-step.active{border-color:rgba(var(--accent-rgb),.35);background:rgba(var(--accent-rgb),.09);color:var(--accent)}
+    .builder-step.active span{background:var(--accent);color:#050505}
+    .ads-page-card{border:1px solid var(--line);border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.025));padding:16px;box-shadow:0 14px 36px rgba(0,0,0,.14)}
+    .ads-page-card.compact{padding:14px;background:rgba(255,255,255,.032)}
+    .ads-page-head{margin-bottom:14px}
+    .ads-page-head h3{font-size:22px;letter-spacing:-.045em;margin:8px 0 5px}
+    .builder-form-grid{display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:12px}
+    .builder-form-grid.small-grid{grid-template-columns:repeat(5,minmax(120px,1fr))}
+    .builder-form-grid input,.builder-form-grid select,.builder-form-grid textarea,.adset-builder-row input,.adset-builder-row select,.adset-builder-row textarea,.ad-asset-row input,.ad-asset-row select,.ad-asset-row textarea{padding:10px 11px;border-radius:12px;font-size:12px;min-height:40px}
+    .adset-builder-list,.ads-builder-list{display:grid;gap:12px}
+    .adset-builder-row{display:grid;grid-template-columns:1.35fr 1fr .75fr .75fr .65fr auto;gap:10px;align-items:end;border:1px solid var(--line);border-radius:18px;background:rgba(0,0,0,.16);padding:12px}
+    .adset-builder-row .wide{grid-column:span 3}
+    .adset-builder-row textarea{min-height:48px}
+    .ad-asset-row{display:grid;gap:12px;border:1px solid var(--line);border-radius:20px;background:rgba(0,0,0,.17);padding:14px}
+    .ad-asset-head{padding-bottom:4px;border-bottom:1px solid var(--line)}
+    .adset-checkbox-panel{border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.025);padding:12px}
+    .adset-checkbox-grid{display:grid;grid-template-columns:repeat(3,minmax(180px,1fr));gap:8px;margin-top:8px}
+    .mini-check{display:flex;align-items:flex-start;gap:8px;border:1px solid var(--line);border-radius:12px;background:rgba(0,0,0,.15);padding:8px;font-size:11px;line-height:1.25;color:var(--muted);text-transform:none;letter-spacing:0;margin:0;font-weight:850}
+    .mini-check input{width:auto;margin-top:2px;accent-color:var(--accent)}
+    @media(max-width:1100px){.builder-flow{grid-template-columns:1fr 1fr}.builder-form-grid,.builder-form-grid.small-grid,.adset-builder-row{grid-template-columns:1fr}.adset-builder-row .wide{grid-column:auto}.adset-checkbox-grid{grid-template-columns:1fr}}
+
+
     @media(max-width:1100px){
       .brief-meta-row,.snapshot-grid{grid-template-columns:repeat(2,1fr)}
       .timeline-track{grid-template-columns:repeat(6,150px)}
@@ -4695,7 +4725,499 @@
       d.checklist = DEFAULT_CHECKLIST;
       return d;
     }
-  </script>
+  
+/* === JDW ADS MANAGER STYLE BUILDER OVERRIDE v1 === */
+function blankDraft(){
+  return {
+    platform:"",
+    artistName:activeArtistId==="all" ? "" : getArtistName(activeArtistId),
+    title:"",
+    status:"New Brief",
+    priority:"Normal",
+    deadline:"",
+    budget:"",
+    objective:"",
+    campaign_link:"",
+    territories:"",
+    raw_brief:"",
+    structured_brief:"",
+    missing_info:"",
+    report:"",
+    ad_sets:[],
+    checklist:DEFAULT_CHECKLIST,
+    ad_account:"",
+    campaign_name:"",
+    acid_code:"",
+    budget_strategy:"Campaign budget",
+    optimisation_goal:"",
+    bid_control:"",
+    frequency_cap:"",
+    schedule_start:"",
+    schedule_end:"",
+    locations:"",
+    age_range:"18-44",
+    gender:"All",
+    languages:"All",
+    detailed_targeting:"",
+    smart_interests:"",
+    spark_codes:"",
+    ad_names:"",
+    automatic_enhancements:"",
+    tracking_notes:"",
+    ads:[]
+  };
+}
+
+function ensureBuilderDraft(){
+  if(!draft) draft = blankDraft();
+  draft.platform = draft.platform || "meta";
+  draft.ads = Array.isArray(draft.ads) ? draft.ads : [];
+  draft.ad_sets = Array.isArray(draft.ad_sets) ? draft.ad_sets : [];
+  return draft;
+}
+
+function campaignToDraft(c){
+  const dbPlatformData = normalisePlatformData(c.platform_data);
+  const legacyPlatformData = parsePlatformFields(c.structured_brief || "", c.objective || "");
+  const extra = {...legacyPlatformData,...dbPlatformData};
+  const platform = c.platform || extra.platform || inferPlatformFromDraft({
+    structured_brief:c.structured_brief || "",
+    objective:c.objective || "",
+    title:c.title || "",
+    raw_brief:c.raw_brief || ""
+  });
+  const base = {
+    ...blankDraft(),
+    ...extra,
+    platform,
+    id:c.id,
+    artistName:getArtistName(c.artist_id),
+    title:c.title || "",
+    status:c.status || "New Brief",
+    priority:c.priority || "Normal",
+    deadline:c.deadline || "",
+    budget:c.budget || "",
+    objective:c.objective || "",
+    campaign_link:c.campaign_link || "",
+    territories:c.territories || "",
+    raw_brief:c.raw_brief || "",
+    structured_brief:c.structured_brief || "",
+    missing_info:c.missing_info || "",
+    report:c.report || "",
+    ad_sets:getCampaignAdSets(c.id),
+    ads:Array.isArray(extra.ads) ? extra.ads : []
+  };
+  return base;
+}
+
+function openCampaignModal(id,prefill=null){
+  activeCampaignId = id;
+  activeTab = id || prefill?.platform ? "campaign" : "platform";
+  briefEditMode = false;
+  briefNotesTab = "clean";
+  draft = prefill || (id ? campaignToDraft(campaigns.find(c=>c.id===id)) : blankDraft());
+  if(!draft.platform && id) draft.platform = inferPlatformFromDraft(draft);
+  ensureBuilderDraft();
+  renderModal();
+}
+
+function renderModal(){
+  const isNew = !activeCampaignId;
+  const platform = draft?.platform || "";
+  const title = activeTab === "platform" ? "New Campaign" : `${platformBadgeInline(platform)} ${isNew ? "New Campaign" : esc(draft.artistName || "Artist") + " — " + esc(draft.title || "Campaign")}`;
+  document.getElementById("modalRoot").innerHTML = `
+    <div class="modal-backdrop" id="modalBackdrop">
+      <div class="modal builder-modal">
+        <div class="modal-head between">
+          <div>
+            <h2>${title}</h2>
+            <p class="small">${activeTab === "platform" ? "Choose Meta or TikTok to start a platform-specific Ads Manager style build." : `${platform === "tiktok" ? "TikTok" : "Meta"} build flow · campaign details → ad sets/ad groups → ads → checklist → status/report`}</p>
+          </div>
+          <div class="row">
+            ${!isNew ? `<button class="btn danger" id="deleteCampaignBtn">Delete</button>` : ""}
+            <button class="btn secondary" id="closeModalBtn">Close</button>
+          </div>
+        </div>
+        ${activeTab === "platform" ? "" : `<div class="tabs builder-tabs">
+          ${["campaign","adsets","ads","build","logs"].map(t=>`<button class="tab ${activeTab===t?"active":""}" data-tab="${t}">${tabName(t)}</button>`).join("")}
+        </div>`}
+        <div class="modal-body" id="modalBody"></div>
+      </div>
+    </div>`;
+  document.getElementById("closeModalBtn").addEventListener("click",closeModal);
+  document.getElementById("deleteCampaignBtn")?.addEventListener("click",deleteActiveCampaign);
+  document.getElementById("modalBackdrop").addEventListener("click",event=>{ if(event.target.id==="modalBackdrop") closeModal(); });
+  document.querySelectorAll("[data-tab]").forEach(btn=>btn.addEventListener("click",()=>{ collectDraft(); activeTab = btn.dataset.tab; renderModal(); }));
+  renderModalBody();
+}
+
+function renderModalBody(){
+  ensureBuilderDraft();
+  if(activeTab==="platform") return renderPlatformChoiceTab();
+  if(activeTab==="campaign") return renderCampaignBuilderTab();
+  if(activeTab==="adsets") return renderAdSetsBuilderTab();
+  if(activeTab==="ads") return renderAdsBuilderTab();
+  if(activeTab==="build") return renderBuildTab();
+  if(activeTab==="logs") return renderLogsTab();
+}
+
+function tabName(tab){
+  return {
+    platform:"Platform",
+    campaign:"1. Campaign",
+    adsets: draft?.platform === "tiktok" ? "2. Ad Groups" : "2. Ad Sets",
+    ads:"3. Ads",
+    build:"4. Checklist",
+    logs:"5. Status / Report",
+    overview:"Overview",
+    brief:"Brief",
+    setup:"Setup"
+  }[tab] || tab;
+}
+
+function platformBadgeInline(platform){
+  if(!platform) return "";
+  const p = platform === "tiktok" ? "tiktok" : "meta";
+  return `<span class="platform-card-badge ${p}" style="vertical-align:middle;margin:0 8px 0 0;"><span class="platform-dot"></span>${p === "tiktok" ? "♫ TikTok" : "M Meta"}</span>`;
+}
+
+function setDraftPlatform(platform){
+  if(platform === "tiktok"){
+    draft = {...blankDraft(),...TIKTOK_TEMPLATE};
+    draft.platform = "tiktok";
+    draft.checklist = TIKTOK_CHECKLIST;
+    draft.ad_sets = [{
+      name:"broad_folkpop_FV15_18-44_UK-US-CA-AU-IRL_TT",
+      objective:"Video Views / 15-second focused view",
+      budget:"Uses campaign budget",
+      budget_type:"Campaign Budget",
+      status:"Draft",
+      audience:"Broad folk-pop, singer-songwriter, sad indie, Ed Sheeran-type audience",
+      notes:"Locations: UK, US, CA, AU, IRL. Age 18-44. Gender all. Smart interests on."
+    }];
+    draft.ads = [
+      {name:"native_vid_Armageddon-Blues",format:"Spark / TikTok post",track:"Armageddon Blues",source:"TikTok post",spark_code:"",destination:"",cta:"",status:"Draft",adset_targets:["broad_folkpop_FV15_18-44_UK-US-CA-AU-IRL_TT"],notes:""},
+      {name:"native_vid_Joy-and-Despair_01",format:"Spark / TikTok post",track:"Joy and Despair",source:"TikTok post",spark_code:"",destination:"",cta:"",status:"Draft",adset_targets:["broad_folkpop_FV15_18-44_UK-US-CA-AU-IRL_TT"],notes:""},
+      {name:"native_vid_Joy-and-Despair_02",format:"Spark / TikTok post",track:"Joy and Despair",source:"TikTok post",spark_code:"",destination:"",cta:"",status:"Draft",adset_targets:["broad_folkpop_FV15_18-44_UK-US-CA-AU-IRL_TT"],notes:""}
+    ];
+    draft.ad_names = draft.ads.map(a=>a.name).join("\n");
+    draft.structured_brief = buildTikTokStructuredBrief();
+  }else{
+    draft = {...blankDraft(),platform:"meta"};
+    draft.checklist = DEFAULT_CHECKLIST;
+    draft.ad_sets = [
+      {name:"ca_warm-lal_streaming_18-50_location_ig-fb",objective:"Streaming / View Content",budget:"",budget_type:"Daily Budget",status:"Draft",audience:"Warm custom audiences and lookalikes",notes:"Advantage+ Audience OFF for warm/retargeting."},
+      {name:"int_ra_streaming_18-50_location_ig-fb",objective:"Streaming / View Content",budget:"",budget_type:"Daily Budget",status:"Draft",audience:"Related artist / interest prospecting",notes:"Prospecting audience. Exclude warm pools where required."}
+    ];
+    draft.ads = [];
+  }
+  activeTab = "campaign";
+  renderModal();
+}
+
+function renderBuilderFlowHeader(){
+  const steps = [
+    ["campaign","Campaign"],
+    ["adsets", draft.platform === "tiktok" ? "Ad Groups" : "Ad Sets"],
+    ["ads","Ads"],
+    ["build","Checklist"],
+    ["logs","Status / Report"]
+  ];
+  return `<div class="builder-flow">${steps.map(([key,label],idx)=>`<button class="builder-step ${activeTab===key?"active":""}" data-builder-step="${key}"><span>${idx+1}</span>${label}</button>`).join("")}</div>`;
+}
+
+function wireBuilderFlow(){
+  document.querySelectorAll("[data-builder-step]").forEach(btn=>btn.addEventListener("click",()=>{collectDraft();activeTab=btn.dataset.builderStep;renderModal();}));
+}
+
+function renderCampaignBuilderTab(){
+  collectDraft();
+  const p = draft.platform === "tiktok" ? "tiktok" : "meta";
+  const label = p === "tiktok" ? "TikTok" : "Meta";
+  const adSetTerm = p === "tiktok" ? "ad groups" : "ad sets";
+  const defaultObjective = p === "tiktok" ? "Video Views" : "Engagement / Website / View Content";
+  const defaultGoal = p === "tiktok" ? "15-second views / Focused View" : "View Content / streaming conversion";
+  document.getElementById("modalBody").innerHTML = `
+    <div class="ads-manager-shell">
+      ${renderBuilderFlowHeader()}
+      <section class="ads-page-card">
+        <div class="ads-page-head between">
+          <div><span class="platform-badge">${label} Campaign</span><h3>Campaign details</h3><p class="small">Condensed campaign-level setup, mirroring the first page of ${label} Ads Manager.</p></div>
+          <div class="row"><button class="btn secondary" id="copyCampaignNameBtn">Copy Campaign Name</button><button class="btn" id="nextToAdsetsBtn">Next: ${adSetTerm}</button></div>
+        </div>
+        <input id="b_platform" class="hidden" value="${attr(p)}" />
+        <div class="builder-form-grid">
+          ${builderInput("artistName","Artist",draft.artistName)}
+          ${builderInput("title","Campaign / Track(s)",draft.title)}
+          ${builderInput("campaign_name","Campaign Name",draft.campaign_name || suggestCampaignName())}
+          ${builderInput("acid_code","ACID Code",draft.acid_code)}
+          ${builderSelect("status","Status",draft.status,["New Brief","Needs Info","Ready to Build","In Progress","Awaiting Approval","Live","Reporting","Complete"])}
+          ${builderSelect("priority","Priority",draft.priority,["Urgent","Normal","Low"])}
+          ${builderInput("ad_account","Ad Account",draft.ad_account || (p==="tiktok" ? "Atlantic UK In House CASH" : ""))}
+          ${builderInput("objective","Objective",draft.objective || defaultObjective)}
+          ${builderInput("optimisation_goal","Optimisation / Goal",draft.optimisation_goal || defaultGoal)}
+          ${builderSelect("budget_strategy","Budget Strategy",draft.budget_strategy || "Campaign budget",["Campaign budget","Ad set budget","Ad group budget","Lifetime campaign budget","Daily campaign budget"])}
+          ${builderInput("budget","Budget",draft.budget || (p==="tiktok" ? "£100 lifetime" : ""))}
+          ${builderInput("deadline","Deadline / End Date",draft.deadline)}
+          ${builderInput("campaign_link","Destination / Campaign Link",draft.campaign_link)}
+          ${builderInput("territories","Territories",draft.territories || draft.locations)}
+          ${builderInput("schedule_start","Schedule Start",draft.schedule_start)}
+          ${builderInput("schedule_end","Schedule End",draft.schedule_end)}
+        </div>
+      </section>
+      <section class="ads-page-card compact">
+        <div class="ads-page-head"><h3>Brief outline</h3><p class="small">Keep this tiny: budget, objective, territories and any key instructions.</p></div>
+        <div class="grid-2">
+          ${builderText("structured_brief","Clean Brief Outline",draft.structured_brief)}
+          ${builderText("missing_info","Questions / Missing Info",draft.missing_info)}
+        </div>
+      </section>
+      <div class="row">
+        ${activeCampaignId ? `<span class="autosave-note">Autosaves while you edit</span>` : `<button class="btn" id="saveCampaignBtn">Create ${label} Campaign</button>`}
+        <button class="btn secondary" id="changePlatformBtn">Change Platform</button>
+      </div>
+    </div>`;
+  wireBuilderFlow();
+  document.getElementById("saveCampaignBtn")?.addEventListener("click",saveCampaign);
+  document.getElementById("nextToAdsetsBtn").addEventListener("click",()=>{collectDraft();activeTab="adsets";renderModal();});
+  document.getElementById("changePlatformBtn").addEventListener("click",()=>{activeTab="platform";renderModal();});
+  document.getElementById("copyCampaignNameBtn").addEventListener("click",()=>{collectDraft();navigator.clipboard.writeText(draft.campaign_name || suggestCampaignName()).then(()=>toast("Campaign name copied"));});
+  wireAutosave();
+}
+
+function builderInput(id,label,value){return `<div><label>${esc(label)}</label><input id="b_${id}" value="${attr(value || "")}" /></div>`;}
+function builderText(id,label,value){return `<div><label>${esc(label)}</label><textarea id="b_${id}">${esc(value || "")}</textarea></div>`;}
+function builderSelect(id,label,value,options){return `<div><label>${esc(label)}</label><select id="b_${id}">${options.map(o=>`<option value="${attr(o)}" ${String(value||"")===o?"selected":""}>${esc(o)}</option>`).join("")}</select></div>`;}
+
+function suggestCampaignName(){
+  const artist = (draft.artistName || "artist").replace(/\s+/g,"");
+  const shortArtist = artist ? artist.charAt(0).toLowerCase()+artist.slice(1) : "artist";
+  const song = draft.platform === "tiktok" ? "J&D-AB" : slug(draft.title || "song");
+  const obj = draft.platform === "tiktok" ? "VV" : "streaming";
+  return `${shortArtist}_${obj}_${song}_ACID:${draft.acid_code || "tbc"}`;
+}
+
+function renderAdSetsBuilderTab(){
+  collectDraft();
+  const p = draft.platform === "tiktok" ? "tiktok" : "meta";
+  const term = p === "tiktok" ? "Ad Group" : "Ad Set";
+  const items = activeCampaignId ? getCampaignAdSets(activeCampaignId) : (draft.ad_sets || []);
+  document.getElementById("modalBody").innerHTML = `
+    <div class="ads-manager-shell">
+      ${renderBuilderFlowHeader()}
+      <section class="ads-page-card">
+        <div class="ads-page-head between"><div><span class="platform-badge">${term} level</span><h3>${term}s</h3><p class="small">Create the audience/budget pages before attaching ads. Use the number field to quickly scaffold multiple ${term.toLowerCase()}s.</p></div><div class="row"><input id="adsetCount" style="width:92px" type="number" min="1" max="12" value="3" /><button class="btn secondary" id="generateAdsetsBtn">Generate</button><button class="btn" id="nextToAdsBtn">Next: Ads</button></div></div>
+        <div class="adset-builder-list">
+          ${items.length ? items.map((a,index)=>renderAdSetBuilderRow(a,index,!!activeCampaignId,term)).join("") : `<div class="empty">No ${term.toLowerCase()}s yet. Generate or add one below.</div>`}
+        </div>
+      </section>
+      <section class="ads-page-card compact">
+        <div class="ads-page-head"><h3>Add ${term}</h3></div>
+        <div class="builder-form-grid small-grid">
+          <input id="adset_name" placeholder="${term} name" />
+          <input id="adset_objective" placeholder="Objective / goal" />
+          <input id="adset_budget" placeholder="Budget" />
+          <select id="adset_budget_type"><option>Daily Budget</option><option>Lifetime Budget</option><option>Campaign Budget</option></select>
+          <select id="adset_status"><option>Draft</option><option>Running</option><option>Paused</option><option>Ended</option><option>Needs Review</option></select>
+        </div>
+        <div class="grid-2" style="margin-top:12px;"><textarea id="adset_audience" placeholder="Audience / targeting"></textarea><textarea id="adset_notes" placeholder="Notes"></textarea></div>
+        <button class="btn" id="addAdSetBtn" style="margin-top:12px;">Add ${term}</button>
+      </section>
+    </div>`;
+  wireBuilderFlow();
+  document.getElementById("nextToAdsBtn").addEventListener("click",()=>{collectDraft();activeTab="ads";renderModal();});
+  document.getElementById("generateAdsetsBtn").addEventListener("click",generateBuilderAdSets);
+  document.getElementById("addAdSetBtn").addEventListener("click",()=>activeCampaignId ? addAdSet() : addTempAdSetFromBuilder());
+  document.querySelectorAll("[data-delete-adset]").forEach(btn=>btn.addEventListener("click",()=>deleteAdSet(btn.dataset.deleteAdset)));
+  document.querySelectorAll("[data-adset-status],[data-adset-budget-type],[data-adset-budget],[data-adset-note]").forEach(el=>{
+    const id = el.dataset.adsetStatus || el.dataset.adsetBudgetType || el.dataset.adsetBudget || el.dataset.adsetNote;
+    el.addEventListener("input",()=>scheduleAdSetAutosave(id));
+    el.addEventListener("change",()=>scheduleAdSetAutosave(id));
+  });
+  wireAutosave();
+}
+
+function renderAdSetBuilderRow(a,index,persisted,term){
+  const id = a.id || `draft-${index}`;
+  return `<div class="adset-builder-row" data-draft-adset-row="${index}">
+    <div><label>${term} name</label><input ${persisted?"":"data-draft-adset-field=\"name\""} value="${attr(a.name || "")}" ${persisted?"readonly":""} /></div>
+    <div><label>Objective / goal</label><input ${persisted?"":"data-draft-adset-field=\"objective\""} value="${attr(a.objective || "")}" ${persisted?"readonly":""} /></div>
+    <div><label>Budget</label><input ${persisted?`data-adset-budget="${id}"`:`data-draft-adset-field="budget"`} value="${attr(a.budget || "")}" /></div>
+    <div><label>Budget type</label><select ${persisted?`data-adset-budget-type="${id}"`:`data-draft-adset-field="budget_type"`}>${["Daily Budget","Lifetime Budget","Campaign Budget","Ad group budget","Needs Review"].map(o=>`<option ${String(a.budget_type||"")===o?"selected":""}>${o}</option>`).join("")}</select></div>
+    <div><label>Status</label><select ${persisted?`data-adset-status="${id}"`:`data-draft-adset-field="status"`}>${["Draft","Running","Paused","Ended","Needs Review"].map(o=>`<option ${String(a.status||"Draft")===o?"selected":""}>${o}</option>`).join("")}</select></div>
+    <div class="wide"><label>Audience / targeting</label><textarea ${persisted?"readonly":"data-draft-adset-field=\"audience\""}>${esc(a.audience || "")}</textarea></div>
+    <div class="wide"><label>Notes</label><textarea ${persisted?`data-adset-note="${id}"`:`data-draft-adset-field="notes"`}>${esc(a.notes || "")}</textarea></div>
+    ${persisted ? `<button class="btn danger" data-delete-adset="${id}" type="button">Delete</button>` : `<button class="btn danger" data-remove-draft-adset="${index}" type="button">Remove</button>`}
+  </div>`;
+}
+
+function addTempAdSetFromBuilder(){
+  const name = val("adset_name");
+  if(!name){toast("Add ad set name.",true);return;}
+  draft.ad_sets = draft.ad_sets || [];
+  draft.ad_sets.push({name,objective:val("adset_objective"),budget:val("adset_budget"),budget_type:val("adset_budget_type")||"Daily Budget",status:val("adset_status")||"Draft",audience:val("adset_audience"),notes:val("adset_notes")});
+  renderModal();
+}
+
+async function generateBuilderAdSets(){
+  collectDraft();
+  const count = Math.max(1,Math.min(12,parseInt(val("adsetCount") || "1",10)));
+  const p = draft.platform === "tiktok" ? "tiktok" : "meta";
+  const generated = Array.from({length:count},(_,i)=>{
+    if(p === "tiktok") return {name:i===0 ? "broad_folkpop_FV15_18-44_UK-US-CA-AU-IRL_TT" : `broad_folkpop-${i+1}_FV15_18-44_UK-US-CA-AU-IRL_TT`,objective:"Video Views / 15-second focused view",budget:"Uses campaign budget",budget_type:"Campaign Budget",status:"Draft",audience:"Broad folk-pop / singer-songwriter / sad indie",notes:"Edit targeting before launch."};
+    return {name:i===0 ? "ca_warm-lal_streaming_18-50_location_ig-fb" : i===1 ? "int_ra_streaming_18-50_location_ig-fb" : `broad_streaming_18-50_location_ig-fb-${i+1}`,objective:"Streaming / View Content",budget:"",budget_type:"Daily Budget",status:"Draft",audience:i===0?"Warm + lookalike":"Related artist / interest / broad prospecting",notes:"Edit targeting before launch."};
+  });
+  if(activeCampaignId){
+    const {error} = await sb.from("ad_sets").insert(generated.map((a,index)=>({...a,campaign_id:activeCampaignId,position:index})));
+    if(error){toast(error.message,true);return;}
+    await loadData();
+    draft = campaignToDraft(campaigns.find(c=>c.id===activeCampaignId));
+  }else{
+    draft.ad_sets = generated;
+  }
+  renderModal();
+}
+
+function renderAdsBuilderTab(){
+  collectDraft();
+  const p = draft.platform === "tiktok" ? "tiktok" : "meta";
+  const term = p === "tiktok" ? "ad groups" : "ad sets";
+  const adsets = activeCampaignId ? getCampaignAdSets(activeCampaignId) : (draft.ad_sets || []);
+  draft.ads = Array.isArray(draft.ads) ? draft.ads : [];
+  document.getElementById("modalBody").innerHTML = `
+    <div class="ads-manager-shell">
+      ${renderBuilderFlowHeader()}
+      <section class="ads-page-card">
+        <div class="ads-page-head between"><div><span class="platform-badge">Ad level</span><h3>Ads / creative assets</h3><p class="small">Add as many videos/assets as needed, then choose which ${term} each ad sits in.</p></div><div class="row"><button class="btn secondary" id="addAdAssetBtn">+ Add ad asset</button><button class="btn" id="nextToChecklistBtn">Next: Checklist</button></div></div>
+        <div class="ads-builder-list">
+          ${draft.ads.length ? draft.ads.map((ad,index)=>renderAdAssetRow(ad,index,adsets,p)).join("") : `<div class="empty">No ads yet. Add a video/Spark/native asset.</div>`}
+        </div>
+      </section>
+      <section class="ads-page-card compact">
+        <div class="ads-page-head"><h3>Asset mapping idea</h3><p class="small">Example: Video 1 can sit in ad sets 1 + 2, Video 3 can sit only in ad set 3, or every video can sit in every ad set.</p></div>
+        <button class="btn secondary" id="putAllAdsEverywhereBtn">Put every ad in every ${term.slice(0,-1)}</button>
+      </section>
+    </div>`;
+  wireBuilderFlow();
+  document.getElementById("addAdAssetBtn").addEventListener("click",()=>{collectDraft();draft.ads.push(defaultAdAsset(p,draft.ads.length));renderModal();});
+  document.getElementById("nextToChecklistBtn").addEventListener("click",()=>{collectDraft();activeTab="build";renderModal();});
+  document.getElementById("putAllAdsEverywhereBtn").addEventListener("click",()=>{draft.ads.forEach(ad=>ad.adset_targets=adsets.map(a=>a.name));renderModal();});
+  document.querySelectorAll("[data-remove-ad-row]").forEach(btn=>btn.addEventListener("click",()=>{collectDraft();draft.ads.splice(Number(btn.dataset.removeAdRow),1);renderModal();}));
+  wireAutosave();
+}
+
+function defaultAdAsset(platform,index){
+  return {name:platform==="tiktok"?`native_vid_asset-${index+1}`:`reel_native_asset-${index+1}`,format:platform==="tiktok"?"Spark / TikTok post":"Reel / Existing post",track:"",source:"",spark_code:"",destination:"",cta:platform==="tiktok"?"":"Listen Now",status:"Draft",adset_targets:[],notes:""};
+}
+
+function renderAdAssetRow(ad,index,adsets,platform){
+  const targetSet = new Set(Array.isArray(ad.adset_targets)?ad.adset_targets:[]);
+  return `<div class="ad-asset-row" data-ad-row="${index}">
+    <div class="ad-asset-head between"><strong>Ad ${index+1}</strong><button class="btn danger" data-remove-ad-row="${index}" type="button">Remove</button></div>
+    <div class="builder-form-grid small-grid">
+      <div><label>Ad name</label><input data-ad-field="name" value="${attr(ad.name || "")}" /></div>
+      <div><label>Format</label><input data-ad-field="format" value="${attr(ad.format || "")}" /></div>
+      <div><label>Track / video</label><input data-ad-field="track" value="${attr(ad.track || "")}" /></div>
+      <div><label>Source / post URL</label><input data-ad-field="source" value="${attr(ad.source || "")}" /></div>
+      <div><label>${platform==="tiktok"?"Spark code":"Post ID / Asset"}</label><input data-ad-field="spark_code" value="${attr(ad.spark_code || "")}" /></div>
+      <div><label>CTA</label><input data-ad-field="cta" value="${attr(ad.cta || "")}" /></div>
+      <div><label>Destination</label><input data-ad-field="destination" value="${attr(ad.destination || "")}" /></div>
+      <div><label>Status</label><select data-ad-field="status">${["Draft","Ready","Needs Review","Live","Paused"].map(o=>`<option ${String(ad.status||"Draft")===o?"selected":""}>${o}</option>`).join("")}</select></div>
+    </div>
+    <div class="adset-checkbox-panel"><label>Place this ad in:</label><div class="adset-checkbox-grid">${adsets.length ? adsets.map((a,i)=>`<label class="mini-check"><input type="checkbox" data-ad-target="${attr(a.name)}" ${targetSet.has(a.name)?"checked":""}> <span>${esc(a.name || `Ad Set ${i+1}`)}</span></label>`).join("") : `<span class="small">Create ad sets/ad groups first.</span>`}</div></div>
+    <textarea data-ad-field="notes" placeholder="Notes / captions / variant detail">${esc(ad.notes || "")}</textarea>
+  </div>`;
+}
+
+function collectDraft(){
+  if(!draft) return draft;
+  // Old edit fields, kept for compatibility.
+  if(document.getElementById("m_artistName")){
+    draft.artistName = val("m_artistName"); draft.title = val("m_title"); draft.status = val("m_status"); draft.priority = val("m_priority"); draft.deadline = val("m_deadline"); draft.budget = val("m_budget"); draft.objective = val("m_objective"); draft.campaign_link = val("m_campaignLink"); draft.territories = val("m_territories"); draft.raw_brief = val("m_rawBrief"); draft.structured_brief = val("m_structuredBrief"); draft.missing_info = val("m_missingInfo");
+  }
+  // New builder campaign fields.
+  if(document.getElementById("b_platform")) draft.platform = val("b_platform") || draft.platform;
+  ["artistName","title","campaign_name","acid_code","status","priority","ad_account","objective","optimisation_goal","budget_strategy","budget","deadline","campaign_link","territories","schedule_start","schedule_end","structured_brief","missing_info"].forEach(key=>{
+    const el = document.getElementById(`b_${key}`); if(el) draft[key] = el.value.trim();
+  });
+  // TikTok legacy fields if present.
+  if(document.getElementById("t_platformMarker")){
+    draft.platform = "tiktok";
+    ["artistName","title","campaign_name","acid_code","ad_account","budget","status","priority","budget_strategy","optimisation_goal","bid_control","frequency_cap","schedule_start","schedule_end","locations","age_range","gender","languages","detailed_targeting","spark_codes","ad_names","tracking_notes","smart_interests","automatic_enhancements"].forEach(key=>{const el=document.getElementById(`t_${key}`); if(el) draft[key]=el.value.trim();});
+  }
+  // Draft ad sets before DB save.
+  const draftRows = Array.from(document.querySelectorAll("[data-draft-adset-row]"));
+  if(draftRows.length){
+    draft.ad_sets = draftRows.map(row=>{
+      const get = field => row.querySelector(`[data-draft-adset-field="${field}"]`)?.value?.trim() || "";
+      return {name:get("name"),objective:get("objective"),budget:get("budget"),budget_type:get("budget_type")||"Daily Budget",status:get("status")||"Draft",audience:get("audience"),notes:get("notes")};
+    }).filter(a=>a.name || a.objective || a.audience);
+  }
+  // Creative/ad rows stored in platform_data.
+  const adRows = Array.from(document.querySelectorAll("[data-ad-row]"));
+  if(adRows.length){
+    draft.ads = adRows.map(row=>{
+      const get = field => row.querySelector(`[data-ad-field="${field}"]`)?.value?.trim() || "";
+      const targets = Array.from(row.querySelectorAll("[data-ad-target]:checked")).map(cb=>cb.dataset.adTarget);
+      return {name:get("name"),format:get("format"),track:get("track"),source:get("source"),spark_code:get("spark_code"),destination:get("destination"),cta:get("cta"),status:get("status")||"Draft",adset_targets:targets,notes:get("notes")};
+    });
+    draft.ad_names = draft.ads.map(a=>a.name).filter(Boolean).join("\n");
+    draft.spark_codes = draft.ads.map(a=>a.spark_code).filter(Boolean).join("\n");
+  }
+  if(document.getElementById("m_report")) draft.report = val("m_report");
+  return draft;
+}
+
+function getDraftPlatformData(d=draft){
+  return {
+    platform:d.platform || "meta",
+    ad_account:d.ad_account || "",
+    campaign_name:d.campaign_name || "",
+    acid_code:d.acid_code || "",
+    budget_strategy:d.budget_strategy || "",
+    optimisation_goal:d.optimisation_goal || "",
+    bid_control:d.bid_control || "",
+    frequency_cap:d.frequency_cap || "",
+    schedule_start:d.schedule_start || "",
+    schedule_end:d.schedule_end || "",
+    locations:d.locations || d.territories || "",
+    age_range:d.age_range || "",
+    gender:d.gender || "",
+    languages:d.languages || "",
+    detailed_targeting:d.detailed_targeting || "",
+    smart_interests:d.smart_interests || "",
+    spark_codes:d.spark_codes || "",
+    ad_names:d.ad_names || "",
+    automatic_enhancements:d.automatic_enhancements || "",
+    tracking_notes:d.tracking_notes || "",
+    ads:Array.isArray(d.ads) ? d.ads : []
+  };
+}
+
+// Override build checklist wrapper to add the simpler Ads Manager frame around the existing checklist.
+const __jdwOriginalRenderBuildTab = renderBuildTab;
+function renderBuildTab(){
+  __jdwOriginalRenderBuildTab();
+  const body = document.getElementById("modalBody");
+  if(body && !body.querySelector(".builder-flow")){
+    body.innerHTML = `<div class="ads-manager-shell">${renderBuilderFlowHeader()}${body.innerHTML}</div>`;
+    wireBuilderFlow();
+  }
+}
+
+// Make the report page feel like the final status page in the build flow.
+const __jdwOriginalRenderLogsTab = renderLogsTab;
+function renderLogsTab(){
+  __jdwOriginalRenderLogsTab();
+  const body = document.getElementById("modalBody");
+  if(body && !body.querySelector(".builder-flow")){
+    body.innerHTML = `<div class="ads-manager-shell">${renderBuilderFlowHeader()}${body.innerHTML}</div>`;
+    wireBuilderFlow();
+  }
+}
+
+
+</script>
 
   <script>
     window.parseBriefWithWebLLM = async function(){
