@@ -784,6 +784,37 @@
     .safe-adset-row input,.safe-adset-row textarea,.safe-adset-row select{padding:8px 9px;border-radius:10px;font-size:12px;min-height:38px}
     .safe-adset-row textarea{min-height:38px}
 
+
+    .platform-choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+    .platform-card{
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));
+      padding:20px;
+      display:grid;
+      gap:12px;
+      min-height:230px;
+      transition:.16s;
+    }
+    .platform-card:hover{transform:translateY(-2px);border-color:rgba(var(--accent-rgb),.32);background:rgba(255,255,255,.07)}
+    .platform-icon{width:46px;height:46px;border-radius:16px;display:grid;place-items:center;font-size:20px;background:rgba(var(--accent-rgb),.10);border:1px solid rgba(var(--accent-rgb),.22)}
+    .platform-card h3{margin:0;font-size:22px;letter-spacing:-.045em}
+    .platform-card p{margin:0;color:var(--muted);font-size:13px;line-height:1.45}
+    .platform-points{display:grid;gap:7px;margin:4px 0 0;padding:0;list-style:none;color:var(--muted);font-size:12px;line-height:1.35}
+    .platform-points li:before{content:"•";color:var(--accent);font-weight:950;margin-right:7px}
+    .platform-badge{display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(var(--accent-rgb),.24);background:rgba(var(--accent-rgb),.08);color:var(--accent);border-radius:999px;padding:6px 9px;font-size:11px;font-weight:950}
+    .copy-pill{border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.045);color:var(--muted);padding:6px 9px;font-size:11px;font-weight:950}
+    .copy-pill:hover{color:var(--accent);border-color:rgba(var(--accent-rgb),.25);background:rgba(var(--accent-rgb),.08)}
+    .tiktok-table-wrap{overflow:auto}
+    .tiktok-table{width:100%;border-collapse:separate;border-spacing:0 7px;font-size:12px;min-width:900px}
+    .tiktok-table th{color:var(--muted2);text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;padding:0 8px 2px;font-weight:950;white-space:nowrap}
+    .tiktok-table td{background:rgba(0,0,0,.17);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 8px;vertical-align:middle}
+    .tiktok-table td:first-child{border-left:1px solid var(--line);border-radius:13px 0 0 13px;font-weight:900;color:var(--text)}
+    .tiktok-table td:last-child{border-right:1px solid var(--line);border-radius:0 13px 13px 0}
+    .platform-fields{display:grid;grid-template-columns:repeat(3,minmax(180px,1fr));gap:12px}
+    .platform-fields textarea{min-height:74px}
+
+
     @media(max-width:1100px){
       .brief-meta-row,.snapshot-grid{grid-template-columns:repeat(2,1fr)}
       .timeline-track{grid-template-columns:repeat(6,150px)}
@@ -798,6 +829,7 @@
       .toolbar{align-items:flex-start;flex-direction:column}
       .search{max-width:none}
       .stack-card{grid-template-columns:1fr}
+      .platform-choice-grid,.platform-fields{grid-template-columns:1fr}
     }
   </style>
 </head>
@@ -922,6 +954,63 @@
       "Final review: preview both ad sets, confirm Warm vs Prospecting difference, send campaign link/setup summary for approval before launch"
     ];
     window.DEFAULT_CHECKLIST = DEFAULT_CHECKLIST;
+    const TIKTOK_CHECKLIST = [
+      "Confirm correct TikTok Business Center login and 2FA access",
+      "Open Ads Manager and choose Atlantic UK In House CASH",
+      "Confirm campaign objective is Video Views",
+      "Set optimisation goal to 15-second focused view",
+      "Confirm campaign budget is £100 lifetime",
+      "Confirm campaign name follows JDW naming convention",
+      "Confirm ad group targeting: UK, US, CA, AU, IRL / 18-44 / all genders",
+      "Add detailed targeting around broad folk-pop, singer-songwriter and sad indie",
+      "Keep Smart Interests & Behaviours on unless explicitly told otherwise",
+      "Add Spark/TikTok posts using boost codes or authorised post library",
+      "Confirm ad names follow JDW ad naming convention",
+      "Check bid control and frequency cap",
+      "Confirm automatic enhancements are not changing Spark/native creative",
+      "Preview ads before publishing",
+      "Send summary to James/JD before launch if approval is required"
+    ];
+    window.TIKTOK_CHECKLIST = TIKTOK_CHECKLIST;
+
+    const TIKTOK_TEMPLATE = {
+      platform:"tiktok",
+      artistName:"Charlie Noordewier",
+      title:"Joy and Despair + Armageddon Blues",
+      status:"Ready to Build",
+      priority:"Normal",
+      budget:"£100 lifetime",
+      objective:"Video Views. Optimisation goal: 15-second views / Focused View.",
+      territories:"Australia, Canada, Ireland, United Kingdom, United States",
+      ad_account:"Atlantic UK In House CASH",
+      campaign_name:"charlieN_VV_J&D-AB_ACID:39RLOA",
+      acid_code:"39RLOA",
+      budget_strategy:"Campaign budget",
+      optimisation_goal:"15-second views / Focused View",
+      bid_control:"£0.25 GBP/view",
+      frequency_cap:"No custom frequency cap",
+      schedule_start:"",
+      schedule_end:"",
+      locations:"UK, US, CA, AU, IRL",
+      age_range:"18-44",
+      gender:"All",
+      languages:"All / English content",
+      detailed_targeting:"Broad folk-pop, singer-songwriter, sad indie, Ed Sheeran-type audience",
+      smart_interests:"On",
+      spark_codes:`Armageddon Blues: #VlYXpCxrTp/s0u8kxNZaYxcjnRMxNvg//3mZez+MGj6c7JSmTPsngtogLI1PMl8=\nJoy and Despair: #f8yKiig6nJRp/WbJVY+mvfveEJdZSCb6t0oSoOTRor4KJD1CMngL6J2b/dULEl8=`,
+      ad_names:`native_vid_Armageddon-Blues\nnative_vid_Joy-and-Despair_01\nnative_vid_Joy-and-Despair_02`,
+      automatic_enhancements:"Off: Video quality, Music refresh",
+      tracking_notes:"Optional TikTok events tracking / third-party integrations. No website destination required for Video Views unless a URL is added.",
+      ad_sets:[{
+        name:"broad_folkpop_FV15_18-44_UK-US-CA-AU-IRL_TT",
+        objective:"FV15 / 15-second focused view",
+        budget:"Uses campaign budget",
+        budget_type:"Lifetime Budget",
+        status:"Needs Review",
+        audience:"Broad / interest: folk-pop, singer-songwriter, Ed Sheeran-type, sad indie",
+        notes:"Locations: UK, US, CA, AU, IRL. Age: 18-44. Gender: All. Smart Interests & Behaviours: On. Bid: £0.25/view. Frequency cap: none."
+      }]
+    };
     let sb;
     let user = null;
     let artists = [];
@@ -1424,6 +1513,7 @@
 
     function blankDraft(){
       return {
+        platform:"",
         artistName:activeArtistId==="all" ? "" : getArtistName(activeArtistId),
         title:"",
         status:"New Brief",
@@ -1438,12 +1528,34 @@
         missing_info:"",
         report:"",
         ad_sets:[],
-        checklist:DEFAULT_CHECKLIST
+        checklist:DEFAULT_CHECKLIST,
+        ad_account:"",
+        campaign_name:"",
+        acid_code:"",
+        budget_strategy:"",
+        optimisation_goal:"",
+        bid_control:"",
+        frequency_cap:"",
+        schedule_start:"",
+        schedule_end:"",
+        locations:"",
+        age_range:"",
+        gender:"",
+        languages:"",
+        detailed_targeting:"",
+        smart_interests:"",
+        spark_codes:"",
+        ad_names:"",
+        automatic_enhancements:"",
+        tracking_notes:""
       };
     }
 
     function campaignToDraft(c){
+      const extra = parsePlatformFields(c.structured_brief || "", c.objective || "");
       return {
+        ...blankDraft(),
+        ...extra,
         id:c.id,
         artistName:getArtistName(c.artist_id),
         title:c.title || "",
@@ -1464,10 +1576,11 @@
 
     function openCampaignModal(id,prefill=null){
       activeCampaignId = id;
-      activeTab = "overview";
+      activeTab = id || prefill?.platform ? "overview" : "platform";
       briefEditMode = false;
       briefNotesTab = "clean";
       draft = prefill || (id ? campaignToDraft(campaigns.find(c=>c.id===id)) : blankDraft());
+      if(!draft.platform && id) draft.platform = inferPlatformFromDraft(draft);
       renderModal();
     }
 
@@ -1489,11 +1602,11 @@
               </div>
             </div>
 
-            <div class="tabs">
+            ${activeTab === "platform" ? "" : `<div class="tabs">
               ${["overview","brief","setup","build","logs"].map(t=>`
                 <button class="tab ${activeTab===t?"active":""}" data-tab="${t}">${tabName(t)}</button>
               `).join("")}
-            </div>
+            </div>`}
 
             <div class="modal-body" id="modalBody"></div>
           </div>
@@ -1519,11 +1632,339 @@
     }
 
     function renderModalBody(){
+      if(activeTab==="platform") renderPlatformChoiceTab();
       if(activeTab==="overview") renderOverviewTab();
-      if(activeTab==="brief") renderBriefTab();
-      if(activeTab==="setup") renderSetupTab();
+      if(activeTab==="brief") draft.platform === "tiktok" ? renderTikTokBriefTab() : renderBriefTab();
+      if(activeTab==="setup") draft.platform === "tiktok" ? renderTikTokSetupTab() : renderSetupTab();
       if(activeTab==="build") renderBuildTab();
       if(activeTab==="logs") renderLogsTab();
+    }
+
+
+    function inferPlatformFromDraft(d){
+      const blob = [d.structured_brief,d.objective,d.title,d.raw_brief].join(" ").toLowerCase();
+      return blob.includes("tiktok") || blob.includes("spark") || blob.includes("focused view") || blob.includes("fv15") ? "tiktok" : "meta";
+    }
+
+    function parsePlatformFields(structured,objective){
+      const text = String(structured || "");
+      const out = {};
+      const marker = text.match(/JDW_PLATFORM_DATA\s*:\s*({[\s\S]*?})\s*$/i);
+      if(marker){
+        try{return JSON.parse(marker[1]);}catch(e){}
+      }
+      const blob = `${structured} ${objective}`.toLowerCase();
+      if(blob.includes("tiktok") || blob.includes("spark") || blob.includes("focused view") || blob.includes("fv15")) out.platform = "tiktok";
+      return out;
+    }
+
+    function platformDataBlock(){
+      const data = {
+        platform:draft.platform || "meta",
+        ad_account:draft.ad_account || "",
+        campaign_name:draft.campaign_name || "",
+        acid_code:draft.acid_code || "",
+        budget_strategy:draft.budget_strategy || "",
+        optimisation_goal:draft.optimisation_goal || "",
+        bid_control:draft.bid_control || "",
+        frequency_cap:draft.frequency_cap || "",
+        schedule_start:draft.schedule_start || "",
+        schedule_end:draft.schedule_end || "",
+        locations:draft.locations || "",
+        age_range:draft.age_range || "",
+        gender:draft.gender || "",
+        languages:draft.languages || "",
+        detailed_targeting:draft.detailed_targeting || "",
+        smart_interests:draft.smart_interests || "",
+        spark_codes:draft.spark_codes || "",
+        ad_names:draft.ad_names || "",
+        automatic_enhancements:draft.automatic_enhancements || "",
+        tracking_notes:draft.tracking_notes || ""
+      };
+      return `\n\nJDW_PLATFORM_DATA:${JSON.stringify(data)}`;
+    }
+
+    function setDraftPlatform(platform){
+      if(platform === "tiktok"){
+        draft = {...blankDraft(),...TIKTOK_TEMPLATE};
+        draft.structured_brief = buildTikTokStructuredBrief();
+        draft.checklist = TIKTOK_CHECKLIST;
+      }else{
+        draft = {...blankDraft(),platform:"meta"};
+        draft.checklist = DEFAULT_CHECKLIST;
+      }
+      activeTab = "overview";
+      renderModal();
+    }
+
+    function renderPlatformChoiceTab(){
+      document.getElementById("modalBody").innerHTML = `
+        <div class="panel stack">
+          <div class="between">
+            <div>
+              <h3 style="font-size:24px;letter-spacing:-.05em;margin-bottom:6px;">Choose Campaign Type</h3>
+              <p class="small" style="margin:0;">Build a platform-specific paid media setup using JDW naming, checklist and launch fields.</p>
+            </div>
+            <span class="platform-badge">Platform setup</span>
+          </div>
+
+          <div class="platform-choice-grid">
+            <article class="platform-card">
+              <div class="platform-icon">M</div>
+              <div>
+                <h3>Meta Ad Campaign</h3>
+                <p>For Meta / Instagram / Facebook builds with objective, pixel, event, placements, ad sets, ads and naming convention.</p>
+              </div>
+              <ul class="platform-points">
+                <li>Meta campaign / ad set / ad structure</li>
+                <li>Warm, LAL, interest and related artist workflows</li>
+                <li>Existing JDW Meta checklist and naming key</li>
+              </ul>
+              <button class="btn" id="chooseMetaBtn" type="button">Build Meta Campaign</button>
+            </article>
+
+            <article class="platform-card">
+              <div class="platform-icon">♫</div>
+              <div>
+                <h3>TikTok Ad Campaign</h3>
+                <p>For TikTok Ads Manager / Spark Ads builds with focused views, Spark codes, bid, frequency cap, targeting and ad names.</p>
+              </div>
+              <ul class="platform-points">
+                <li>Video Views / 15-second focused view</li>
+                <li>Spark code and authorised post table</li>
+                <li>TikTok ad group, bid and targeting snapshot</li>
+              </ul>
+              <button class="btn" id="chooseTikTokBtn" type="button">Build TikTok Campaign</button>
+            </article>
+          </div>
+        </div>
+      `;
+      document.getElementById("chooseMetaBtn").addEventListener("click",()=>setDraftPlatform("meta"));
+      document.getElementById("chooseTikTokBtn").addEventListener("click",()=>setDraftPlatform("tiktok"));
+    }
+
+    function collectTikTokDraftFields(){
+      const fields = ["ad_account","campaign_name","acid_code","budget_strategy","optimisation_goal","bid_control","frequency_cap","schedule_start","schedule_end","locations","age_range","gender","languages","detailed_targeting","smart_interests","spark_codes","ad_names","automatic_enhancements","tracking_notes"];
+      draft.platform = "tiktok";
+      fields.forEach(key=>{
+        const el = document.getElementById("t_"+key);
+        if(el) draft[key] = el.value.trim();
+      });
+      draft.artistName = val("t_artistName") || draft.artistName;
+      draft.title = val("t_title") || draft.title;
+      draft.status = val("t_status") || draft.status;
+      draft.priority = val("t_priority") || draft.priority;
+      draft.budget = val("t_budget") || draft.budget;
+      draft.objective = `Video Views. Optimisation goal: ${draft.optimisation_goal || "15-second views / Focused View"}.`;
+      draft.territories = draft.locations || draft.territories;
+      draft.structured_brief = buildTikTokStructuredBrief();
+      draft.ad_sets = [{
+        name:"broad_folkpop_FV15_18-44_UK-US-CA-AU-IRL_TT",
+        objective:draft.optimisation_goal || "FV15 / 15-second focused view",
+        budget:"Uses campaign budget",
+        budget_type:"Lifetime Budget",
+        status:"Needs Review",
+        audience:draft.detailed_targeting || "Broad folk-pop / singer-songwriter",
+        notes:`Locations: ${draft.locations || "TBC"}. Age: ${draft.age_range || "TBC"}. Gender: ${draft.gender || "TBC"}. Smart Interests: ${draft.smart_interests || "TBC"}. Bid: ${draft.bid_control || "TBC"}. Frequency cap: ${draft.frequency_cap || "TBC"}.`
+      }];
+    }
+
+    function buildTikTokStructuredBrief(){
+      return [
+        "Platform: TikTok",
+        `Account: ${draft.ad_account || "Atlantic UK In House CASH"}`,
+        `Campaign name: ${draft.campaign_name || "TBC"}`,
+        `ACID: ${draft.acid_code || "TBC"}`,
+        `Objective: Video Views`,
+        `Optimisation goal: ${draft.optimisation_goal || "15-second views / Focused View"}`,
+        `Budget strategy: ${draft.budget_strategy || "Campaign budget"}`,
+        `Budget: ${draft.budget || "£100 lifetime"}`,
+        `Locations: ${draft.locations || draft.territories || "TBC"}`,
+        `Age: ${draft.age_range || "TBC"}`,
+        `Gender: ${draft.gender || "TBC"}`,
+        `Detailed targeting: ${draft.detailed_targeting || "TBC"}`,
+        `Smart Interests & Behaviours: ${draft.smart_interests || "TBC"}`,
+        `Bid control: ${draft.bid_control || "TBC"}`,
+        `Frequency cap: ${draft.frequency_cap || "TBC"}`,
+        `Spark codes:\n${draft.spark_codes || "TBC"}`,
+        `Ad names:\n${draft.ad_names || "TBC"}`,
+        `Automatic enhancements: ${draft.automatic_enhancements || "TBC"}`,
+        `Tracking notes: ${draft.tracking_notes || "TBC"}`
+      ].join("\n\n") + platformDataBlock();
+    }
+
+    function tiktokSnapshot(label,value){
+      return `<div class="snapshot-item"><span>${esc(label)}</span><strong title="${attr(value || "")}">${esc(value || "TBC")}</strong></div>`;
+    }
+
+    function tiktokAdRows(){
+      const names = String(draft.ad_names || "").split(/\n|,/).map(x=>x.trim()).filter(Boolean);
+      const codes = String(draft.spark_codes || "").split(/\n/).map(x=>x.trim()).filter(Boolean);
+      return (names.length ? names : ["native_vid_Armageddon-Blues","native_vid_Joy-and-Despair_01","native_vid_Joy-and-Despair_02"]).map((name,index)=>{
+        const track = /armageddon/i.test(name) ? "Armageddon Blues" : /joy|j&d|despair/i.test(name) ? "Joy and Despair" : "TBC";
+        const code = codes.find(c=>track !== "TBC" && c.toLowerCase().includes(track.split(" ")[0].toLowerCase())) || codes[index] || "TBC";
+        return {name,track,code};
+      });
+    }
+
+    function renderTikTokBriefTab(){
+      collectDraft();
+      document.getElementById("modalBody").innerHTML = `
+        <div class="brief-command">
+          <section class="brief-header-card">
+            <div class="brief-title-row">
+              <div>
+                <span class="platform-badge">TikTok</span>
+                <h3 style="margin-top:10px;">${esc(draft.artistName || "Artist")} — ${esc(draft.title || "Campaign")}</h3>
+                <p class="small" style="margin:6px 0 0;">TikTok Ads Manager style build board · Video Views / Spark workflow.</p>
+              </div>
+              <div class="row">
+                <button class="btn secondary" id="editTikTokSetupBtn">Edit TikTok Setup</button>
+                <button class="btn secondary" id="copyTikTokSummaryBtn">Copy TikTok Build Summary</button>
+              </div>
+            </div>
+            <div class="brief-meta-row">
+              <div class="brief-meta"><span>Campaign</span><strong>${esc(draft.campaign_name || "TBC")}</strong></div>
+              <div class="brief-meta"><span>Objective</span><strong>Video Views</strong></div>
+              <div class="brief-meta"><span>Budget</span><strong>${esc(draft.budget || "TBC")}</strong></div>
+              <div class="brief-meta"><span>Account</span><strong>${esc(draft.ad_account || "TBC")}</strong></div>
+              <div class="brief-meta"><span>Status</span><strong>${statusPill(draft.status)}</strong></div>
+              <div class="brief-meta"><span>ACID</span><strong>${draft.acid_code ? esc(draft.acid_code) : `<span class="pill orange">Missing</span>`}</strong></div>
+            </div>
+          </section>
+
+          <section class="brief-card">
+            <div class="brief-card-head"><h3>TikTok Build Snapshot</h3><span class="pill accent">Focused View</span></div>
+            <div class="snapshot-grid">
+              ${tiktokSnapshot("Objective","Video Views")}
+              ${tiktokSnapshot("Goal",draft.optimisation_goal)}
+              ${tiktokSnapshot("Budget Strategy",draft.budget_strategy)}
+              ${tiktokSnapshot("Budget",draft.budget)}
+              ${tiktokSnapshot("Account",draft.ad_account)}
+              ${tiktokSnapshot("Schedule",[draft.schedule_start,draft.schedule_end].filter(Boolean).join(" → ") || "TBC")}
+              ${tiktokSnapshot("Bid Control",draft.bid_control)}
+              ${tiktokSnapshot("Frequency Cap",draft.frequency_cap)}
+            </div>
+          </section>
+
+          <section class="brief-card">
+            <div class="brief-card-head"><h3>Ad Group / Targeting Table</h3><button class="copy-pill" data-copy-text="${attr(draft.ad_sets?.[0]?.name || "")}">Copy ad group name</button></div>
+            <div class="tiktok-table-wrap"><table class="tiktok-table">
+              <thead><tr><th>Ad group name</th><th>Audience type</th><th>Goal</th><th>Age</th><th>Locations</th><th>Interests</th><th>Budget source</th><th>Bid</th><th>Frequency cap</th></tr></thead>
+              <tbody><tr>
+                <td>${esc(draft.ad_sets?.[0]?.name || "broad_folkpop_FV15_18-44_UK-US-CA-AU-IRL_TT")}</td>
+                <td>Broad / interest</td>
+                <td>FV15</td>
+                <td>${esc(draft.age_range || "18-44")}</td>
+                <td>${esc(draft.locations || "UK, US, CA, AU, IRL")}</td>
+                <td>${esc(draft.detailed_targeting || "folk-pop, singer-songwriter, sad indie")}</td>
+                <td>${esc(draft.budget_strategy || "Campaign budget")}</td>
+                <td>${esc(draft.bid_control || "TBC")}</td>
+                <td>${esc(draft.frequency_cap || "TBC")}</td>
+              </tr></tbody>
+            </table></div>
+          </section>
+
+          <section class="brief-card">
+            <div class="brief-card-head"><h3>TikTok Ads / Spark Table</h3><button class="copy-pill" id="copyAdNamesBtn">Copy ad names</button></div>
+            <div class="tiktok-table-wrap"><table class="tiktok-table">
+              <thead><tr><th>Ad name</th><th>Format</th><th>Source</th><th>Track / video</th><th>Spark code</th><th>CTA</th><th>Destination</th><th>Status</th></tr></thead>
+              <tbody>${tiktokAdRows().map(row=>`<tr><td>${esc(row.name)}</td><td>Spark / TikTok post</td><td>Authorised post</td><td>${esc(row.track)}</td><td>${esc(row.code)}</td><td>None / N/A</td><td>Video views only</td><td>${statusPill("Draft")}</td></tr>`).join("")}</tbody>
+            </table></div>
+          </section>
+
+          <div class="grid-2">
+            <section class="brief-card"><div class="brief-card-head"><h3>Automatic Enhancements</h3></div><div class="brief-note-box">${esc(draft.automatic_enhancements || "TBC")}</div></section>
+            <section class="brief-card"><div class="brief-card-head"><h3>Tracking / Notes</h3></div><div class="brief-note-box">${esc(draft.tracking_notes || "TBC")}</div></section>
+          </div>
+        </div>
+      `;
+      document.getElementById("editTikTokSetupBtn").addEventListener("click",()=>{activeTab="setup";renderModal();});
+      document.getElementById("copyTikTokSummaryBtn").addEventListener("click",copyTikTokBuildSummary);
+      document.getElementById("copyAdNamesBtn").addEventListener("click",()=>navigator.clipboard.writeText(draft.ad_names || "").then(()=>toast("Ad names copied")));
+      document.querySelectorAll("[data-copy-text]").forEach(btn=>btn.addEventListener("click",()=>navigator.clipboard.writeText(btn.dataset.copyText).then(()=>toast("Copied"))));
+    }
+
+    function renderTikTokSetupTab(){
+      collectDraft();
+      const field = (id,label,value,type="input") => `<div><label>${label}</label>${type === "textarea" ? `<textarea id="t_${id}">${esc(value || "")}</textarea>` : `<input id="t_${id}" value="${attr(value || "")}" />`}</div>`;
+      document.getElementById("modalBody").innerHTML = `
+        <div class="stack">
+          <input id="t_platformMarker" class="hidden" value="tiktok" />
+          <section class="brief-header-card">
+            <div class="brief-title-row"><div><span class="platform-badge">TikTok setup</span><h3 style="margin-top:10px;">Campaign Details</h3><p class="small">Editable TikTok Ads Manager style fields. Autosaves after the campaign exists.</p></div><button class="btn secondary" id="backTikTokBriefBtn">View TikTok Board</button></div>
+            <div class="platform-fields">
+              ${field("artistName","Artist",draft.artistName)}
+              ${field("title","Campaign / Tracks",draft.title)}
+              ${field("campaign_name","Campaign Name",draft.campaign_name)}
+              ${field("acid_code","ACID Code",draft.acid_code)}
+              ${field("ad_account","Ad Account",draft.ad_account)}
+              ${field("budget","Budget",draft.budget)}
+              ${field("status","Status",draft.status)}
+              ${field("priority","Priority",draft.priority)}
+              ${field("budget_strategy","Budget Strategy",draft.budget_strategy)}
+              ${field("optimisation_goal","Optimisation Goal",draft.optimisation_goal)}
+              ${field("bid_control","Bid Control",draft.bid_control)}
+              ${field("frequency_cap","Frequency Cap",draft.frequency_cap)}
+              ${field("schedule_start","Schedule Start",draft.schedule_start)}
+              ${field("schedule_end","Schedule End",draft.schedule_end)}
+              ${field("locations","Locations",draft.locations)}
+              ${field("age_range","Age Range",draft.age_range)}
+              ${field("gender","Gender",draft.gender)}
+              ${field("languages","Languages",draft.languages)}
+            </div>
+          </section>
+
+          <section class="brief-card">
+            <div class="brief-card-head"><h3>Targeting / Spark / Tracking</h3></div>
+            <div class="grid-2">
+              ${field("detailed_targeting","Detailed Targeting",draft.detailed_targeting,"textarea")}
+              ${field("spark_codes","Spark Codes",draft.spark_codes,"textarea")}
+              ${field("ad_names","Ad Names",draft.ad_names,"textarea")}
+              ${field("tracking_notes","Tracking Notes",draft.tracking_notes,"textarea")}
+              ${field("smart_interests","Smart Interests & Behaviours",draft.smart_interests)}
+              ${field("automatic_enhancements","Automatic Enhancements",draft.automatic_enhancements)}
+            </div>
+          </section>
+
+          <div class="row">
+            ${activeCampaignId ? `<span class="autosave-note">Autosaves while you edit</span>` : `<button class="btn" id="saveCampaignBtn">Create TikTok Campaign</button>`}
+            <button class="btn secondary" id="copyTikTokSummaryBtn">Copy TikTok Build Summary</button>
+          </div>
+        </div>
+      `;
+      document.getElementById("backTikTokBriefBtn").addEventListener("click",()=>{collectDraft();activeTab="brief";renderModal();});
+      document.getElementById("saveCampaignBtn")?.addEventListener("click",saveCampaign);
+      document.getElementById("copyTikTokSummaryBtn").addEventListener("click",copyTikTokBuildSummary);
+      wireAutosave();
+    }
+
+    function buildTikTokBuildSummary(){
+      collectDraft();
+      return `Campaign:\n${draft.campaign_name || "TBC"}\n\nAd Group:\n${draft.ad_sets?.[0]?.name || "broad_folkpop_FV15_18-44_UK-US-CA-AU-IRL_TT"}\n\nAds:\n${draft.ad_names || "TBC"}\n\nObjective:\nVideo Views\n\nGoal:\n${draft.optimisation_goal || "TBC"}\n\nBudget:\n${draft.budget || "TBC"}\n\nLocations:\n${draft.locations || draft.territories || "TBC"}\n\nAge:\n${draft.age_range || "TBC"}\n\nTargeting:\n${draft.detailed_targeting || "TBC"}\n\nBid:\n${draft.bid_control || "TBC"}\n\nFrequency cap:\n${draft.frequency_cap || "TBC"}\n\nSpark codes:\n${draft.spark_codes || "TBC"}\n\nNotes:\n${draft.tracking_notes || ""}`;
+    }
+
+    function copyTikTokBuildSummary(){
+      navigator.clipboard.writeText(buildTikTokBuildSummary()).then(()=>toast("TikTok build summary copied"));
+    }
+
+    function renderNamingConventionPanel(){
+      if(draft.platform === "tiktok"){
+        return `<div class="panel stack">
+          <div class="between"><div><h3 style="margin-bottom:4px;">Naming Convention Index</h3><p class="small" style="margin:0;">Use these formats when naming campaigns, ad groups and ads in TikTok.</p></div><span class="chip">TikTok naming key</span></div>
+          <div class="grid-3">
+            <div class="budget-box"><strong>Campaign</strong><code style="color:var(--accent);font-size:12px;line-height:1.45;word-break:break-word;">artist_objective_song_ACID:code</code><span>Example: <strong>charlieN_VV_J&D-AB_ACID:39RLOA</strong></span></div>
+            <div class="budget-box"><strong>Ad Group</strong><code style="color:var(--accent);font-size:12px;line-height:1.45;word-break:break-word;">audience-detail_goal_age_location_platform</code><span>Example: <strong>broad_folkpop_FV15_18-44_UK-US-CA-AU-IRL_TT</strong></span></div>
+            <div class="budget-box"><strong>Ad</strong><code style="color:var(--accent);font-size:12px;line-height:1.45;word-break:break-word;">native-or-spark_content-type_track-description</code><span>Example: <strong>native_vid_Armageddon-Blues</strong></span></div>
+          </div>
+          <div class="grid-2"><div class="budget-box"><strong>TikTok abbreviations</strong><span><strong>VV</strong> = Video Views · <strong>FV15</strong> = 15-second focused view · <strong>TT</strong> = TikTok · <strong>AB</strong> = Armageddon Blues · <strong>J&D</strong> = Joy and Despair</span></div><div class="budget-box"><strong>Rules</strong><span>Lowercase/short names are fine where useful. Use underscores between main sections, hyphens inside descriptions, and keep ACID at the end of campaign names.</span></div></div>
+        </div>`;
+      }
+      return `<div class="panel stack">
+        <div class="between"><div><h3 style="margin-bottom:4px;">Naming Convention Index</h3><p class="small" style="margin:0;">Use these formats when naming campaigns, ad sets and ads in Meta.</p></div><span class="chip">Naming key</span></div>
+        <div class="grid-3"><div class="budget-box"><strong>Campaign</strong><code style="color:var(--accent);font-size:12px;line-height:1.45;word-break:break-word;">artist_objective_song_ACID:code</code><span>Example: <strong>kingfishr_streaming_tswns_ACID:GG5518</strong></span></div><div class="budget-box"><strong>Ad Set</strong><code style="color:var(--accent);font-size:12px;line-height:1.45;word-break:break-word;">audience-detail_objective_age_location_platform</code><span>Example: <strong>ca_warm-lal_streaming_18-50_dach_ig-fb</strong></span></div><div class="budget-box"><strong>Ad</strong><code style="color:var(--accent);font-size:12px;line-height:1.45;word-break:break-word;">content-type_native-or-dark_catchphrase-description</code><span>Example: <strong>reel_native_kein-schlaf-hook</strong></span></div></div>
+        <div class="grid-2"><div class="budget-box"><strong>Audience abbreviations</strong><span><strong>ca</strong> = custom audience · <strong>lal</strong> = lookalike · <strong>int</strong> = interest · <strong>ra</strong> = related artists · <strong>warm</strong> = retargeting · <strong>broad</strong> = broad/open · <strong>excl</strong> = exclude</span></div><div class="budget-box"><strong>Rules</strong><span>Lowercase only, no spaces. Use underscores between main sections, hyphens inside descriptions, and keep ACID at the end of campaign names.</span></div></div>
+      </div>`;
     }
 
     function renderOverviewTab(){
@@ -2189,7 +2630,7 @@
     function renderBuildTab(){
       const checks = activeCampaignId ? getCampaignChecklist(activeCampaignId) : DEFAULT_CHECKLIST.map((text,index)=>({id:"temp"+index,text,done:false}));
 
-      if(activeCampaignId && !checklistMatchesDefault(checks)){
+      if(activeCampaignId && draft.platform !== "tiktok" && !checklistMatchesDefault(checks)){
         document.getElementById("modalBody").innerHTML = `<div class="panel"><h3>Build Checklist</h3><p class="small">Updating this campaign to the condensed 10-step checklist...</p></div>`;
         refreshChecklistToDefault(true);
         return;
@@ -2224,47 +2665,9 @@
             </div>
           </div>
 
-          <div class="panel stack">
-            <div class="between">
-              <div>
-                <h3 style="margin-bottom:4px;">Naming Convention Index</h3>
-                <p class="small" style="margin:0;">Use these formats when naming campaigns, ad sets and ads in Meta.</p>
-              </div>
-              <span class="chip">Naming key</span>
-            </div>
-
-            <div class="grid-3">
-              <div class="budget-box">
-                <strong>Campaign</strong>
-                <code style="color:var(--accent);font-size:12px;line-height:1.45;word-break:break-word;">artist_objective_song_ACID:code</code>
-                <span>Example: <strong>kingfishr_streaming_tswns_ACID:GG5518</strong></span>
-              </div>
-
-              <div class="budget-box">
-                <strong>Ad Set</strong>
-                <code style="color:var(--accent);font-size:12px;line-height:1.45;word-break:break-word;">audience-detail_objective_age_location_platform</code>
-                <span>Example: <strong>ca_warm-lal_streaming_18-50_dach_ig-fb</strong></span>
-              </div>
-
-              <div class="budget-box">
-                <strong>Ad</strong>
-                <code style="color:var(--accent);font-size:12px;line-height:1.45;word-break:break-word;">content-type_native-or-dark_catchphrase-description</code>
-                <span>Example: <strong>reel_native_kein-schlaf-hook</strong></span>
-              </div>
-            </div>
-
-            <div class="grid-2">
-              <div class="budget-box">
-                <strong>Audience abbreviations</strong>
-                <span><strong>ca</strong> = custom audience · <strong>lal</strong> = lookalike · <strong>int</strong> = interest · <strong>ra</strong> = related artists · <strong>warm</strong> = retargeting · <strong>broad</strong> = broad/open · <strong>excl</strong> = exclude</span>
-              </div>
-
-              <div class="budget-box">
-                <strong>Rules</strong>
-                <span>Lowercase only, no spaces. Use underscores between main sections, hyphens inside descriptions, and keep ACID at the end of campaign names.</span>
-              </div>
-            </div>
-          </div>
+          ${renderNamingConventionPanel()}
+        </div>
+      `;
         </div>
       `;
 
@@ -2412,6 +2815,10 @@
         draft.report = val("m_report");
       }
 
+      if(document.getElementById("t_platformMarker")){
+        collectTikTokDraftFields();
+      }
+
       return draft;
     }
 
@@ -2513,7 +2920,8 @@
 
         activeCampaignId = data.id;
 
-        await sb.from("checklist_items").insert(DEFAULT_CHECKLIST.map((text,index)=>({
+        const chosenChecklist = d.platform === "tiktok" ? TIKTOK_CHECKLIST : DEFAULT_CHECKLIST;
+        await sb.from("checklist_items").insert(chosenChecklist.map((text,index)=>({
           campaign_id:data.id,
           text,
           position:index,
