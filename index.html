@@ -4564,17 +4564,62 @@ EXAMPLE RULES:
   function campaignToV2(c){
     const platform = inferPlatform(c);
     const pd = c.platform_data || {};
-    const rows = getCampaignAdSets(c.id).map(a=>({id:a.id,name:a.name||'',objective:a.objective||'',budget:a.budget||'',budget_type:a.budget_type||'Daily Budget',status:a.status||'Draft',audience:a.audience||'',notes:a.notes||''}));
+    const metaRows = Array.isArray(pd.ad_sets_meta) ? pd.ad_sets_meta : [];
+    const rows = getCampaignAdSets(c.id).map((a,i)=>{ const m=metaRows[i]||{}; return {id:a.id,name:a.name||'',objective:a.objective||'',budget:a.budget||'',budget_type:a.budget_type||'Daily Budget',status:a.status||'Draft',audience:a.audience||'',notes:a.notes||'',audience_type:m.audience_type||'',audience_target:m.audience_target||'',age_range:m.age_range||'',region:m.region||'',platform_field:m.platform_field||''}; });
     const checks = getCampaignChecklist(c.id);
     return {id:c.id,platform,step:'campaign',artistName:getArtistName(c.artist_id),title:c.title||'',status:c.status||'New Brief',priority:c.priority||'Normal',deadline:c.deadline||'',budget:c.budget||'',objective:c.objective||'',campaign_link:c.campaign_link||'',territories:c.territories||'',raw_brief:c.raw_brief||'',structured_brief:c.structured_brief||'',missing_info:c.missing_info||'',report:c.report||'',campaign_name:pd.campaign_name||'',acid_code:pd.acid_code||'',ad_account:pd.ad_account||'',optimisation_goal:pd.optimisation_goal||'',budget_strategy:pd.budget_strategy||'',schedule_start:pd.schedule_start||'',schedule_end:pd.schedule_end||'',ad_sets:rows,ads:Array.isArray(pd.ads)?pd.ads:[],checklist:checks.length?checks.map(x=>({id:x.id,text:x.text,done:!!x.done})):checklistFor(platform)};
   }
   function input(k,label,type='text',wide=false){ return `<div class="${wide?'wide':''}"><label>${esc2(label)}</label><input data-v2="${k}" type="${type}" value="${attr2(v2[k]||'')}"></div>`; }
   function select(k,label,opts){ return `<div><label>${esc2(label)}</label><select data-v2="${k}">${opts.map(o=>`<option value="${attr2(o)}" ${String(v2[k]||'')===o?'selected':''}>${esc2(o||'')}</option>`).join('')}</select></div>`; }
   function textarea(k,label,wide=true){ return `<div class="${wide?'wide':''}"><label>${esc2(label)}</label><textarea data-v2="${k}">${esc2(v2[k]||'')}</textarea></div>`; }
+  function normaliseAudienceToken(value){
+    return String(value||'')
+      .toLowerCase()
+      .trim()
+      .replace(/&/g,'and')
+      .replace(/\+/g,'+')
+      .replace(/[^a-z0-9+]+/g,'-')
+      .replace(/-+/g,'-')
+      .replace(/^-|-$/g,'');
+  }
+  function audienceTypeCode(value){
+    const map={
+      'Advantage+':'adv',
+      'Interest':'int',
+      'Custom Audience':'ca',
+      'Lookalike':'lal',
+      'Retargeting':'rt',
+      'Broad/Open':'open'
+    };
+    return map[value] || normaliseAudienceToken(value) || 'aud';
+  }
+  function platformCode(value){
+    const map={'IG':'ig','IG+FB':'ig-fb','FB':'fb','TT':'tt'};
+    return map[value] || normaliseAudienceToken(value) || 'platform';
+  }
+  function hasStructuredAudience(row){
+    return !!(row.audience_type || row.audience_target || row.age_range || row.region || row.platform_field);
+  }
+  function buildAudienceAssetName(row){
+    if(!hasStructuredAudience(row) && row.name) return row.name;
+    const type=audienceTypeCode(row.audience_type);
+    const target=normaliseAudienceToken(row.audience_target) || 'target';
+    const age=normaliseAudienceToken(row.age_range).replace(/-/g,'-') || 'age';
+    const region=normaliseAudienceToken(row.region) || 'region';
+    const platform=platformCode(row.platform_field);
+    return `${type}_${target}_${age}_${region}_${platform}`;
+  }
+  function buildAudienceSummary(row){
+    return `Audience Type: ${row.audience_type || 'TBC'}\nTarget: ${row.audience_target || 'TBC'}\nAge: ${row.age_range || 'TBC'}\nRegion: ${row.region || 'TBC'}\nPlatform: ${row.platform_field || 'TBC'}\nGenerated Name: ${buildAudienceAssetName(row)}`;
+  }
+  function adsetRowDefaults(i){
+    return {name:'',objective:'',budget:'',budget_type:'Uses campaign budget',audience_type:'',audience_target:'',age_range:'',region:'',platform_field:v2?.platform==='tiktok'?'TT':'IG',audience:'',status:'Draft',notes:''};
+  }
+
   function collect(){
     if(!v2) return;
     getAll('[data-v2]').forEach(el=>{ v2[el.dataset.v2]=el.value; });
-    getAll('[data-v2-adset]').forEach(row=>{ const i=+row.dataset.v2Adset; const obj=v2.ad_sets[i]; if(!obj) return; getAll('[data-field]',row).forEach(el=>obj[el.dataset.field]=el.value); });
+    getAll('[data-v2-adset]').forEach(row=>{ const i=+row.dataset.v2Adset; const obj=v2.ad_sets[i]; if(!obj) return; getAll('[data-field]',row).forEach(el=>obj[el.dataset.field]=el.value); obj.name=buildAudienceAssetName(obj); const nameEl=row.querySelector('[data-field="name"]'); if(nameEl) nameEl.value=obj.name; obj.audience=buildAudienceSummary(obj); });
     getAll('[data-v2-ad]').forEach(row=>{ const i=+row.dataset.v2Ad; const obj=v2.ads[i]; if(!obj) return; getAll('[data-field]',row).forEach(el=>obj[el.dataset.field]=el.value); obj.adset_targets=getAll('[data-target]:checked',row).map(x=>x.value); });
     getAll('[data-v2-check]').forEach(el=>{ const i=+el.dataset.v2Check; if(v2.checklist[i]) v2.checklist[i].done=el.checked; });
   }
@@ -4596,11 +4641,12 @@ EXAMPLE RULES:
     getEl('#nextAdsets').onclick=()=>{collect();v2.step='adsets';render();};
   }
   function renderAdsets(){
-    shell(`<section class="jdw-v2-panel"><div class="jdw-v2-head"><div><span class="jdw-v2-pill">${adsetTerm()}</span><h3>${adsetTerm()} level</h3><p class="small">Build one or many ${adsetTerm().toLowerCase()} like Ads Manager.</p></div><div class="row"><input id="v2Count" type="number" min="1" max="20" value="${Math.max(1,v2.ad_sets.length||2)}" style="width:90px"><button class="btn secondary" id="genSets">Generate Rows</button><button class="btn secondary" id="addSet">+ Add Row</button><button class="btn" id="nextAds">Next: Ads</button></div></div>${v2.ad_sets.length?`<table class="jdw-v2-table"><thead><tr><th>Name</th><th>Objective/Goal</th><th>Budget</th><th>Budget type</th><th>Audience</th><th>Status</th><th>Notes</th><th></th></tr></thead><tbody>${v2.ad_sets.map((s,i)=>`<tr data-v2-adset="${i}"><td><input data-field="name" value="${attr2(s.name||'')}"></td><td><input data-field="objective" value="${attr2(s.objective||'')}"></td><td><input data-field="budget" value="${attr2(s.budget||'')}"></td><td><select data-field="budget_type"><option ${s.budget_type==='Daily Budget'?'selected':''}>Daily Budget</option><option ${s.budget_type==='Lifetime Budget'?'selected':''}>Lifetime Budget</option><option ${s.budget_type==='Uses campaign budget'?'selected':''}>Uses campaign budget</option></select></td><td><textarea data-field="audience">${esc2(s.audience||'')}</textarea></td><td><select data-field="status"><option ${s.status==='Draft'?'selected':''}>Draft</option><option ${s.status==='Needs Review'?'selected':''}>Needs Review</option><option ${s.status==='Ready'?'selected':''}>Ready</option><option ${s.status==='Live'?'selected':''}>Live</option><option ${s.status==='Paused'?'selected':''}>Paused</option></select></td><td><textarea data-field="notes">${esc2(s.notes||'')}</textarea></td><td><button class="mini-btn" data-remove-set="${i}">×</button></td></tr>`).join('')}</tbody></table>`:`<div class="empty">No ${adsetTerm().toLowerCase()} yet.</div>`}</section>`);
-    getEl('#genSets').onclick=()=>{collect(); const n=Number(getEl('#v2Count').value||1); v2.ad_sets=Array.from({length:n},(_,i)=>v2.ad_sets[i]||{name:`${v2.platform==='tiktok'?'adgroup':'adset'}_${i+1}`,objective:'',budget:'',budget_type:'Uses campaign budget',audience:'',status:'Draft',notes:''}); render();};
-    getEl('#addSet').onclick=()=>{collect();v2.ad_sets.push({name:'',objective:'',budget:'',budget_type:'Uses campaign budget',audience:'',status:'Draft',notes:''});render();};
+    shell(`<section class="jdw-v2-panel"><div class="jdw-v2-head"><div><span class="jdw-v2-pill">${adsetTerm()}</span><h3>${adsetTerm()} level</h3><p class="small">Audience fields auto-build the asset name for filtering later: type_target_age_region_platform.</p></div><div class="row"><input id="v2Count" type="number" min="1" max="20" value="${Math.max(1,v2.ad_sets.length||2)}" style="width:90px"><button class="btn secondary" id="genSets">Generate Rows</button><button class="btn secondary" id="addSet">+ Add Row</button><button class="btn" id="nextAds">Next: Ads</button></div></div>${v2.ad_sets.length?`<table class="jdw-v2-table"><thead><tr><th>Generated asset name</th><th>Audience type</th><th>Audience target</th><th>Age</th><th>Region</th><th>Platform</th><th>Objective/Goal</th><th>Budget</th><th>Status</th><th>Notes</th><th></th></tr></thead><tbody>${v2.ad_sets.map((s,i)=>{ s.name=buildAudienceAssetName(s); s.audience=buildAudienceSummary(s); return `<tr data-v2-adset="${i}"><td><input data-field="name" value="${attr2(s.name||'')}" readonly><p class="small" style="margin:6px 0 0;">Auto-generated</p></td><td><select data-field="audience_type"><option value="" ${!s.audience_type?'selected':''}>Choose</option><option ${s.audience_type==='Advantage+'?'selected':''}>Advantage+</option><option ${s.audience_type==='Interest'?'selected':''}>Interest</option><option ${s.audience_type==='Custom Audience'?'selected':''}>Custom Audience</option><option ${s.audience_type==='Lookalike'?'selected':''}>Lookalike</option><option ${s.audience_type==='Retargeting'?'selected':''}>Retargeting</option><option ${s.audience_type==='Broad/Open'?'selected':''}>Broad/Open</option></select></td><td><input data-field="audience_target" value="${attr2(s.audience_target||'')}" placeholder="Lana Del Rey / Warm+LAL / BBC Radio 6"></td><td><input data-field="age_range" value="${attr2(s.age_range||'')}" placeholder="18-30"></td><td><input data-field="region" value="${attr2(s.region||'')}" placeholder="UK / DACH / DE-AT-CH"></td><td><select data-field="platform_field"><option ${s.platform_field==='IG'?'selected':''}>IG</option><option ${s.platform_field==='IG+FB'?'selected':''}>IG+FB</option><option ${s.platform_field==='FB'?'selected':''}>FB</option><option ${s.platform_field==='TT'?'selected':''}>TT</option></select></td><td><input data-field="objective" value="${attr2(s.objective||'')}"></td><td><input data-field="budget" value="${attr2(s.budget||'')}"><select data-field="budget_type" style="margin-top:6px"><option ${s.budget_type==='Daily Budget'?'selected':''}>Daily Budget</option><option ${s.budget_type==='Lifetime Budget'?'selected':''}>Lifetime Budget</option><option ${s.budget_type==='Uses campaign budget'?'selected':''}>Uses campaign budget</option></select></td><td><select data-field="status"><option ${s.status==='Draft'?'selected':''}>Draft</option><option ${s.status==='Needs Review'?'selected':''}>Needs Review</option><option ${s.status==='Ready'?'selected':''}>Ready</option><option ${s.status==='Live'?'selected':''}>Live</option><option ${s.status==='Paused'?'selected':''}>Paused</option></select></td><td><textarea data-field="notes">${esc2(s.notes||'')}</textarea></td><td><button class="mini-btn" data-remove-set="${i}">×</button></td></tr>`;}).join('')}</tbody></table>`:`<div class="empty">No ${adsetTerm().toLowerCase()} yet.</div>`}</section>`);
+    getEl('#genSets').onclick=()=>{collect(); const n=Number(getEl('#v2Count').value||1); v2.ad_sets=Array.from({length:n},(_,i)=>v2.ad_sets[i]||adsetRowDefaults(i)); render();};
+    getEl('#addSet').onclick=()=>{collect();v2.ad_sets.push(adsetRowDefaults(v2.ad_sets.length));render();};
     getEl('#nextAds').onclick=()=>{collect();v2.step='ads';render();};
     getAll('[data-remove-set]').forEach(b=>b.onclick=()=>{collect();v2.ad_sets.splice(+b.dataset.removeSet,1);render();});
+    getAll('[data-v2-adset] [data-field]').forEach(el=>{ el.oninput=()=>{ collect(); }; el.onchange=()=>{ collect(); }; });
   }
   function renderAds(){
     const targets=v2.ad_sets.map((s,i)=>s.name||`${adsetTerm().slice(0,-1)} ${i+1}`);
@@ -4639,7 +4685,7 @@ EXAMPLE RULES:
     if(!v2.artistName || !v2.title){ toast('Add artist and campaign / track name first.',true); v2.step='campaign'; render(); return; }
     try{
       const artist=await getOrCreateArtist(v2.artistName);
-      const platformData={platform:v2.platform,campaign_name:v2.campaign_name,acid_code:v2.acid_code,ad_account:v2.ad_account,optimisation_goal:v2.optimisation_goal,budget_strategy:v2.budget_strategy,schedule_start:v2.schedule_start,schedule_end:v2.schedule_end,ads:v2.ads};
+      const platformData={platform:v2.platform,campaign_name:v2.campaign_name,acid_code:v2.acid_code,ad_account:v2.ad_account,optimisation_goal:v2.optimisation_goal,budget_strategy:v2.budget_strategy,schedule_start:v2.schedule_start,schedule_end:v2.schedule_end,ads:v2.ads,ad_sets_meta:v2.ad_sets.map(s=>({audience_type:s.audience_type||'',audience_target:s.audience_target||'',age_range:s.age_range||'',region:s.region||'',platform_field:s.platform_field||'',generated_name:buildAudienceAssetName(s)}))};
       const payload={artist_id:artist.id,title:v2.title,status:v2.status,priority:v2.priority,deadline:v2.deadline||null,budget:v2.budget,objective:v2.objective,campaign_link:v2.campaign_link,territories:v2.territories,raw_brief:v2.raw_brief||'',structured_brief:v2.structured_brief||'',missing_info:v2.missing_info||'',report:v2.report||summary(),updated_at:new Date().toISOString(),platform:v2.platform,platform_data:platformData};
       let id=v2.id;
       if(id){
@@ -4649,7 +4695,7 @@ EXAMPLE RULES:
       }else{
         let res=await sb.from('campaigns').insert(payload).select().single(); if(res.error && /platform/i.test(res.error.message||'')){ delete payload.platform; delete payload.platform_data; res=await sb.from('campaigns').insert(payload).select().single(); } if(res.error) throw res.error; id=res.data.id; v2.id=id;
       }
-      if(v2.ad_sets.length) await sb.from('ad_sets').insert(v2.ad_sets.map((s,i)=>({campaign_id:id,name:s.name||`${adsetTerm().slice(0,-1)} ${i+1}`,objective:s.objective||'',budget:s.budget||'',budget_type:s.budget_type||'Daily Budget',status:s.status||'Draft',audience:s.audience||'',notes:s.notes||'',position:i})));
+      if(v2.ad_sets.length) await sb.from('ad_sets').insert(v2.ad_sets.map((s,i)=>({campaign_id:id,name:buildAudienceAssetName(s),objective:s.objective||'',budget:s.budget||'',budget_type:s.budget_type||'Daily Budget',status:s.status||'Draft',audience:buildAudienceSummary(s),notes:s.notes||'',position:i})));
       if(v2.checklist.length) await sb.from('checklist_items').insert(v2.checklist.map((c,i)=>({campaign_id:id,text:c.text,done:!!c.done,position:i})));
       await sb.from('work_logs').insert({campaign_id:id,logged_by:'System',log_type:id===v2.id?'Update':'Brief',text:`${label()} campaign saved from Campaign / ${adsetTerm()} / Ads builder.`,visible_to_james:true});
       await loadData(); toast('Campaign saved.');
