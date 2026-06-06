@@ -4993,5 +4993,111 @@ EXAMPLE RULES:
   }
 </style>
 
+
+<style id="jdw-full-board-focus-css">
+  /* Board-first layout: move low-priority header/stats out of the way. */
+  .main{
+    grid-template-rows:auto 1fr !important;
+    position:relative;
+  }
+
+  .topbar{
+    display:none !important;
+  }
+
+  .toolbar{
+    min-height:58px;
+    padding:9px 18px !important;
+    gap:12px;
+    border-bottom:1px solid rgba(255,255,255,.08);
+    background:rgba(7,7,10,.72);
+    backdrop-filter:blur(14px);
+  }
+
+  .toolbar .row{
+    flex-wrap:nowrap;
+    gap:9px;
+  }
+
+  .toolbar select,
+  .toolbar input,
+  .toolbar .btn{
+    min-height:40px;
+    padding-top:9px;
+    padding-bottom:9px;
+    border-radius:13px;
+  }
+
+  .search{
+    max-width:420px;
+  }
+
+  /* Stats no longer consume the top half of the screen. They live as a tiny hover strip. */
+  .stats{
+    position:fixed !important;
+    right:18px;
+    bottom:18px;
+    z-index:45;
+    display:flex !important;
+    grid-template-columns:none !important;
+    gap:7px !important;
+    width:auto;
+    max-width:calc(100vw - 330px);
+    padding:0 !important;
+    border:0 !important;
+    background:transparent !important;
+    opacity:.22;
+    transform:scale(.88);
+    transform-origin:bottom right;
+    transition:opacity .16s ease, transform .16s ease;
+  }
+
+  .stats:hover{
+    opacity:1;
+    transform:scale(1);
+  }
+
+  .stat{
+    min-width:74px;
+    border-radius:999px !important;
+    padding:7px 10px !important;
+    background:rgba(20,20,28,.88) !important;
+    backdrop-filter:blur(16px);
+    box-shadow:0 10px 35px rgba(0,0,0,.28);
+  }
+
+  .stat strong{
+    display:inline !important;
+    font-size:13px !important;
+    letter-spacing:-.03em;
+    margin-right:4px;
+  }
+
+  .stat span{
+    font-size:10px !important;
+    white-space:nowrap;
+  }
+
+  .board{
+    padding:12px 18px 18px !important;
+    gap:14px !important;
+  }
+
+  .column{
+    min-height:calc(100vh - 92px) !important;
+  }
+
+  @media(max-width:900px){
+    .stats{
+      display:none !important;
+    }
+    .toolbar{
+      min-height:auto;
+      align-items:flex-start;
+      flex-direction:column;
+    }
+  }
+</style>
+
 </body>
 </html>
