@@ -1302,6 +1302,19 @@
 
         card.addEventListener("click",()=>openCampaignModal(card.dataset.id));
       });
+
+      board.querySelectorAll("[data-expand-card]").forEach(btn=>{
+        btn.addEventListener("click",event=>{
+          event.stopPropagation();
+
+          const id = btn.dataset.expandCard;
+          const key = `jdw_card_expanded_${id}`;
+          const current = localStorage.getItem(key) === "true";
+
+          localStorage.setItem(key,current ? "false" : "true");
+          renderBoard();
+        });
+      });
     }
 
     function renderStackBoard(board,items){
@@ -1357,28 +1370,57 @@
       const done = checks.filter(i=>i.done).length;
       const total = checks.length;
       const progress = total ? Math.round(done/total*100) : 0;
+      const expanded = localStorage.getItem(`jdw_card_expanded_${c.id}`) === "true";
+      const runningCount = ads.filter(a=>String(a.status || "Running").toLowerCase().includes("run")).length;
 
       return `
-        <article class="card" draggable="true" data-id="${c.id}">
-          <h3>${esc(getArtistName(c.artist_id))} — ${esc(c.title || "Untitled")}</h3>
+        <article class="card compact-card ${expanded ? "expanded" : ""}" draggable="true" data-id="${c.id}">
+          <div class="card-top">
+            <div class="card-title-block">
+              <h3 title="${attr(getArtistName(c.artist_id))} — ${attr(c.title || "Untitled")}">
+                ${esc(getArtistName(c.artist_id))} — ${esc(c.title || "Untitled")}
+              </h3>
 
-          <div class="budget-box">
-            <div><strong>Budget</strong>: ${esc(formatCampaignBudget(c.budget) || "TBC")}</div>
-            ${ads.map(a=>`
-              <div class="adset-line">
-                <span class="adset-status-dot ${adSetStatusClass(a.status)}"></span>
-                <strong>${esc(a.name || "Ad Set")}</strong>: ${esc(formatAdSetBudget(a))}
+              <div class="card-mini-meta">
+                <span class="chip">${esc(formatCampaignBudget(c.budget) || "TBC")}</span>
+                <span class="chip">${ads.length} ad sets</span>
+                ${runningCount ? `<span class="chip"><span class="adset-status-dot adset-running"></span>${runningCount} running</span>` : ""}
+                <span class="chip">${done}/${total} checks</span>
               </div>
-            `).join("")}
+            </div>
+
+            <button class="card-expand-btn" data-expand-card="${c.id}" type="button">
+              ${expanded ? "Less" : "More"}
+            </button>
           </div>
 
-          <div class="chips">
-            <span class="chip">${esc(c.priority || "Normal")}</span>
-            ${c.deadline ? `<span class="chip">Due ${formatDate(c.deadline)}</span>` : ""}
-          </div>
+          <div class="card-details">
+            <div class="budget-box">
+              <div><strong>Budget</strong>: ${esc(formatCampaignBudget(c.budget) || "TBC")}</div>
+            </div>
 
-          <div class="progress"><div class="progress-fill" style="width:${progress}%"></div></div>
-          <p class="small" style="margin-top:7px;">Checklist ${done}/${total}</p>
+            <div class="card-adset-table">
+              ${
+                ads.length
+                  ? ads.map(a=>`
+                    <div class="card-adset-row">
+                      <span class="adset-status-dot ${adSetStatusClass(a.status)}"></span>
+                      <strong title="${attr(a.name || "Ad Set")}">${esc(a.name || "Ad Set")}</strong>
+                      <span class="card-adset-budget">${esc(formatAdSetBudget(a))}</span>
+                    </div>
+                  `).join("")
+                  : `<div class="empty" style="padding:10px;">No ad sets.</div>`
+              }
+            </div>
+
+            <div class="chips">
+              <span class="chip">${esc(c.priority || "Normal")}</span>
+              ${c.deadline ? `<span class="chip">Due ${formatDate(c.deadline)}</span>` : ""}
+            </div>
+
+            <div class="progress"><div class="progress-fill" style="width:${progress}%"></div></div>
+            <p class="small" style="margin-top:0;">Checklist ${done}/${total}</p>
+          </div>
         </article>
       `;
     }
@@ -4832,6 +4874,124 @@ EXAMPLE RULES:
   };
 })();
 </script>
+
+
+
+<style id="jdw-collapsible-board-cards-css">
+  /* Compact campaign cards for the main board: default = scan view, expanded = details view. */
+  .board{
+    grid-template-columns:repeat(8,minmax(300px,340px));
+  }
+
+  .column{
+    min-width:300px;
+  }
+
+  .card.compact-card{
+    padding:12px;
+    overflow:hidden;
+  }
+
+  .card.compact-card h3{
+    margin:0;
+    font-size:14px;
+    line-height:1.2;
+  }
+
+  .card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+  }
+
+  .card-title-block{
+    min-width:0;
+    flex:1;
+  }
+
+  .card-title-block h3{
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .card-mini-meta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-top:9px;
+  }
+
+  .card-mini-meta .chip{
+    margin:0;
+  }
+
+  .card-expand-btn{
+    border:1px solid var(--line);
+    background:rgba(255,255,255,.06);
+    color:var(--muted);
+    border-radius:999px;
+    padding:5px 8px;
+    font-size:11px;
+    font-weight:950;
+    flex:0 0 auto;
+  }
+
+  .card-expand-btn:hover{
+    color:var(--accent);
+    border-color:rgba(var(--accent-rgb),.28);
+    background:rgba(var(--accent-rgb),.08);
+  }
+
+  .card-details{
+    margin-top:12px;
+    display:none;
+  }
+
+  .card.expanded .card-details{
+    display:grid;
+    gap:10px;
+  }
+
+  .card-adset-table{
+    display:grid;
+    gap:6px;
+    max-height:220px;
+    overflow:auto;
+    padding-right:3px;
+  }
+
+  .card-adset-row{
+    display:grid;
+    grid-template-columns:10px minmax(0,1fr) auto;
+    align-items:center;
+    gap:7px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:rgba(0,0,0,.18);
+    padding:8px;
+    font-size:11px;
+  }
+
+  .card-adset-row strong{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+
+  .card-adset-budget{
+    color:var(--muted);
+    white-space:nowrap;
+  }
+
+  .card .adset-status-dot{
+    width:8px;
+    height:8px;
+    border-radius:999px;
+    flex:0 0 auto;
+  }
+</style>
 
 </body>
 </html>
