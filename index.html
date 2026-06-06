@@ -851,7 +851,7 @@
       </div>
 
       <button class="btn" style="width:100%;" id="newCampaignBtn">+ New Campaign</button>
-      <button class="btn secondary" style="width:100%;margin-top:12px;" id="importBriefBtn">Import Messy Brief</button>
+      <button class="btn secondary hidden" style="width:100%;margin-top:12px;" id="importBriefBtn">Import Messy Brief</button>
       <button class="btn secondary" style="width:100%;margin-top:12px;" id="settingsBtn">Settings</button>
 
       <div class="folder-toolbar">
@@ -4403,15 +4403,16 @@ EXAMPLE RULES:
     document.getElementById("jdwChooseTikTok").onclick=()=>{builder=emptyBuilder("tiktok"); renderBuilder();};
   }
   function renderCampaign(){
-    renderShell(`<section class="jdw-page-card"><div class="jdw-page-head"><div><span class="jdw-platform-pill">${platformLabel()} Campaign</span><h3>Campaign details</h3><p class="small">Blank campaign-level setup. Fill from the brief.</p></div><button class="btn" id="jdwNextAdsets">Next: ${term()}</button></div><div class="jdw-form-grid">${input("artistName","Artist",builder.artistName)}${input("title","Campaign / Track(s)",builder.title)}${input("campaign_name","Campaign Name",builder.campaign_name)}${input("acid_code","ACID Code",builder.acid_code)}${select("status","Status",builder.status,["New Brief","Needs Info","Ready to Build","In Progress","Awaiting Approval","Live","Reporting","Complete"])}${select("priority","Priority",builder.priority,["Urgent","Normal","Low"])}${input("ad_account","Ad Account",builder.ad_account)}${input("objective","Objective",builder.objective)}${input("optimisation_goal",builder.platform==='tiktok'?"Optimisation / Goal":"Optimisation Event",builder.optimisation_goal)}${select("budget_strategy","Budget Strategy",builder.budget_strategy,["","Campaign budget","Ad set budget","Ad group budget","Lifetime campaign budget","Daily campaign budget"])}${input("budget","Budget",builder.budget)}${input("deadline","Deadline / End Date",builder.deadline,"date")}${input("campaign_link","Destination / Campaign Link",builder.campaign_link,true)}${input("territories","Territories",builder.territories)}${input("schedule_start","Schedule Start",builder.schedule_start)}${input("schedule_end","Schedule End",builder.schedule_end)}</div></section><section class="jdw-page-card"><div class="jdw-page-head"><div><h3>Brief outline</h3><p class="small">This is the brief bit you were missing. Keep it condensed.</p></div></div><div class="jdw-form-grid">${textarea("structured_brief","Clean Brief Outline",builder.structured_brief,true)}${textarea("missing_info","Questions / Missing Info",builder.missing_info,true)}</div></section><button class="btn" id="jdwSaveBuilder">Create Campaign</button>`);
-    document.getElementById("jdwNextAdsets").onclick=()=>{collect();builder.step="adsets";renderBuilder();};
-    document.getElementById("jdwSaveBuilder").onclick=saveBuilder;
+    shell(`<section class="jdw-v2-panel"><div class="jdw-v2-head"><div><span class="jdw-v2-pill">${label()} Campaign</span><h3>Campaign level</h3><p class="small">Only the key campaign fields: campaign name, artist/track, ad account, budget, territories and objective.</p></div><button class="btn" id="nextAdsets">Next: ${adsetTerm()}</button></div><div class="jdw-v2-grid">${input('campaign_name','Campaign Name','text',true)}${input('artistName','Artist')}${input('title','Campaign / Track')}${input('ad_account','Ad Account')}${select('budget_strategy','Budget Type',['','Campaign budget','Ad set budget','Ad group budget','Lifetime campaign budget','Daily campaign budget'])}${input('budget','Campaign Budget')}${input('territories','Territories')}${input('objective','Objective','text',true)}</div></section>`);
+    getEl('#nextAdsets').onclick=()=>{collect();v2.step='adsets';render();};
   }
   function renderAdsets(){
-    renderShell(`<section class="jdw-page-card"><div class="jdw-page-head"><div><span class="jdw-platform-pill">${term()}</span><h3>${term()}</h3><p class="small">Add as many as the brief needs.</p></div><div class="row"><button class="btn secondary" id="jdwAddAdset">+ Add ${term().slice(0,-1)}</button><button class="btn" id="jdwNextAds">Next: Ads</button></div></div>${builder.ad_sets.length?`<table class="jdw-table"><thead><tr><th>Name</th><th>Objective</th><th>Budget</th><th>Type</th><th>Status</th><th>Audience</th><th>Notes</th><th></th></tr></thead><tbody>${builder.ad_sets.map((s,i)=>`<tr data-jdw-adset="${i}"><td><input data-field="name" value="${a(s.name||'')}" /></td><td><input data-field="objective" value="${a(s.objective||'')}" /></td><td><input data-field="budget" value="${a(s.budget||'')}" /></td><td><select data-field="budget_type"><option ${s.budget_type==='Daily Budget'?'selected':''}>Daily Budget</option><option ${s.budget_type==='Lifetime Budget'?'selected':''}>Lifetime Budget</option><option ${s.budget_type==='Campaign Budget'?'selected':''}>Campaign Budget</option></select></td><td><select data-field="status"><option ${s.status==='Draft'?'selected':''}>Draft</option><option ${s.status==='Running'?'selected':''}>Running</option><option ${s.status==='Paused'?'selected':''}>Paused</option><option ${s.status==='Needs Review'?'selected':''}>Needs Review</option></select></td><td><textarea data-field="audience">${e(s.audience||'')}</textarea></td><td><textarea data-field="notes">${e(s.notes||'')}</textarea></td><td><button class="mini-btn" data-remove-adset="${i}">×</button></td></tr>`).join("")}</tbody></table>`:`<div class="empty">No ${term().toLowerCase()} yet. Add one.</div>`}</section>`);
-    document.getElementById("jdwAddAdset").onclick=()=>{collect();builder.ad_sets.push({name:"",objective:"",budget:"",budget_type:"Daily Budget",status:"Draft",audience:"",notes:""});renderBuilder();};
-    document.getElementById("jdwNextAds").onclick=()=>{collect();builder.step="ads";renderBuilder();};
-    document.querySelectorAll("[data-remove-adset]").forEach(b=>b.onclick=()=>{collect();builder.ad_sets.splice(+b.dataset.removeAdset,1);renderBuilder();});
+    shell(`<section class="jdw-v2-panel"><div class="jdw-v2-head"><div><span class="jdw-v2-pill">${adsetTerm()}</span><h3>${adsetTerm()} level</h3><p class="small">Keep this simple: imported ${adsetTerm().slice(0,-1).toLowerCase()} name from Meta, budget type/amount and notes. If it uses campaign budget, the amount field disappears.</p></div><div class="row"><input id="v2Count" type="number" min="1" max="20" value="${Math.max(1,v2.ad_sets.length||2)}" style="width:90px"><button class="btn secondary" id="genSets">Generate Rows</button><button class="btn secondary" id="addSet">+ Add Row</button><button class="btn" id="nextAds">Next: Ads</button></div></div>${v2.ad_sets.length?`<table class="jdw-v2-table"><thead><tr><th>${adsetTerm().slice(0,-1)} Name</th><th>Budget Type</th><th>Budget Amount</th><th>Notes</th><th></th></tr></thead><tbody>${v2.ad_sets.map((s,i)=>{ const usesCampaign=adsetUsesCampaignBudget(s); if(usesCampaign) s.budget=''; return `<tr data-v2-adset="${i}"><td><input data-field="name" value="${attr2(s.name||'')}" placeholder="Imported Meta ${adsetTerm().slice(0,-1).toLowerCase()} name"></td><td><select data-field="budget_type"><option ${s.budget_type==='Uses campaign budget'?'selected':''}>Uses campaign budget</option><option ${s.budget_type==='Daily Budget'?'selected':''}>Daily Budget</option><option ${s.budget_type==='Lifetime Budget'?'selected':''}>Lifetime Budget</option><option ${s.budget_type==='Campaign Budget'?'selected':''}>Campaign Budget</option></select></td><td>${usesCampaign?`<div class="pill accent">Uses campaign budget</div><p class="small" style="margin:6px 0 0;">No ${adsetTerm().slice(0,-1).toLowerCase()} amount needed.</p>`:`<input data-field="budget" value="${attr2(s.budget||'')}" placeholder="Budget amount">`}</td><td><textarea data-field="notes" placeholder="Audience, targeting, placements, import notes...">${esc2(s.notes||'')}</textarea></td><td><button class="mini-btn" data-remove-set="${i}">×</button></td></tr>`;}).join('')}</tbody></table>`:`<div class="empty">No ${adsetTerm().toLowerCase()} yet.</div>`}</section>`);
+    getEl('#genSets').onclick=()=>{collect(); const n=Number(getEl('#v2Count').value||1); v2.ad_sets=Array.from({length:n},(_,i)=>v2.ad_sets[i]||adsetRowDefaults(i)); render();};
+    getEl('#addSet').onclick=()=>{collect();v2.ad_sets.push(adsetRowDefaults(v2.ad_sets.length));render();};
+    getEl('#nextAds').onclick=()=>{collect();v2.step='ads';render();};
+    getAll('[data-remove-set]').forEach(b=>b.onclick=()=>{collect();v2.ad_sets.splice(+b.dataset.removeSet,1);render();});
+    getAll('[data-v2-adset] [data-field]').forEach(el=>{ el.oninput=()=>{ collect(); }; el.onchange=()=>{ collect(); render(); }; });
   }
   function renderAds(){
     const targets = builder.ad_sets.map((s,i)=>s.name || `${term().slice(0,-1)} ${i+1}`);
@@ -4422,7 +4423,7 @@ EXAMPLE RULES:
     document.querySelectorAll("[data-remove-ad]").forEach(b=>b.onclick=()=>{collect();builder.ads.splice(+b.dataset.removeAd,1);renderBuilder();});
   }
   function summary(){
-    return `${platformLabel()} Campaign Build\n\nCampaign: ${builder.campaign_name || 'TBC'}\nArtist / Track: ${builder.artistName || 'TBC'} — ${builder.title || 'TBC'}\nObjective: ${builder.objective || 'TBC'}\nGoal: ${builder.optimisation_goal || 'TBC'}\nBudget: ${builder.budget || 'TBC'}\nAccount: ${builder.ad_account || 'TBC'}\nTerritories: ${builder.territories || 'TBC'}\n\n${term()}:\n${builder.ad_sets.length?builder.ad_sets.map((s,i)=>`${i+1}. ${s.name || 'Untitled'} — ${s.objective || 'Goal TBC'} — ${s.budget || 'Budget TBC'} — ${s.audience || 'Audience TBC'}`).join('\n'):'None yet'}\n\nAds:\n${builder.ads.length?builder.ads.map((ad,i)=>`${i+1}. ${ad.name || 'Untitled'} — ${(ad.adset_targets||[]).length?'Targets: '+ad.adset_targets.join(', '):'Targets TBC'}`).join('\n'):'None yet'}\n\nQuestions / notes:\n${builder.missing_info || 'None yet'}`;
+    return `${label()} Campaign Build\n\nCampaign Name: ${v2.campaign_name||'TBC'}\nArtist / Track: ${v2.artistName||'TBC'} — ${v2.title||'TBC'}\nAd Account: ${v2.ad_account||'TBC'}\nBudget: ${v2.budget||'TBC'}\nTerritories: ${v2.territories||'TBC'}\nObjective: ${v2.objective||'TBC'}\n\n${adsetTerm()}:\n${v2.ad_sets.length?v2.ad_sets.map((s,i)=>`${i+1}. ${s.name||'Untitled'} — ${adsetUsesCampaignBudget(s)?'Uses campaign budget':`${s.budget||'Budget TBC'} ${s.budget_type||''}`}${s.notes?` — Notes: ${s.notes}`:''}`).join('\n'):'None yet'}\n\nAds:\n${v2.ads.length?v2.ads.map((ad,i)=>`${i+1}. ${ad.name||'Untitled'} — ${(ad.adset_targets||[]).length?'Targets: '+ad.adset_targets.join(', '):'Targets TBC'}`).join('\n'):'None yet'}\n\nQuestions / Missing Info:\n${v2.missing_info||'None'}`;
   }
   function renderChecklist(){
     const done = builder.checklist.filter(x=>x.done).length;
@@ -4612,6 +4613,9 @@ EXAMPLE RULES:
   function buildAudienceSummary(row){
     return `Audience Type: ${row.audience_type || 'TBC'}\nTarget: ${row.audience_target || 'TBC'}\nAge: ${row.age_range || 'TBC'}\nRegion: ${row.region || 'TBC'}\nPlatform: ${row.platform_field || 'TBC'}\nGenerated Name: ${buildAudienceAssetName(row)}`;
   }
+  function adsetUsesCampaignBudget(row){
+    return /campaign/i.test(String(row?.budget_type || ''));
+  }
   function adsetRowDefaults(i){
     return {name:'',objective:'',budget:'',budget_type:'Uses campaign budget',audience_type:'',audience_target:'',age_range:'',region:'',platform_field:v2?.platform==='tiktok'?'TT':'IG',audience:'',status:'Draft',notes:''};
   }
@@ -4619,7 +4623,14 @@ EXAMPLE RULES:
   function collect(){
     if(!v2) return;
     getAll('[data-v2]').forEach(el=>{ v2[el.dataset.v2]=el.value; });
-    getAll('[data-v2-adset]').forEach(row=>{ const i=+row.dataset.v2Adset; const obj=v2.ad_sets[i]; if(!obj) return; getAll('[data-field]',row).forEach(el=>obj[el.dataset.field]=el.value); obj.name=buildAudienceAssetName(obj); const nameEl=row.querySelector('[data-field="name"]'); if(nameEl) nameEl.value=obj.name; obj.audience=buildAudienceSummary(obj); });
+    getAll('[data-v2-adset]').forEach(row=>{
+      const i=+row.dataset.v2Adset;
+      const obj=v2.ad_sets[i];
+      if(!obj) return;
+      getAll('[data-field]',row).forEach(el=>obj[el.dataset.field]=el.value);
+      if(adsetUsesCampaignBudget(obj)) obj.budget='';
+      obj.audience=obj.notes || '';
+    });
     getAll('[data-v2-ad]').forEach(row=>{ const i=+row.dataset.v2Ad; const obj=v2.ads[i]; if(!obj) return; getAll('[data-field]',row).forEach(el=>obj[el.dataset.field]=el.value); obj.adset_targets=getAll('[data-target]:checked',row).map(x=>x.value); });
     getAll('[data-v2-check]').forEach(el=>{ const i=+el.dataset.v2Check; if(v2.checklist[i]) v2.checklist[i].done=el.checked; });
   }
@@ -4637,16 +4648,102 @@ EXAMPLE RULES:
     getAll('[data-platform]').forEach(b=>b.onclick=()=>{ v2=blank(b.dataset.platform); render(); });
   }
   function renderCampaign(){
-    shell(`<section class="jdw-v2-panel"><div class="jdw-v2-head"><div><span class="jdw-v2-pill">${label()} Campaign</span><h3>Campaign level</h3><p class="small">Condensed version of the first Ads Manager page.</p></div><button class="btn" id="nextAdsets">Next: ${adsetTerm()}</button></div><div class="jdw-v2-grid">${input('artistName','Artist')}${input('title','Campaign / Track(s)')}${input('campaign_name','Campaign Name')}${input('acid_code','ACID Code')}${select('status','Status',['New Brief','Needs Info','Ready to Build','In Progress','Awaiting Approval','Live','Reporting','Complete'])}${select('priority','Priority',['Urgent','Normal','Low'])}${input('ad_account','Ad Account')}${input('objective','Objective')}${input('optimisation_goal',v2.platform==='tiktok'?'Optimisation / Goal':'Optimisation Event')}${select('budget_strategy','Budget Strategy',['','Campaign budget','Ad set budget','Ad group budget','Lifetime campaign budget','Daily campaign budget'])}${input('budget','Budget')}${input('deadline','Deadline / End Date','date')}${input('campaign_link','Destination / Campaign Link','text',true)}${input('territories','Territories')}${input('schedule_start','Schedule Start')}${input('schedule_end','Schedule End')}</div></section>`);
+    shell(`<section class="jdw-v2-panel"><div class="jdw-v2-head"><div><span class="jdw-v2-pill">${label()} Campaign</span><h3>Campaign level</h3><p class="small">Only the key campaign fields: campaign name, artist/track, ad account, budget, territories and objective.</p></div><button class="btn" id="nextAdsets">Next: ${adsetTerm()}</button></div><div class="jdw-v2-grid">${input('campaign_name','Campaign Name','text',true)}${input('artistName','Artist')}${input('title','Campaign / Track')}${input('ad_account','Ad Account')}${select('budget_strategy','Budget Type',['','Campaign budget','Ad set budget','Ad group budget','Lifetime campaign budget','Daily campaign budget'])}${input('budget','Campaign Budget')}${input('territories','Territories')}${input('objective','Objective','text',true)}</div></section>`);
     getEl('#nextAdsets').onclick=()=>{collect();v2.step='adsets';render();};
   }
   function renderAdsets(){
-    shell(`<section class="jdw-v2-panel"><div class="jdw-v2-head"><div><span class="jdw-v2-pill">${adsetTerm()}</span><h3>${adsetTerm()} level</h3><p class="small">Audience fields auto-build the asset name for filtering later: type_target_age_region_platform.</p></div><div class="row"><input id="v2Count" type="number" min="1" max="20" value="${Math.max(1,v2.ad_sets.length||2)}" style="width:90px"><button class="btn secondary" id="genSets">Generate Rows</button><button class="btn secondary" id="addSet">+ Add Row</button><button class="btn" id="nextAds">Next: Ads</button></div></div>${v2.ad_sets.length?`<table class="jdw-v2-table"><thead><tr><th>Generated asset name</th><th>Audience type</th><th>Audience target</th><th>Age</th><th>Region</th><th>Platform</th><th>Objective/Goal</th><th>Budget</th><th>Status</th><th>Notes</th><th></th></tr></thead><tbody>${v2.ad_sets.map((s,i)=>{ s.name=buildAudienceAssetName(s); s.audience=buildAudienceSummary(s); return `<tr data-v2-adset="${i}"><td><input data-field="name" value="${attr2(s.name||'')}" readonly><p class="small" style="margin:6px 0 0;">Auto-generated</p></td><td><select data-field="audience_type"><option value="" ${!s.audience_type?'selected':''}>Choose</option><option ${s.audience_type==='Advantage+'?'selected':''}>Advantage+</option><option ${s.audience_type==='Interest'?'selected':''}>Interest</option><option ${s.audience_type==='Custom Audience'?'selected':''}>Custom Audience</option><option ${s.audience_type==='Lookalike'?'selected':''}>Lookalike</option><option ${s.audience_type==='Retargeting'?'selected':''}>Retargeting</option><option ${s.audience_type==='Broad/Open'?'selected':''}>Broad/Open</option></select></td><td><input data-field="audience_target" value="${attr2(s.audience_target||'')}" placeholder="Lana Del Rey / Warm+LAL / BBC Radio 6"></td><td><input data-field="age_range" value="${attr2(s.age_range||'')}" placeholder="18-30"></td><td><input data-field="region" value="${attr2(s.region||'')}" placeholder="UK / DACH / DE-AT-CH"></td><td><select data-field="platform_field"><option ${s.platform_field==='IG'?'selected':''}>IG</option><option ${s.platform_field==='IG+FB'?'selected':''}>IG+FB</option><option ${s.platform_field==='FB'?'selected':''}>FB</option><option ${s.platform_field==='TT'?'selected':''}>TT</option></select></td><td><input data-field="objective" value="${attr2(s.objective||'')}"></td><td><input data-field="budget" value="${attr2(s.budget||'')}"><select data-field="budget_type" style="margin-top:6px"><option ${s.budget_type==='Daily Budget'?'selected':''}>Daily Budget</option><option ${s.budget_type==='Lifetime Budget'?'selected':''}>Lifetime Budget</option><option ${s.budget_type==='Uses campaign budget'?'selected':''}>Uses campaign budget</option></select></td><td><select data-field="status"><option ${s.status==='Draft'?'selected':''}>Draft</option><option ${s.status==='Needs Review'?'selected':''}>Needs Review</option><option ${s.status==='Ready'?'selected':''}>Ready</option><option ${s.status==='Live'?'selected':''}>Live</option><option ${s.status==='Paused'?'selected':''}>Paused</option></select></td><td><textarea data-field="notes">${esc2(s.notes||'')}</textarea></td><td><button class="mini-btn" data-remove-set="${i}">×</button></td></tr>`;}).join('')}</tbody></table>`:`<div class="empty">No ${adsetTerm().toLowerCase()} yet.</div>`}</section>`);
+    const pastedHelp = `Paste one ${adsetTerm().slice(0,-1).toLowerCase()} name per line. This will create one row per name and keep the exact Meta naming.`;
+    shell(`<section class="jdw-v2-panel">
+      <div class="jdw-v2-head">
+        <div>
+          <span class="jdw-v2-pill">Bulk ${adsetTerm()} Paste</span>
+          <h3>Paste ${adsetTerm().toLowerCase()} line by line</h3>
+          <p class="small">${pastedHelp}</p>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="panel stack">
+          <h3>Paste names</h3>
+          <textarea id="bulkAdsetNames" style="min-height:230px;" placeholder="EU_fop_eng_disco_BERLIN_A-artist_CORRECTED\nEU_fop_eng_disco_MANCHESTER_D-broad\nEU_fop_eng_disco_PARIS_B-genre-CORRECTED"></textarea>
+        </div>
+        <div class="panel stack">
+          <h3>Apply to generated rows</h3>
+          <div>
+            <label>Budget Type</label>
+            <select id="bulkBudgetType">
+              <option>Uses campaign budget</option>
+              <option>Daily Budget</option>
+              <option>Lifetime Budget</option>
+            </select>
+          </div>
+          <div id="bulkBudgetAmountWrap">
+            <label>Budget Amount</label>
+            <input id="bulkBudgetAmount" placeholder="Only needed for daily/lifetime ad set budgets">
+          </div>
+          <div>
+            <label>Default Notes</label>
+            <textarea id="bulkDefaultNotes" style="min-height:95px;" placeholder="Optional note applied to every pasted ${adsetTerm().slice(0,-1).toLowerCase()}..."></textarea>
+          </div>
+          <div class="row">
+            <button class="btn" id="bulkReplaceAdsets">Generate / Replace Rows</button>
+            <button class="btn secondary" id="bulkAppendAdsets">Add To Existing Rows</button>
+          </div>
+          <p class="small">If Budget Type is “Uses campaign budget”, each row’s amount field stays hidden and saves blank.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="jdw-v2-panel">
+      <div class="jdw-v2-head">
+        <div>
+          <span class="jdw-v2-pill">${adsetTerm()}</span>
+          <h3>${adsetTerm()} level</h3>
+          <p class="small">Imported ${adsetTerm().slice(0,-1).toLowerCase()} name, budget type/amount and notes. If it uses campaign budget, the amount field disappears.</p>
+        </div>
+        <div class="row">
+          <input id="v2Count" type="number" min="1" max="50" value="${Math.max(1,v2.ad_sets.length||2)}" style="width:90px">
+          <button class="btn secondary" id="genSets">Generate Blank Rows</button>
+          <button class="btn secondary" id="addSet">+ Add Row</button>
+          <button class="btn" id="nextAds">Next: Ads</button>
+        </div>
+      </div>
+      ${v2.ad_sets.length?`<table class="jdw-v2-table"><thead><tr><th>${adsetTerm().slice(0,-1)} Name</th><th>Budget Type</th><th>Budget Amount</th><th>Notes</th><th></th></tr></thead><tbody>${v2.ad_sets.map((s,i)=>{ const usesCampaign=adsetUsesCampaignBudget(s); if(usesCampaign) s.budget=''; return `<tr data-v2-adset="${i}"><td><input data-field="name" value="${attr2(s.name||'')}" placeholder="Imported Meta ${adsetTerm().slice(0,-1).toLowerCase()} name"></td><td><select data-field="budget_type"><option ${s.budget_type==='Uses campaign budget'?'selected':''}>Uses campaign budget</option><option ${s.budget_type==='Daily Budget'?'selected':''}>Daily Budget</option><option ${s.budget_type==='Lifetime Budget'?'selected':''}>Lifetime Budget</option><option ${s.budget_type==='Campaign Budget'?'selected':''}>Campaign Budget</option></select></td><td>${usesCampaign?`<div class="pill accent">Uses campaign budget</div><p class="small" style="margin:6px 0 0;">No ${adsetTerm().slice(0,-1).toLowerCase()} amount needed.</p>`:`<input data-field="budget" value="${attr2(s.budget||'')}" placeholder="Budget amount">`}</td><td><textarea data-field="notes" placeholder="Audience, targeting, placements, import notes...">${esc2(s.notes||'')}</textarea></td><td><button class="mini-btn" data-remove-set="${i}">×</button></td></tr>`;}).join('')}</tbody></table>`:`<div class="empty">No ${adsetTerm().toLowerCase()} yet. Paste names above or add rows manually.</div>`}
+    </section>`);
+
+    const getPastedRows = ()=>{
+      const raw = getEl('#bulkAdsetNames')?.value || '';
+      const names = raw.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+      if(!names.length){ toast(`Paste at least one ${adsetTerm().slice(0,-1).toLowerCase()} name.`, true); return null; }
+      const budgetType = getEl('#bulkBudgetType')?.value || 'Uses campaign budget';
+      const amount = /campaign/i.test(budgetType) ? '' : (getEl('#bulkBudgetAmount')?.value || '').trim();
+      const notes = (getEl('#bulkDefaultNotes')?.value || '').trim();
+      return names.map((name,i)=>({
+        ...adsetRowDefaults(i),
+        name,
+        budget_type:budgetType,
+        budget:amount,
+        notes,
+        audience:notes,
+        status:'Draft'
+      }));
+    };
+
+    const toggleBulkAmount = ()=>{
+      const wrap = getEl('#bulkBudgetAmountWrap');
+      if(!wrap) return;
+      wrap.classList.toggle('hidden', /campaign/i.test(getEl('#bulkBudgetType')?.value || ''));
+    };
+
+    getEl('#bulkBudgetType').onchange=toggleBulkAmount;
+    toggleBulkAmount();
+
+    getEl('#bulkReplaceAdsets').onclick=()=>{ const rows=getPastedRows(); if(!rows) return; collect(); v2.ad_sets=rows; render(); };
+    getEl('#bulkAppendAdsets').onclick=()=>{ const rows=getPastedRows(); if(!rows) return; collect(); v2.ad_sets=[...v2.ad_sets,...rows]; render(); };
     getEl('#genSets').onclick=()=>{collect(); const n=Number(getEl('#v2Count').value||1); v2.ad_sets=Array.from({length:n},(_,i)=>v2.ad_sets[i]||adsetRowDefaults(i)); render();};
     getEl('#addSet').onclick=()=>{collect();v2.ad_sets.push(adsetRowDefaults(v2.ad_sets.length));render();};
     getEl('#nextAds').onclick=()=>{collect();v2.step='ads';render();};
     getAll('[data-remove-set]').forEach(b=>b.onclick=()=>{collect();v2.ad_sets.splice(+b.dataset.removeSet,1);render();});
-    getAll('[data-v2-adset] [data-field]').forEach(el=>{ el.oninput=()=>{ collect(); }; el.onchange=()=>{ collect(); }; });
+    getAll('[data-v2-adset] [data-field]').forEach(el=>{ el.oninput=()=>{ collect(); }; el.onchange=()=>{ collect(); render(); }; });
   }
   function renderAds(){
     const targets=v2.ad_sets.map((s,i)=>s.name||`${adsetTerm().slice(0,-1)} ${i+1}`);
@@ -4661,7 +4758,7 @@ EXAMPLE RULES:
     getEl('#nextChecklist').onclick=()=>{collect();v2.step='checklist';render();};
   }
   function summary(){
-    return `${label()} Campaign Build\n\nCampaign: ${v2.campaign_name||'TBC'}\nArtist / Track: ${v2.artistName||'TBC'} — ${v2.title||'TBC'}\nObjective: ${v2.objective||'TBC'}\nGoal: ${v2.optimisation_goal||'TBC'}\nBudget: ${v2.budget||'TBC'}\nAccount: ${v2.ad_account||'TBC'}\nTerritories: ${v2.territories||'TBC'}\n\n${adsetTerm()}:\n${v2.ad_sets.length?v2.ad_sets.map((s,i)=>`${i+1}. ${s.name||'Untitled'} — ${s.objective||'Goal TBC'} — ${s.budget||'Budget TBC'} — ${s.audience||'Audience TBC'}`).join('\n'):'None yet'}\n\nAds:\n${v2.ads.length?v2.ads.map((ad,i)=>`${i+1}. ${ad.name||'Untitled'} — ${(ad.adset_targets||[]).length?'Targets: '+ad.adset_targets.join(', '):'Targets TBC'}`).join('\n'):'None yet'}\n\nQuestions / Missing Info:\n${v2.missing_info||'None'}`;
+    return `${label()} Campaign Build\n\nCampaign Name: ${v2.campaign_name||'TBC'}\nArtist / Track: ${v2.artistName||'TBC'} — ${v2.title||'TBC'}\nAd Account: ${v2.ad_account||'TBC'}\nBudget: ${v2.budget||'TBC'}\nTerritories: ${v2.territories||'TBC'}\nObjective: ${v2.objective||'TBC'}\n\n${adsetTerm()}:\n${v2.ad_sets.length?v2.ad_sets.map((s,i)=>`${i+1}. ${s.name||'Untitled'} — ${adsetUsesCampaignBudget(s)?'Uses campaign budget':`${s.budget||'Budget TBC'} ${s.budget_type||''}`}${s.notes?` — Notes: ${s.notes}`:''}`).join('\n'):'None yet'}\n\nAds:\n${v2.ads.length?v2.ads.map((ad,i)=>`${i+1}. ${ad.name||'Untitled'} — ${(ad.adset_targets||[]).length?'Targets: '+ad.adset_targets.join(', '):'Targets TBC'}`).join('\n'):'None yet'}\n\nQuestions / Missing Info:\n${v2.missing_info||'None'}`;
   }
   function renderChecklist(){
     const done=v2.checklist.filter(x=>x.done).length;
@@ -4685,7 +4782,7 @@ EXAMPLE RULES:
     if(!v2.artistName || !v2.title){ toast('Add artist and campaign / track name first.',true); v2.step='campaign'; render(); return; }
     try{
       const artist=await getOrCreateArtist(v2.artistName);
-      const platformData={platform:v2.platform,campaign_name:v2.campaign_name,acid_code:v2.acid_code,ad_account:v2.ad_account,optimisation_goal:v2.optimisation_goal,budget_strategy:v2.budget_strategy,schedule_start:v2.schedule_start,schedule_end:v2.schedule_end,ads:v2.ads,ad_sets_meta:v2.ad_sets.map(s=>({audience_type:s.audience_type||'',audience_target:s.audience_target||'',age_range:s.age_range||'',region:s.region||'',platform_field:s.platform_field||'',generated_name:buildAudienceAssetName(s)}))};
+      const platformData={platform:v2.platform,campaign_name:v2.campaign_name,acid_code:v2.acid_code,ad_account:v2.ad_account,optimisation_goal:v2.optimisation_goal,budget_strategy:v2.budget_strategy,schedule_start:v2.schedule_start,schedule_end:v2.schedule_end,ads:v2.ads,ad_sets_meta:v2.ad_sets.map(s=>({imported_name:s.name||'',budget_type:s.budget_type||'',uses_campaign_budget:adsetUsesCampaignBudget(s),notes:s.notes||''}))};
       const payload={artist_id:artist.id,title:v2.title,status:v2.status,priority:v2.priority,deadline:v2.deadline||null,budget:v2.budget,objective:v2.objective,campaign_link:v2.campaign_link,territories:v2.territories,raw_brief:v2.raw_brief||'',structured_brief:v2.structured_brief||'',missing_info:v2.missing_info||'',report:v2.report||summary(),updated_at:new Date().toISOString(),platform:v2.platform,platform_data:platformData};
       let id=v2.id;
       if(id){
@@ -4695,7 +4792,7 @@ EXAMPLE RULES:
       }else{
         let res=await sb.from('campaigns').insert(payload).select().single(); if(res.error && /platform/i.test(res.error.message||'')){ delete payload.platform; delete payload.platform_data; res=await sb.from('campaigns').insert(payload).select().single(); } if(res.error) throw res.error; id=res.data.id; v2.id=id;
       }
-      if(v2.ad_sets.length) await sb.from('ad_sets').insert(v2.ad_sets.map((s,i)=>({campaign_id:id,name:buildAudienceAssetName(s),objective:s.objective||'',budget:s.budget||'',budget_type:s.budget_type||'Daily Budget',status:s.status||'Draft',audience:buildAudienceSummary(s),notes:s.notes||'',position:i})));
+      if(v2.ad_sets.length) await sb.from('ad_sets').insert(v2.ad_sets.map((s,i)=>({campaign_id:id,name:s.name||`${adsetTerm().slice(0,-1)} ${i+1}`,objective:s.objective||'',budget:adsetUsesCampaignBudget(s)?'':(s.budget||''),budget_type:s.budget_type||'Uses campaign budget',status:s.status||'Draft',audience:s.notes||'',notes:s.notes||'',position:i})));
       if(v2.checklist.length) await sb.from('checklist_items').insert(v2.checklist.map((c,i)=>({campaign_id:id,text:c.text,done:!!c.done,position:i})));
       await sb.from('work_logs').insert({campaign_id:id,logged_by:'System',log_type:id===v2.id?'Update':'Brief',text:`${label()} campaign saved from Campaign / ${adsetTerm()} / Ads builder.`,visible_to_james:true});
       await loadData(); toast('Campaign saved.');
