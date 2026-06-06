@@ -853,6 +853,7 @@
       <button class="btn" style="width:100%;" id="newCampaignBtn">+ New Campaign</button>
       <button class="btn secondary hidden" style="width:100%;margin-top:12px;" id="importBriefBtn">Import Messy Brief</button>
       <button class="btn secondary" style="width:100%;margin-top:12px;" id="settingsBtn">Settings</button>
+      <button class="btn secondary" style="width:100%;margin-top:12px;" id="timesheetBtn">Hours / Invoice</button>
 
       <div class="folder-toolbar">
         <span>Artists</span>
@@ -980,6 +981,7 @@
       document.getElementById("newCampaignBtn").addEventListener("click",()=>openCampaignModal(null));
       document.getElementById("importBriefBtn").addEventListener("click",openImportModal);
       document.getElementById("settingsBtn").addEventListener("click",openSettingsModal);
+      document.getElementById("timesheetBtn")?.addEventListener("click",openTimesheetModal);
       document.getElementById("addArtistBtn").addEventListener("click",createArtistFolder);
       document.getElementById("undoBtn").addEventListener("click",undoLastAction);
       document.getElementById("searchInput").addEventListener("input",renderAll);
@@ -5098,6 +5100,754 @@ EXAMPLE RULES:
     }
   }
 </style>
+
+
+<style id="jdw-timesheet-css">
+  .timesheet-wrap{display:grid;gap:16px}
+  .timesheet-hero{
+    display:grid;
+    grid-template-columns:minmax(260px,1fr) minmax(260px,360px);
+    gap:14px;
+    align-items:stretch;
+  }
+  .timesheet-clock{
+    border:1px solid rgba(var(--accent-rgb),.24);
+    border-radius:20px;
+    background:linear-gradient(180deg,rgba(var(--accent-rgb),.08),rgba(255,255,255,.03));
+    padding:16px;
+    display:grid;
+    gap:10px;
+  }
+  .timesheet-clock .big-time{
+    font-size:38px;
+    line-height:1;
+    letter-spacing:-.07em;
+    font-weight:950;
+  }
+  .timesheet-status{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    width:max-content;
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:6px 9px;
+    font-size:11px;
+    font-weight:950;
+    color:var(--muted);
+    background:rgba(0,0,0,.18);
+  }
+  .timesheet-status.on{
+    color:var(--green);
+    border-color:rgba(114,255,153,.28);
+    background:rgba(114,255,153,.08);
+  }
+  .timesheet-tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .timesheet-tab{
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:8px 12px;
+    background:rgba(255,255,255,.04);
+    color:var(--muted);
+    font-size:12px;
+    font-weight:950;
+  }
+  .timesheet-tab.active{
+    color:var(--accent);
+    border-color:rgba(var(--accent-rgb),.28);
+    background:rgba(var(--accent-rgb),.09);
+  }
+  .timesheet-metrics{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(110px,1fr));
+    gap:10px;
+  }
+  .timesheet-metric{
+    border:1px solid var(--line);
+    border-radius:16px;
+    background:rgba(0,0,0,.17);
+    padding:12px;
+  }
+  .timesheet-metric strong{display:block;font-size:23px;letter-spacing:-.05em}
+  .timesheet-metric span{font-size:11px;color:var(--muted2);font-weight:900;text-transform:uppercase;letter-spacing:.08em}
+  .timesheet-layout{
+    display:grid;
+    grid-template-columns:360px 1fr;
+    gap:14px;
+    align-items:start;
+  }
+  .timesheet-list{display:grid;gap:9px;max-height:520px;overflow:auto;padding-right:3px}
+  .time-entry{
+    border:1px solid var(--line);
+    border-radius:16px;
+    background:rgba(255,255,255,.035);
+    padding:12px;
+    display:grid;
+    gap:8px;
+  }
+  .time-entry-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+  .time-entry h4{margin:0;font-size:14px}
+  .time-entry p{margin:0;color:var(--muted);font-size:12px;line-height:1.4}
+  .time-campaigns{display:flex;gap:6px;flex-wrap:wrap}
+  .time-campaigns span{
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:4px 7px;
+    color:var(--muted);
+    font-size:10px;
+    font-weight:900;
+    background:rgba(0,0,0,.16);
+  }
+  .calendar-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+  .calendar-grid{
+    display:grid;
+    grid-template-columns:repeat(7,minmax(94px,1fr));
+    gap:8px;
+  }
+  .calendar-dow{
+    color:var(--muted2);
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    font-weight:950;
+    padding:0 4px;
+  }
+  .calendar-day{
+    min-height:118px;
+    border:1px solid var(--line);
+    border-radius:14px;
+    background:rgba(0,0,0,.15);
+    padding:9px;
+    display:grid;
+    align-content:start;
+    gap:6px;
+  }
+  .calendar-day.out{opacity:.34}
+  .calendar-day.today{border-color:rgba(var(--accent-rgb),.45);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.06)}
+  .calendar-date{display:flex;justify-content:space-between;gap:8px;font-size:12px;font-weight:950}
+  .calendar-hours{font-size:18px;font-weight:950;letter-spacing:-.04em;color:var(--accent)}
+  .calendar-made{font-size:11px;color:var(--muted)}
+  .calendar-mini{display:grid;gap:4px;margin-top:3px}
+  .calendar-mini span{
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+    font-size:10px;
+    color:var(--muted);
+    border-left:2px solid rgba(var(--accent-rgb),.45);
+    padding-left:5px;
+  }
+  .invoice-preview{
+    width:100%;
+    min-height:360px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+    font-size:12px;
+  }
+  .multi-select{
+    min-height:115px;
+  }
+  .time-form-actions{display:flex;gap:8px;flex-wrap:wrap}
+  @media(max-width:1050px){
+    .timesheet-hero,.timesheet-layout{grid-template-columns:1fr}
+    .timesheet-metrics{grid-template-columns:repeat(2,1fr)}
+    .calendar-grid{grid-template-columns:repeat(7,minmax(70px,1fr))}
+    .calendar-day{min-height:100px}
+  }
+</style>
+
+
+<script id="jdw-timesheet-js">
+(function(){
+  let timesheetTab = "calendar";
+  let workSessions = [];
+  let workLinks = [];
+  let activeSession = null;
+  let editingSessionId = null;
+  let calendarCursor = new Date();
+  let clockTimer = null;
+
+  function qs(id){ return document.getElementById(id); }
+  function safeEsc(v){
+    if(typeof esc === "function") return esc(v ?? "");
+    return String(v ?? "").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+  }
+  function safeAttr(v){
+    if(typeof attr === "function") return attr(v ?? "");
+    return safeEsc(v ?? "");
+  }
+  function notify(msg,isErr=false){
+    if(typeof toast === "function") toast(msg,isErr);
+    else alert(msg);
+  }
+  function localDateString(d=new Date()){
+    const y=d.getFullYear();
+    const m=String(d.getMonth()+1).padStart(2,"0");
+    const day=String(d.getDate()).padStart(2,"0");
+    return `${y}-${m}-${day}`;
+  }
+  function timeString(d=new Date()){
+    return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+  }
+  function parseLocal(date,time){
+    if(!date || !time) return null;
+    return new Date(`${date}T${time}:00`);
+  }
+  function weekStartFrom(dateStr){
+    const d = dateStr ? new Date(dateStr+"T00:00:00") : new Date();
+    const day = (d.getDay()+6)%7;
+    d.setDate(d.getDate()-day);
+    d.setHours(0,0,0,0);
+    return d;
+  }
+  function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+  function monthStart(d){ return new Date(d.getFullYear(),d.getMonth(),1); }
+  function monthEnd(d){ return new Date(d.getFullYear(),d.getMonth()+1,0); }
+  function minutesToHours(min){
+    const h = Math.floor(Math.max(0,min)/60);
+    const m = Math.max(0,min)%60;
+    if(!h) return `${m}m`;
+    if(!m) return `${h}h`;
+    return `${h}h ${m}m`;
+  }
+  function decimalHours(min){
+    return (Math.max(0,min)/60).toFixed(2).replace(/\.00$/,"");
+  }
+  function sessionMinutes(s){
+    if(Number.isFinite(Number(s.total_minutes)) && Number(s.total_minutes)>0) return Number(s.total_minutes);
+    if(!s.clock_in || !s.clock_out) return 0;
+    const total = Math.round((new Date(s.clock_out)-new Date(s.clock_in))/60000) - Number(s.break_minutes||0);
+    return Math.max(0,total);
+  }
+  function campaignName(id){
+    const c = (typeof campaigns !== "undefined" ? campaigns : []).find(x=>x.id===id);
+    if(!c) return "Campaign";
+    const artist = (typeof getArtistName === "function") ? getArtistName(c.artist_id) : "";
+    return `${artist ? artist+" — " : ""}${c.title || "Untitled"}`;
+  }
+  function campaignsForSession(sessionId){
+    return workLinks.filter(l=>l.work_session_id===sessionId).map(l=>l.campaign_id);
+  }
+  function createdCampaignsForDate(dateStr){
+    const all = typeof campaigns !== "undefined" ? campaigns : [];
+    return all.filter(c=>localDateString(new Date(c.created_at || c.updated_at || Date.now()))===dateStr);
+  }
+  function sessionsForDate(dateStr){
+    return workSessions.filter(s=>s.work_date===dateStr).sort((a,b)=>String(a.clock_in||"").localeCompare(String(b.clock_in||"")));
+  }
+  function getWeekSessions(){
+    const ws = weekStartFrom(qs("tsWeekStart")?.value || localDateString());
+    const we = addDays(ws,7);
+    return workSessions.filter(s=>{
+      const d = new Date(s.work_date+"T00:00:00");
+      return d>=ws && d<we;
+    });
+  }
+
+  window.openTimesheetModal = async function(){
+    if(typeof sb === "undefined" || !sb){
+      notify("Supabase is not ready yet.",true);
+      return;
+    }
+
+    calendarCursor = new Date();
+    editingSessionId = null;
+
+    qs("modalRoot").innerHTML = `
+      <div class="modal-backdrop" id="timesheetBackdrop">
+        <div class="modal" style="width:min(1380px,100%);">
+          <div class="modal-head between">
+            <div>
+              <h2>Hours / Invoice</h2>
+              <p class="small">Clock in/out, manually adjust hours, see your campaign calendar and copy James' weekly invoice.</p>
+            </div>
+            <div class="row">
+              <button class="btn secondary" id="tsRefreshBtn">Refresh</button>
+              <button class="btn secondary" id="tsCloseBtn">Close</button>
+            </div>
+          </div>
+          <div class="modal-body">
+            <div id="timesheetBody" class="timesheet-wrap"></div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    qs("tsCloseBtn").addEventListener("click",closeTimesheet);
+    qs("tsRefreshBtn").addEventListener("click",loadTimesheet);
+    qs("timesheetBackdrop").addEventListener("click",e=>{ if(e.target.id==="timesheetBackdrop") closeTimesheet(); });
+
+    await loadTimesheet();
+  };
+
+  function closeTimesheet(){
+    clearInterval(clockTimer);
+    clockTimer = null;
+    qs("modalRoot").innerHTML = "";
+  }
+
+  async function loadTimesheet(){
+    try{
+      const sessionRes = await sb.from("work_sessions").select("*").order("work_date",{ascending:false}).order("clock_in",{ascending:false});
+      if(sessionRes.error) throw sessionRes.error;
+      workSessions = sessionRes.data || [];
+
+      const linkRes = await sb.from("work_session_campaigns").select("*");
+      if(linkRes.error) throw linkRes.error;
+      workLinks = linkRes.data || [];
+
+      activeSession = workSessions.find(s=>!s.clock_out) || null;
+      renderTimesheet();
+    }catch(err){
+      notify("Timesheet load failed: "+err.message,true);
+    }
+  }
+
+  function renderTimesheet(){
+    const weekStart = weekStartFrom(qs("tsWeekStart")?.value || localDateString());
+    const weekStartStr = localDateString(weekStart);
+    const week = getWeekSessions();
+    const weekMinutes = week.reduce((sum,s)=>sum+sessionMinutes(s),0);
+    const invoiceableMinutes = week.filter(s=>s.invoiceable !== false).reduce((sum,s)=>sum+sessionMinutes(s),0);
+    const activeText = activeSession ? `Clocked in at ${new Date(activeSession.clock_in).toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"})}` : "No active session";
+
+    qs("timesheetBody").innerHTML = `
+      <section class="timesheet-hero">
+        <div class="panel">
+          <div class="between" style="margin-bottom:14px;">
+            <div>
+              <h3 style="margin:0 0 4px;">Timesheet Command Centre</h3>
+              <p class="small" style="margin:0;">Your hours and campaign output stay separate, then combine into a weekly invoice.</p>
+            </div>
+            <div class="timesheet-tabs">
+              ${["calendar","entries","invoice"].map(t=>`<button class="timesheet-tab ${timesheetTab===t?"active":""}" data-ts-tab="${t}">${t[0].toUpperCase()+t.slice(1)}</button>`).join("")}
+            </div>
+          </div>
+
+          <div class="timesheet-metrics">
+            <div class="timesheet-metric"><strong>${decimalHours(weekMinutes)}h</strong><span>This week</span></div>
+            <div class="timesheet-metric"><strong>${decimalHours(invoiceableMinutes)}h</strong><span>Invoiceable</span></div>
+            <div class="timesheet-metric"><strong>${week.length}</strong><span>Time entries</span></div>
+            <div class="timesheet-metric"><strong>${createdCampaignsThisWeek()}</strong><span>Campaigns made</span></div>
+          </div>
+        </div>
+
+        <div class="timesheet-clock">
+          <span class="timesheet-status ${activeSession ? "on" : ""}">${activeSession ? "● Clocked in" : "○ Clocked out"}</span>
+          <div class="big-time" id="tsLiveClock">--:--</div>
+          <p class="small" id="tsCurrentSessionText">${safeEsc(activeText)}</p>
+          <button class="btn ${activeSession ? "danger" : ""}" id="tsClockToggle">${activeSession ? "Clock Out" : "Clock In"}</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="between">
+          <div class="row">
+            <div>
+              <label>Week starting</label>
+              <input id="tsWeekStart" type="date" value="${safeAttr(weekStartStr)}">
+            </div>
+            <div>
+              <label>Hourly rate</label>
+              <input id="tsHourlyRate" type="number" min="0" step="0.01" value="${safeAttr(localStorage.getItem("jdw_hourly_rate") || "")}" placeholder="£ / hour">
+            </div>
+          </div>
+          <div class="row">
+            <button class="btn secondary" id="tsAddManualBtn">+ Add Manual Time</button>
+            <button class="btn secondary" id="tsCopyInvoiceTopBtn">Copy Invoice</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="timesheetTabBody"></section>
+    `;
+
+    qs("tsClockToggle").addEventListener("click",toggleClock);
+    qs("tsWeekStart").addEventListener("change",renderTimesheet);
+    qs("tsHourlyRate").addEventListener("input",e=>{ localStorage.setItem("jdw_hourly_rate",e.target.value); renderTimesheetBody(); });
+    qs("tsAddManualBtn").addEventListener("click",()=>{ editingSessionId=null; timesheetTab="entries"; renderTimesheet(); });
+    qs("tsCopyInvoiceTopBtn").addEventListener("click",copyInvoice);
+
+    document.querySelectorAll("[data-ts-tab]").forEach(btn=>{
+      btn.addEventListener("click",()=>{ timesheetTab=btn.dataset.tsTab; renderTimesheetBody(); });
+    });
+
+    startClockDisplay();
+    renderTimesheetBody();
+  }
+
+  function renderTimesheetBody(){
+    document.querySelectorAll(".timesheet-tab").forEach(b=>b.classList.toggle("active",b.dataset.tsTab===timesheetTab));
+    if(timesheetTab==="calendar") renderCalendarTab();
+    if(timesheetTab==="entries") renderEntriesTab();
+    if(timesheetTab==="invoice") renderInvoiceTab();
+  }
+
+  function startClockDisplay(){
+    clearInterval(clockTimer);
+    const tick=()=>{
+      const now = new Date();
+      if(qs("tsLiveClock")) qs("tsLiveClock").textContent = now.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+      if(activeSession && qs("tsCurrentSessionText")){
+        const mins = Math.max(0,Math.round((now-new Date(activeSession.clock_in))/60000));
+        qs("tsCurrentSessionText").textContent = `Current session: ${minutesToHours(mins)} running`;
+      }
+    };
+    tick();
+    clockTimer = setInterval(tick,1000);
+  }
+
+  async function toggleClock(){
+    try{
+      if(activeSession){
+        const out = new Date();
+        const total = Math.max(0,Math.round((out-new Date(activeSession.clock_in))/60000) - Number(activeSession.break_minutes||0));
+        const {error}=await sb.from("work_sessions").update({
+          clock_out: out.toISOString(),
+          total_minutes: total,
+          updated_at: new Date().toISOString()
+        }).eq("id",activeSession.id);
+        if(error) throw error;
+        notify("Clocked out.");
+      }else{
+        const now = new Date();
+        const {error}=await sb.from("work_sessions").insert({
+          work_date: localDateString(now),
+          clock_in: now.toISOString(),
+          clock_out: null,
+          break_minutes: 0,
+          total_minutes: 0,
+          notes: "",
+          invoiceable: true,
+          invoiced: false
+        });
+        if(error) throw error;
+        notify("Clocked in.");
+      }
+      await loadTimesheet();
+    }catch(err){
+      notify("Clock failed: "+err.message,true);
+    }
+  }
+
+  function renderEntriesTab(){
+    const week = getWeekSessions().sort((a,b)=>String(b.work_date+b.clock_in).localeCompare(String(a.work_date+a.clock_in)));
+    const editing = editingSessionId ? workSessions.find(s=>s.id===editingSessionId) : null;
+    const linked = editing ? campaignsForSession(editing.id) : [];
+    const dateVal = editing?.work_date || localDateString();
+    const startVal = editing?.clock_in ? timeString(new Date(editing.clock_in)) : "";
+    const endVal = editing?.clock_out ? timeString(new Date(editing.clock_out)) : "";
+
+    qs("timesheetTabBody").innerHTML = `
+      <div class="timesheet-layout">
+        <section class="panel stack">
+          <div class="between">
+            <h3>${editing ? "Edit Time Entry" : "Add Manual Time"}</h3>
+            ${editing ? `<button class="btn secondary" id="tsCancelEdit">New Entry</button>` : ""}
+          </div>
+
+          <input type="hidden" id="tsEditingId" value="${safeAttr(editing?.id || "")}">
+          <div>
+            <label>Date</label>
+            <input id="tsEntryDate" type="date" value="${safeAttr(dateVal)}">
+          </div>
+          <div class="grid-2">
+            <div><label>Start</label><input id="tsEntryStart" type="time" value="${safeAttr(startVal)}"></div>
+            <div><label>End</label><input id="tsEntryEnd" type="time" value="${safeAttr(endVal)}"></div>
+          </div>
+          <div>
+            <label>Break minutes</label>
+            <input id="tsEntryBreak" type="number" min="0" value="${safeAttr(editing?.break_minutes || 0)}">
+          </div>
+          <div>
+            <label>Linked campaigns</label>
+            <select id="tsEntryCampaigns" class="multi-select" multiple>
+              ${(typeof campaigns !== "undefined" ? campaigns : []).map(c=>`<option value="${safeAttr(c.id)}" ${linked.includes(c.id)?"selected":""}>${safeEsc(campaignName(c.id))}</option>`).join("")}
+            </select>
+            <p class="small" style="margin-top:6px;">Hold Cmd/Ctrl to select more than one campaign.</p>
+          </div>
+          <div>
+            <label>Notes</label>
+            <textarea id="tsEntryNotes" placeholder="Built campaign, QA'd ad names, prepared report...">${safeEsc(editing?.notes || "")}</textarea>
+          </div>
+          <label class="check-item" style="margin:0;">
+            <input id="tsEntryInvoiceable" type="checkbox" ${editing?.invoiceable === false ? "" : "checked"}>
+            <span>Invoiceable</span>
+          </label>
+
+          <div class="time-form-actions">
+            <button class="btn" id="tsSaveEntry">${editing ? "Save Changes" : "Save Time Entry"}</button>
+            ${editing ? `<button class="btn danger" id="tsDeleteEntry">Delete</button>` : ""}
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="between" style="margin-bottom:12px;">
+            <h3>This Week's Entries</h3>
+            <span class="badge">${week.length}</span>
+          </div>
+          <div class="timesheet-list">
+            ${week.length ? week.map(renderTimeEntry).join("") : `<div class="empty">No time logged for this week yet.</div>`}
+          </div>
+        </section>
+      </div>
+    `;
+
+    qs("tsSaveEntry").addEventListener("click",saveEntry);
+    qs("tsCancelEdit")?.addEventListener("click",()=>{ editingSessionId=null; renderEntriesTab(); });
+    qs("tsDeleteEntry")?.addEventListener("click",deleteEntry);
+    document.querySelectorAll("[data-edit-session]").forEach(btn=>btn.addEventListener("click",()=>{ editingSessionId=btn.dataset.editSession; renderEntriesTab(); }));
+  }
+
+  function renderTimeEntry(s){
+    const links = campaignsForSession(s.id);
+    const start = s.clock_in ? new Date(s.clock_in).toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}) : "Manual";
+    const end = s.clock_out ? new Date(s.clock_out).toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}) : "Running";
+    return `
+      <article class="time-entry">
+        <div class="time-entry-head">
+          <div>
+            <h4>${safeEsc(formatReadableDate(s.work_date))} · ${minutesToHours(sessionMinutes(s))}</h4>
+            <p>${safeEsc(start)} – ${safeEsc(end)} ${s.break_minutes ? `· ${safeEsc(s.break_minutes)}m break` : ""}</p>
+          </div>
+          <button class="mini-btn" data-edit-session="${safeAttr(s.id)}">Edit</button>
+        </div>
+        ${s.notes ? `<p>${safeEsc(s.notes)}</p>` : ""}
+        <div class="time-campaigns">
+          ${links.length ? links.map(id=>`<span>${safeEsc(campaignName(id))}</span>`).join("") : `<span>No linked campaign</span>`}
+          ${s.invoiceable===false ? `<span>Not invoiceable</span>` : ""}
+          ${s.invoiced ? `<span>Invoiced</span>` : ""}
+        </div>
+      </article>
+    `;
+  }
+
+  async function saveEntry(){
+    try{
+      const id = qs("tsEditingId").value;
+      const workDate = qs("tsEntryDate").value;
+      const start = qs("tsEntryStart").value;
+      const end = qs("tsEntryEnd").value;
+      const breakMinutes = Number(qs("tsEntryBreak").value || 0);
+      const notes = qs("tsEntryNotes").value.trim();
+      const invoiceable = qs("tsEntryInvoiceable").checked;
+      const selectedCampaigns = Array.from(qs("tsEntryCampaigns").selectedOptions).map(o=>o.value);
+
+      if(!workDate || !start || !end){
+        notify("Add a date, start time and end time.",true);
+        return;
+      }
+
+      const clockIn = parseLocal(workDate,start);
+      const clockOut = parseLocal(workDate,end);
+      if(!clockIn || !clockOut || clockOut <= clockIn){
+        notify("End time needs to be after start time.",true);
+        return;
+      }
+
+      const total = Math.max(0,Math.round((clockOut-clockIn)/60000)-breakMinutes);
+
+      const payload = {
+        work_date: workDate,
+        clock_in: clockIn.toISOString(),
+        clock_out: clockOut.toISOString(),
+        break_minutes: breakMinutes,
+        total_minutes: total,
+        notes,
+        invoiceable,
+        updated_at: new Date().toISOString()
+      };
+
+      let sessionId = id;
+      if(id){
+        const {error}=await sb.from("work_sessions").update(payload).eq("id",id);
+        if(error) throw error;
+      }else{
+        const {data,error}=await sb.from("work_sessions").insert(payload).select("id").single();
+        if(error) throw error;
+        sessionId = data.id;
+      }
+
+      await sb.from("work_session_campaigns").delete().eq("work_session_id",sessionId);
+      if(selectedCampaigns.length){
+        const rows = selectedCampaigns.map(campaign_id=>({work_session_id:sessionId,campaign_id}));
+        const {error:linkError}=await sb.from("work_session_campaigns").insert(rows);
+        if(linkError) throw linkError;
+      }
+
+      editingSessionId = null;
+      notify("Time entry saved.");
+      await loadTimesheet();
+    }catch(err){
+      notify("Save failed: "+err.message,true);
+    }
+  }
+
+  async function deleteEntry(){
+    const id = qs("tsEditingId").value;
+    if(!id || !confirm("Delete this time entry?")) return;
+    const {error}=await sb.from("work_sessions").delete().eq("id",id);
+    if(error){ notify(error.message,true); return; }
+    editingSessionId = null;
+    notify("Time entry deleted.");
+    await loadTimesheet();
+  }
+
+  function renderCalendarTab(){
+    const start = monthStart(calendarCursor);
+    const end = monthEnd(calendarCursor);
+    const gridStart = addDays(start, -((start.getDay()+6)%7));
+    const days = Array.from({length:42},(_,i)=>addDays(gridStart,i));
+    const monthLabel = calendarCursor.toLocaleString("en-GB",{month:"long",year:"numeric"});
+
+    qs("timesheetTabBody").innerHTML = `
+      <section class="panel">
+        <div class="calendar-tools">
+          <div>
+            <h3 style="margin:0;">${safeEsc(monthLabel)}</h3>
+            <p class="small" style="margin:4px 0 0;">Each day shows hours worked separately from campaigns created.</p>
+          </div>
+          <div class="row">
+            <button class="btn secondary" id="tsPrevMonth">← Previous</button>
+            <button class="btn secondary" id="tsThisMonth">This Month</button>
+            <button class="btn secondary" id="tsNextMonth">Next →</button>
+          </div>
+        </div>
+
+        <div class="calendar-grid">
+          ${["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d=>`<div class="calendar-dow">${d}</div>`).join("")}
+          ${days.map(d=>renderCalendarDay(d,start,end)).join("")}
+        </div>
+      </section>
+    `;
+
+    qs("tsPrevMonth").addEventListener("click",()=>{ calendarCursor = new Date(calendarCursor.getFullYear(),calendarCursor.getMonth()-1,1); renderCalendarTab(); });
+    qs("tsNextMonth").addEventListener("click",()=>{ calendarCursor = new Date(calendarCursor.getFullYear(),calendarCursor.getMonth()+1,1); renderCalendarTab(); });
+    qs("tsThisMonth").addEventListener("click",()=>{ calendarCursor = new Date(); renderCalendarTab(); });
+  }
+
+  function renderCalendarDay(d,start,end){
+    const dateStr = localDateString(d);
+    const sessions = sessionsForDate(dateStr);
+    const mins = sessions.reduce((sum,s)=>sum+sessionMinutes(s),0);
+    const made = createdCampaignsForDate(dateStr);
+    const isOut = d<start || d>end;
+    const today = dateStr===localDateString();
+    const linkedNames = [...new Set(sessions.flatMap(s=>campaignsForSession(s.id)).map(campaignName))];
+
+    return `
+      <div class="calendar-day ${isOut ? "out" : ""} ${today ? "today" : ""}">
+        <div class="calendar-date">
+          <span>${d.getDate()}</span>
+          ${sessions.length ? `<span>${sessions.length} log${sessions.length>1?"s":""}</span>` : ""}
+        </div>
+        ${mins ? `<div class="calendar-hours">${safeEsc(decimalHours(mins))}h</div>` : `<div class="small">No hours</div>`}
+        ${made.length ? `<div class="calendar-made">${made.length} campaign${made.length>1?"s":""} made</div>` : ""}
+        <div class="calendar-mini">
+          ${linkedNames.slice(0,3).map(n=>`<span>${safeEsc(n)}</span>`).join("")}
+          ${made.slice(0,2).map(c=>`<span>Made: ${safeEsc(campaignName(c.id))}</span>`).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderInvoiceTab(){
+    const invoiceText = buildInvoiceText();
+    qs("timesheetTabBody").innerHTML = `
+      <div class="grid-2">
+        <section class="panel stack">
+          <div class="between">
+            <h3>Weekly Invoice Preview</h3>
+            <button class="btn" id="tsCopyInvoice">Copy Invoice</button>
+          </div>
+          <textarea id="tsInvoicePreview" class="invoice-preview">${safeEsc(invoiceText)}</textarea>
+        </section>
+
+        <section class="panel">
+          <h3>Included Entries</h3>
+          <div class="timesheet-list">
+            ${getWeekSessions().filter(s=>s.invoiceable!==false).length ? getWeekSessions().filter(s=>s.invoiceable!==false).map(renderTimeEntry).join("") : `<div class="empty">No invoiceable entries this week.</div>`}
+          </div>
+        </section>
+      </div>
+    `;
+    qs("tsCopyInvoice").addEventListener("click",copyInvoice);
+    document.querySelectorAll("[data-edit-session]").forEach(btn=>btn.addEventListener("click",()=>{ editingSessionId=btn.dataset.editSession; timesheetTab="entries"; renderTimesheet(); }));
+  }
+
+  function buildInvoiceText(){
+    const ws = weekStartFrom(qs("tsWeekStart")?.value || localDateString());
+    const we = addDays(ws,6);
+    const rate = Number(qs("tsHourlyRate")?.value || localStorage.getItem("jdw_hourly_rate") || 0);
+    const week = getWeekSessions().filter(s=>s.invoiceable!==false);
+    const totalMins = week.reduce((sum,s)=>sum+sessionMinutes(s),0);
+    const totalHours = totalMins/60;
+    const total = rate ? totalHours*rate : 0;
+
+    const byDay = Array.from({length:7},(_,i)=>{
+      const d=addDays(ws,i);
+      const ds=localDateString(d);
+      const mins=sessionsForDate(ds).filter(s=>s.invoiceable!==false).reduce((sum,s)=>sum+sessionMinutes(s),0);
+      return `${d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"short"})}: ${decimalHours(mins)}h`;
+    }).join("\n");
+
+    const linkedCampaignIds = [...new Set(week.flatMap(s=>campaignsForSession(s.id)))];
+    const createdThisWeek = (typeof campaigns !== "undefined" ? campaigns : []).filter(c=>{
+      const d = new Date(c.created_at || c.updated_at || Date.now());
+      return d>=ws && d<addDays(we,1);
+    });
+
+    const campaignLines = [
+      ...linkedCampaignIds.map(id=>`- Worked on: ${campaignName(id)}`),
+      ...createdThisWeek.filter(c=>!linkedCampaignIds.includes(c.id)).map(c=>`- Created: ${campaignName(c.id)}`)
+    ];
+
+    const notes = week.map(s=>s.notes).filter(Boolean);
+    return `Invoice summary for James
+
+Week: ${ws.toLocaleDateString("en-GB")} – ${we.toLocaleDateString("en-GB")}
+
+Hours
+${byDay}
+
+Total hours: ${decimalHours(totalMins)}h
+Hourly rate: ${rate ? "£"+rate.toFixed(2) : "£____"}
+Total: ${rate ? "£"+total.toFixed(2) : "£____"}
+
+Campaigns / work log
+${campaignLines.length ? campaignLines.join("\n") : "- No linked campaigns this week"}
+
+Notes
+${notes.length ? [...new Set(notes)].map(n=>"- "+n).join("\n") : "- Campaign build, QA, naming, reporting and admin."}`;
+  }
+
+  function copyInvoice(){
+    const text = buildInvoiceText();
+    navigator.clipboard.writeText(text).then(()=>notify("Invoice copied."));
+  }
+
+  function createdCampaignsThisWeek(){
+    const ws = weekStartFrom(qs("tsWeekStart")?.value || localDateString());
+    const we = addDays(ws,7);
+    return (typeof campaigns !== "undefined" ? campaigns : []).filter(c=>{
+      const d = new Date(c.created_at || c.updated_at || Date.now());
+      return d>=ws && d<we;
+    }).length;
+  }
+
+  function formatReadableDate(dateStr){
+    return new Date(dateStr+"T00:00:00").toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
+  }
+
+  // Make sure the Hours button works even if the original event wiring ran before this script was added.
+  document.addEventListener("click",function(e){
+    if(e.target && e.target.id==="timesheetBtn"){
+      e.preventDefault();
+      window.openTimesheetModal();
+    }
+  });
+})();
+</script>
+
 
 </body>
 </html>
